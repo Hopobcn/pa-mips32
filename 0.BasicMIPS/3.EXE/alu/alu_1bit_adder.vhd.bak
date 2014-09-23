@@ -1,0 +1,60 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+-- ALU implementation from Patterson/Hennesy 5th ed. Appendix B. p B-27 to B-37.
+
+entity alu_1bit_unit is
+	port(	-- buses
+			a			:	in std_logic;
+			b			:	in std_logic;
+			less		:	in	std_logic;
+			carryIn	:	in	std_logic;
+			res		:	out std_logic;
+			carryOut	:	out std_logic;
+			-- control signals
+			Ainvert	: 	in std_logic;
+			Binvert	:	in	std_logic;
+			Operation:	in	std_logic_vector(1 downto 0));
+end alu_1bit_unit;
+
+architecture Structure of alu_1bit_unit is
+	
+	component alu_1bit_adder is
+	port(	a			:	in std_logic;
+			b			:	in std_logic;
+			carryIn	:	in	std_logic;
+			res		:	out std_logic;
+			carryOut	:	out std_logic);
+	end component;
+	
+	signal a_tmp	:	std_logic;
+	signal b_tmp	:	std_logic;
+	signal and_res	:	std_logic;
+	signal or_res	:	std_logic;
+	signal add_res	:	std_logic;
+	
+begin
+
+	a_tmp <= a	when Ainvert = '0' else
+				!a;
+				
+	b_tmp <= b when Binvert = '0' else
+				!b;
+	
+	-- OPERATIONS
+	and_res	<= a_tmp & b_tmp;
+
+	or_res	<= a_tmp | b_tmp;
+	
+	
+	res	<= (x & y) when ALUOp = "0000" else -- AND
+				(x | y)	when ALUOp = "0001" else -- OR
+				x + y when ALUOp = "0010" else -- ADD
+				x - y when ALUOp = "0110" else -- SUB
+			  (x > y)when ALUOp = "0111" else -- SetOnLessThan  	--acabar d'implementar be
+			 !(x + y)when ALUOp = "1100";								--acabar d'implementar be
+		  
+	carryOut	<=	(b*carryIn) + (a*carryIn) + (a*b);
+	
+end Structure;

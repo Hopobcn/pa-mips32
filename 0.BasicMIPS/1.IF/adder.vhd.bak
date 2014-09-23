@@ -1,0 +1,13 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity adder is
+	port (pc		: 	in	std_logic_vector(31 downto 0);
+			four	:	in	std_logic_vector(2 downto 0);
+			pc_up	:	out std_logic_vector(31 downto 0));
+end adder;
+
+architecture Structure of adder is
+
+	pc_up <= pc + four; --be, no s'escriu aixi :-) modificar mes endavant
+end Structure;
