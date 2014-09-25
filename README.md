@@ -20,6 +20,7 @@ We are going to try to implement this features:
 * 2.AdvancedMIPS: Extend our 5 stage pipeline to support cache hierachy plus a realistic store pipeline and support for virtual memory.
 
 --------------------------------Until here is the target for the project if we are going ahead of schedule we will implement this other features:
+
 * 3.MulticycleMIPS: Implement new instructions for adding floating point capabilities to our processor. A new register file and LD/ST for FP + fix broken things.
 * 4.PredictorMIPS: Implement a complete Branch predictor...
 * 5.OutoforderMIPS: 
