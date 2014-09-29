@@ -300,7 +300,7 @@ GND                          : J3        : gnd    :                   :         
 VCCE_GXBL                    : J4        : power  :                   : 1.1V    :           :                
 GND                          : J5        : gnd    :                   :         :           :                
 MSEL1                        : J6        :        :                   :         : 9A        :                
-RESERVED_INPUT_WITH_WEAK_PULLUP : J7        :        :                   :         : 8A        :                
+clk                          : J7        : input  : 2.5 V             :         : 8A        : Y              
 RESERVED_INPUT_WITH_WEAK_PULLUP : J8        :        :                   :         : 8A        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : J9        :        :                   :         : 8A        :                
 VCC                          : J10       : power  :                   : 1.1V    :           :                
@@ -422,7 +422,7 @@ VCC                          : P15       : power  :                   : 1.1V    
 RESERVED_INPUT_WITH_WEAK_PULLUP : P16       :        :                   :         : 5A        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : P17       :        :                   :         : 5A        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : P18       :        :                   :         : 5A        :                
-RESERVED_INPUT_WITH_WEAK_PULLUP : P19       :        :                   :         : 5A        :                
+boot                         : P19       : input  : 2.5 V             :         : 5A        : N              
 VCCIO5A                      : P20       : power  :                   : 2.5V    : 5A        :                
 VCCPD5A                      : P21       : power  :                   : 2.5V    : 5A        :                
 RESERVED_INPUT_WITH_WEAK_PULLUP : P22       :        :                   :         : 5A        :                

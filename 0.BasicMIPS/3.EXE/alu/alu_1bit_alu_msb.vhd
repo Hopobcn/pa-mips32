@@ -43,6 +43,8 @@ architecture Structure of alu_1bit_alu_msb is
 	signal and_res	:	std_logic;
 	signal or_res	:	std_logic;
 	signal add_res	:	std_logic;
+	signal xor_res : std_logic;
+	signal less_or_xor : std_logic;
 	
 	signal carryOut: 	std_logic;
 	signal overflow_tmp	: std_logic;
@@ -67,11 +69,15 @@ begin
 				res		=>	add_res,
 				carryOut	=>	carryOut);
 				
+	xor_res	<= a_tmp xor b_tmp;
+			
+	less_or_xor <= xor_res when Ainvert = '1' and Binvert = '1' else
+	               less;
 				
 	res	<= and_res	when Operation = "00" else
 				or_res	when Operation = "01" else
 				add_res	when Operation = "10" else
-				less		when Operation = "11";
+				less_or_xor		when Operation = "11";
 				
 	set 	<= add_res xor overflow_tmp; -- LT for ca2 must consider signs
 	

@@ -33,6 +33,8 @@ architecture Structure of alu_1bit_alu is
 	signal and_res	:	std_logic;
 	signal or_res	:	std_logic;
 	signal add_res	:	std_logic;
+	signal xor_res : std_logic;
+	signal less_or_xor : std_logic;
 	
 begin
 
@@ -54,19 +56,15 @@ begin
 				res		=>	add_res,
 				carryOut	=>	carryOut);
 				
-				
+	xor_res	<= (not(a_tmp) and b_tmp) or (a_tmp and not(b_tmp));
+			
+	less_or_xor <= xor_res when Ainvert = '1' and Binvert = '1' else
+	               less;
+	               	
 	res	<= and_res	when Operation = "00" else
 				or_res	when Operation = "01" else
 				add_res	when Operation = "10" else
-				less		when Operation = "11";
-				
-	--res	<= (x & y) when ALUOp = "0000" else -- AND
-	--			(x | y)	when ALUOp = "0001" else -- OR
-	--			x + y when ALUOp = "0010" else -- ADD
-	--			x - y when ALUOp = "0110" else -- SUB
-	--		  (x > y)when ALUOp = "0111" else -- SetOnLessThan  	--acabar d'implementar be
-	--		 !(x + y)when ALUOp = "1100";								--acabar d'implementar be
-		  
+				less_or_xor		when Operation = "11";
 	
 end Structure;
 

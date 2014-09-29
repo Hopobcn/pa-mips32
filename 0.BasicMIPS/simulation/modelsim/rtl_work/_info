@@ -1,0 +1,774 @@
+m255
+K3
+13
+cModel Technology
+Z0 dC:\Users\Pau\Documents\My Dropbox\Universitat\FIB\Master MIRI - HPC\PA\Laboratori\PA MIPS32\0.BasicMIPS\simulation\modelsim
+Eadder_branch
+Z1 w1411335691
+Z2 DPx3 std 6 textio 0 22 5>J:;AW>W0[[dW0I6EN1Q0
+Z3 DPx4 ieee 14 std_logic_1164 0 22 5=aWaoGZSMWIcH0i^f`XF1
+Z4 dC:\Users\Pau\Documents\My Dropbox\Universitat\FIB\Master MIRI - HPC\PA\Laboratori\PA MIPS32\0.BasicMIPS\simulation\modelsim
+Z5 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/adder_branch.vhd
+Z6 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/adder_branch.vhd
+l0
+L4
+V84I^Q_3_aYm[AhjO6JmGZ0
+Z7 OV;C;10.1e;51
+31
+Z8 !s108 1411572348.100000
+Z9 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/adder_branch.vhd|
+Z10 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/adder_branch.vhd|
+Z11 o-93 -work work -O0
+Z12 tExplicit 1
+!s100 7h?B93?AJz4:KQ76H=jji2
+!i10b 1
+Astructure
+R2
+R3
+DEx4 work 12 adder_branch 0 22 84I^Q_3_aYm[AhjO6JmGZ0
+l56
+L12
+ViI<QG4<Wdz0KRSXhNIQ;H0
+R7
+31
+R8
+R9
+R10
+R11
+R12
+!s100 iRTc8WXBA^=<Hc0[EkK;]3
+!i10b 1
+Eadder_branch_1bit_adder
+Z13 w1411335202
+Z14 DPx4 ieee 11 numeric_std 0 22 O3PF8EB`?j9=z7KT`fn941
+R2
+R3
+R4
+Z15 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/adder_branch/adder_branch_1bit_adder.vhd
+Z16 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/adder_branch/adder_branch_1bit_adder.vhd
+l0
+L7
+V4jFWi7?iLbRV83L`9GkRB2
+R7
+31
+Z17 !s108 1411572347.614000
+Z18 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/adder_branch/adder_branch_1bit_adder.vhd|
+Z19 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/adder_branch/adder_branch_1bit_adder.vhd|
+R11
+R12
+!s100 B5W<1^V1z8:7PLZLbzP8@0
+!i10b 1
+Astructure
+R14
+R2
+R3
+DEx4 work 23 adder_branch_1bit_adder 0 22 4jFWi7?iLbRV83L`9GkRB2
+l19
+L16
+Vz_DS6E[Vme]SdMjOXTnzG0
+R7
+31
+R17
+R18
+R19
+R11
+R12
+!s100 QQYj>MdTA2Uz;fLRJ:iWQ3
+!i10b 1
+Ealu
+Z20 w1411394574
+R14
+R2
+R3
+R4
+Z21 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu.vhd
+Z22 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu.vhd
+l0
+L7
+V^:^PZ8BUL:kEh`4_I;3lW1
+R7
+31
+Z23 !s108 1411572348.352000
+Z24 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu.vhd|
+Z25 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu.vhd|
+R11
+R12
+!s100 6ODOHd41g[P7OBk^JQjXK1
+!i10b 1
+Astructure
+R14
+R2
+R3
+DEx4 work 3 alu 0 22 ^:^PZ8BUL:kEh`4_I;3lW1
+l84
+L19
+V<H6JQII95Ti1OXgBFiJ[^2
+R7
+31
+R23
+R24
+R25
+R11
+R12
+!s100 nO2<azX;Dl^Teg3><3jQb2
+!i10b 1
+Ealu_1bit_adder
+Z26 w1411326729
+R14
+R2
+R3
+R4
+Z27 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_adder.vhd
+Z28 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_adder.vhd
+l0
+L7
+V[J:0M49Lh>oRNeEJg[aD`1
+R7
+31
+Z29 !s108 1411572348.018000
+Z30 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_adder.vhd|
+Z31 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_adder.vhd|
+R11
+R12
+!s100 Z4k8h;C?Hf4KSIVEKYie12
+!i10b 1
+Astructure
+R14
+R2
+R3
+DEx4 work 14 alu_1bit_adder 0 22 [J:0M49Lh>oRNeEJg[aD`1
+l19
+L16
+V9`f0XHz=k:KemzXLXGJJB1
+R7
+31
+R29
+R30
+R31
+R11
+R12
+!s100 HmWCBTTY?gAoBCiZn;El>0
+!i10b 1
+Ealu_1bit_alu
+Z32 w1411327459
+R14
+R2
+R3
+R4
+Z33 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu.vhd
+Z34 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu.vhd
+l0
+L7
+VKART<lDlKhjPmKhIhUi_F0
+R7
+31
+Z35 !s108 1411572347.908000
+Z36 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu.vhd|
+Z37 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu.vhd|
+R11
+R12
+!s100 Ql=lMgC?llO^j``ij^z:Z3
+!i10b 1
+Astructure
+R14
+R2
+R3
+DEx4 work 12 alu_1bit_alu 0 22 KART<lDlKhjPmKhIhUi_F0
+l37
+L21
+VT52W1jEWiE85>KhVD[HIB3
+R7
+31
+R35
+R36
+R37
+R11
+R12
+!s100 DaS5e6zD1?mWdnIkFUjH`0
+!i10b 1
+Ealu_1bit_alu_msb
+Z38 w1411331906
+R14
+R2
+R3
+R4
+Z39 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu_msb.vhd
+Z40 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu_msb.vhd
+l0
+L7
+Vdc`?6YXzUFHNUG@Cf@L@62
+R7
+31
+Z41 !s108 1411572347.801000
+Z42 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu_msb.vhd|
+Z43 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu_msb.vhd|
+R11
+R12
+!s100 cFK4g]T8N1l3KdcKYY_BT0
+!i10b 1
+Astructure
+R14
+R2
+R3
+DEx4 work 16 alu_1bit_alu_msb 0 22 dc`?6YXzUFHNUG@Cf@L@62
+l50
+L22
+V;09O7Sa47:HWT8AfjMNL_2
+R7
+31
+R41
+R42
+R43
+R11
+R12
+!s100 IZ`T?6laLg3OWYXn7Ona:2
+!i10b 1
+Ealu_1bit_overflow_detection
+Z44 w1411331514
+R14
+R2
+R3
+R4
+Z45 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_overflow_detection.vhd
+Z46 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_overflow_detection.vhd
+l0
+L7
+V[7?7I[7C=Mnz?e31610K42
+R7
+31
+Z47 !s108 1411572347.704000
+Z48 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_overflow_detection.vhd|
+Z49 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_overflow_detection.vhd|
+R11
+R12
+!s100 QH_7h;ce0B;7YTIO`j`U00
+!i10b 1
+Astructure
+R14
+R2
+R3
+DEx4 work 27 alu_1bit_overflow_detection 0 22 [7?7I[7C=Mnz?e31610K42
+l20
+L17
+VH@i@5EEOgI@Q?P^<Pjoh=2
+R7
+31
+R47
+R48
+R49
+R11
+R12
+!s100 Em3;_@Ul5EN00B]iDg5:N0
+!i10b 1
+Ealu_control
+Z50 w1411335717
+R2
+R3
+R4
+Z51 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu_control.vhd
+Z52 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu_control.vhd
+l0
+L4
+VY9jL4FbJ0fH^A;???>k682
+R7
+31
+Z53 !s108 1411572348.198000
+Z54 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu_control.vhd|
+Z55 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu_control.vhd|
+R11
+R12
+!s100 ZC>M8Ld3MAimS<Jz0EhWD3
+!i10b 1
+Astructure
+R2
+R3
+DEx4 work 11 alu_control 0 22 Y9jL4FbJ0fH^A;???>k682
+l16
+L14
+V=7NNJ^V5]OHC;:@UCULK>1
+R7
+31
+R53
+R54
+R55
+R11
+R12
+!s100 ;d`_B:>cTCMH^>Ob_Z71G3
+!i10b 1
+Ebasicmips32
+Z56 w1411489296
+R2
+R3
+R4
+Z57 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/BasicMIPS32.vhd
+Z58 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/BasicMIPS32.vhd
+l0
+L4
+V8VoOEmaX;lQ60XBObfA>E3
+R7
+31
+Z59 !s108 1411572348.854000
+Z60 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/BasicMIPS32.vhd|
+Z61 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/BasicMIPS32.vhd|
+R11
+R12
+!s100 EFBUMinT=]k0TW_5E>no31
+!i10b 1
+Astructure
+R2
+R3
+DEx4 work 11 basicmips32 0 22 8VoOEmaX;lQ60XBObfA>E3
+l187
+L10
+V[?HnV[aBKQRZA0?l]oHEV2
+R7
+31
+R59
+R60
+R61
+R11
+R12
+!s100 AGcaV64?22Aa5?jhj9_U:0
+!i10b 1
+Econtrol_inst_decode
+Z62 w1411336061
+R2
+R3
+R4
+Z63 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/control_inst_decode.vhd
+Z64 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/control_inst_decode.vhd
+l0
+L4
+VzUlATCEk1AlX=9<8ae?^L0
+R7
+31
+Z65 !s108 1411572348.272000
+Z66 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/control_inst_decode.vhd|
+Z67 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/control_inst_decode.vhd|
+R11
+R12
+!s100 Dad3CA^S]35Vn_X1FGPWY0
+!i10b 1
+Astructure
+R2
+R3
+DEx4 work 19 control_inst_decode 0 22 zUlATCEk1AlX=9<8ae?^L0
+l22
+L20
+VJ^G>k`FoNhV[B7YDPCae_2
+R7
+31
+R65
+R66
+R67
+R11
+R12
+!s100 UjVD0jj4jW@Wc:JVF?hYU1
+!i10b 1
+Edata_mem
+Z68 w1411394202
+Z69 DPx4 ieee 15 std_logic_arith 0 22 4`Y?g_lkdn;7UL9IiJck01
+Z70 DPx4 ieee 18 std_logic_unsigned 0 22 RYmj;=TK`k=k>D@Cz`zoB3
+R2
+R3
+R4
+Z71 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/4.MEM/data_mem.vhd
+Z72 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/4.MEM/data_mem.vhd
+l0
+L5
+Vak;Bdf8HPg5Nh;8LgzV`A1
+R7
+31
+Z73 !s108 1411572346.116000
+Z74 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/4.MEM/data_mem.vhd|
+Z75 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/4.MEM/data_mem.vhd|
+R11
+R12
+!s100 jKhh4[GU;]b^0DHXJL`VF2
+!i10b 1
+Astructure
+R69
+R70
+R2
+R3
+DEx4 work 8 data_mem 0 22 ak;Bdf8HPg5Nh;8LgzV`A1
+l20
+L17
+V:>K]kjLhkQ<THRb0^V03c0
+R7
+31
+R73
+R74
+R75
+R11
+R12
+!s100 X@jmG_dUIiG:Doe;D]2`Y1
+!i10b 1
+Eexecute
+Z76 w1411552167
+R2
+R3
+R4
+Z77 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/EXE.vhd
+Z78 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/EXE.vhd
+l0
+L4
+V4L<Q43kgkJSTbLmVfn>Rf1
+R7
+31
+Z79 !s108 1411572349.108000
+Z80 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/EXE.vhd|
+Z81 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/EXE.vhd|
+R11
+R12
+!s100 4HJXjimi5O=<Njoko9^Mn2
+!i10b 1
+Astructure
+R2
+R3
+DEx4 work 7 execute 0 22 4L<Q43kgkJSTbLmVfn>Rf1
+l73
+L38
+VdV`<6fLNz3UYdZPa<K5cT3
+R7
+31
+R79
+R80
+R81
+R11
+R12
+!s100 N>zSiO`TNHzOWHFANH@Tn1
+!i10b 1
+Einst_mem
+Z82 w1411572265
+Z83 DPx4 ieee 16 std_logic_textio 0 22 ?Il0a149GV276[?[UMDWh2
+R69
+R70
+R2
+R3
+R4
+Z84 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/inst_mem.vhd
+Z85 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/inst_mem.vhd
+l0
+L9
+Vf0NVY@m6HCOdUUcY]Ff9g2
+R7
+31
+Z86 !s108 1411572348.775000
+Z87 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/inst_mem.vhd|
+Z88 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/inst_mem.vhd|
+R11
+R12
+!s100 WaOlafM[b2FzQG2N;]YjI3
+!i10b 1
+Astructure
+R83
+R69
+R70
+R2
+R3
+DEx4 work 8 inst_mem 0 22 f0NVY@m6HCOdUUcY]Ff9g2
+l37
+L17
+VdnDePhhD_RJ@nHCgh;EZK0
+R7
+31
+R86
+R87
+R88
+R11
+R12
+!s100 ]@Tm84PQhOBg:E>M3=fPZ2
+!i10b 1
+Einstruction_decode
+Z89 w1411384798
+R2
+R3
+R4
+Z90 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/ID.vhd
+Z91 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/ID.vhd
+l0
+L4
+VeCK4?5`39dMTgme_lQT2I0
+R7
+31
+Z92 !s108 1411572349.027000
+Z93 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/ID.vhd|
+Z94 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/ID.vhd|
+R11
+R12
+!s100 U6=M6=z]RP>c=UDcL_c7@3
+!i10b 1
+Astructure
+R2
+R3
+DEx4 work 18 instruction_decode 0 22 eCK4?5`39dMTgme_lQT2I0
+l64
+L33
+VT`5NS=lThe>W1ScEC>mAI3
+R7
+31
+R92
+R93
+R94
+R11
+R12
+!s100 Z@h^LfePhG2jb7d7OM?zj2
+!i10b 1
+Einstruction_fetch
+Z95 w1411487047
+R69
+R70
+R2
+R3
+R4
+Z96 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/IF.vhd
+Z97 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/IF.vhd
+l0
+L5
+VV;DKfVl=A3IcXKnUe^AH60
+R7
+31
+Z98 !s108 1411572348.938000
+Z99 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/IF.vhd|
+Z100 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/IF.vhd|
+R11
+R12
+!s100 R4?47^I>S=K>z^6OBB`Ez0
+!i10b 1
+Astructure
+R69
+R70
+R2
+R3
+DEx4 work 17 instruction_fetch 0 22 V;DKfVl=A3IcXKnUe^AH60
+l51
+L19
+VSIX2<Y73DLZcdZelbd<_:1
+R7
+31
+R98
+R99
+R100
+R11
+R12
+!s100 <_Xodk7o4B_3ifAGUB`Ah1
+!i10b 1
+Emem
+Z101 w1411393971
+R2
+R3
+R4
+Z102 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/MEM.vhd
+Z103 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/MEM.vhd
+l0
+L4
+V8<h^c>7CXb[6h8W^d1VFM3
+R7
+31
+Z104 !s108 1411572349.187000
+Z105 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/MEM.vhd|
+Z106 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/MEM.vhd|
+R11
+R12
+!s100 fG^b2?eJzfF]T?DSOVNkW1
+!i10b 1
+Astructure
+R2
+R3
+DEx4 work 3 mem 0 22 8<h^c>7CXb[6h8W^d1VFM3
+l43
+L32
+V_o2NdLR2BVH4gRmQm3?7Z3
+R7
+31
+R104
+R105
+R106
+R11
+R12
+!s100 YIdbS<4HcEdF_7eoACTDA0
+!i10b 1
+Emux
+Z107 w1411123066
+R2
+R3
+R4
+Z108 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/mux.vhd
+Z109 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/mux.vhd
+l0
+L4
+VIbgo:2oTizIO@8@6aC9YC0
+R7
+31
+Z110 !s108 1411572348.702000
+Z111 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/mux.vhd|
+Z112 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/mux.vhd|
+R11
+R12
+!s100 d9n9zzVAVN;Y:[A@`acc:2
+!i10b 1
+Astructure
+R2
+R3
+DEx4 work 3 mux 0 22 Ibgo:2oTizIO@8@6aC9YC0
+l13
+L11
+VD`KK7WcR6^kC]MS=kdS`@1
+R7
+31
+R110
+R111
+R112
+R11
+R12
+!s100 o2]FK7S?@DZklIbaU[C0e2
+!i10b 1
+Ereg_pc
+Z113 w1411486889
+R2
+R3
+R4
+Z114 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/reg_pc.vhd
+Z115 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/reg_pc.vhd
+l0
+L4
+VF0__o=RICDM`DA5VGolY61
+R7
+31
+Z116 !s108 1411572348.619000
+Z117 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/reg_pc.vhd|
+Z118 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/reg_pc.vhd|
+R11
+R12
+!s100 @Pg<k<X[38GWBAjmdFC0k0
+!i10b 1
+Astructure
+R2
+R3
+DEx4 work 6 reg_pc 0 22 F0__o=RICDM`DA5VGolY61
+l12
+L10
+V:Hn8m^U@ZalbUlGjgY[2Q1
+R7
+31
+R116
+R117
+R118
+R11
+R12
+!s100 GlE6dh=2noODOYze9XQbY0
+!i10b 1
+Eregfile
+Z119 w1411123956
+R69
+R70
+R2
+R3
+R4
+Z120 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/regfile.vhd
+Z121 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/regfile.vhd
+l0
+L5
+VN?Lzlo68>Y``QNDnZiiII2
+R7
+31
+Z122 !s108 1411572348.533000
+Z123 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/regfile.vhd|
+Z124 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/regfile.vhd|
+R11
+R12
+!s100 hEbIe:RW@2jV:cdh;k39c2
+!i10b 1
+Astructure
+R69
+R70
+R2
+R3
+DEx4 work 7 regfile 0 22 N?Lzlo68>Y``QNDnZiiII2
+l19
+L16
+VZ8S3chA`8M6ik:T;Z7g>R1
+R7
+31
+R122
+R123
+R124
+R11
+R12
+!s100 TQhJ>SdS`l`2R8PX1T:mA3
+!i10b 1
+Eseu
+Z125 w1411027477
+R69
+R70
+R2
+R3
+R4
+Z126 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/seu.vhd
+Z127 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/seu.vhd
+l0
+L5
+VOVGd6M[];W^NQJl[FnnAM1
+R7
+31
+Z128 !s108 1411572348.455000
+Z129 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/seu.vhd|
+Z130 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/seu.vhd|
+R11
+R12
+!s100 bTTn]f?M?S8Zn;W>lVN]e0
+!i10b 1
+Astructure
+R69
+R70
+R2
+R3
+DEx4 work 3 seu 0 22 OVGd6M[];W^NQJl[FnnAM1
+l11
+L10
+VMkDlf8l?a:d>?A`F@5O=O0
+R7
+31
+R128
+R129
+R130
+R11
+R12
+!s100 z95e9EWg9Do[V>GR]01;z3
+!i10b 1
+Ewrite_back
+Z131 w1411382198
+R2
+R3
+R4
+Z132 8C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/WB.vhd
+Z133 FC:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/WB.vhd
+l0
+L4
+Vb`4CUiY:93ajdX<E`UFGe3
+!s100 451gj8PR;:5ZHfQBPai<[3
+R7
+31
+!i10b 1
+Z134 !s108 1411572349.260000
+Z135 !s90 -reportprogress|300|-93|-work|work|C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/WB.vhd|
+Z136 !s107 C:/Users/Pau/Documents/My Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/WB.vhd|
+R11
+R12
+Astructure
+R2
+R3
+DEx4 work 10 write_back 0 22 b`4CUiY:93ajdX<E`UFGe3
+l27
+L18
+VFf<Jj>eCK=C96R5jX8G6<0
+!s100 >7kX>b_fdoGKL_J<ZnoST0
+R7
+31
+!i10b 1
+R134
+R135
+R136
+R11
+R12

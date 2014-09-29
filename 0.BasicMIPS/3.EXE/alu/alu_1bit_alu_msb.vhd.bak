@@ -4,21 +4,22 @@ use ieee.numeric_std.all;
 
 -- ALU implementation from Patterson/Hennesy 5th ed. Appendix B. p B-27 to B-37.
 
-entity alu_1bit_alu is
+entity alu_1bit_alu_msb is
 	port(	-- buses
 			a			:	in std_logic;
 			b			:	in std_logic;
 			less		:	in	std_logic;
 			carryIn	:	in	std_logic;
 			res		:	out std_logic;
-			carryOut	:	out std_logic;
+			set 		: 	out std_logic;
+			overflow : 	out std_logic;
 			-- control signals
 			Ainvert	: 	in std_logic;
 			Binvert	:	in	std_logic;
 			Operation:	in	std_logic_vector(1 downto 0));
-end alu_1bit_alu;
+end alu_1bit_alu_msb;
 
-architecture Structure of alu_1bit_alu is
+architecture Structure of alu_1bit_alu_msb is
 	
 	component alu_1bit_adder is
 	port(	a			:	in std_logic;
@@ -28,11 +29,25 @@ architecture Structure of alu_1bit_alu is
 			carryOut	:	out std_logic);
 	end component;
 	
+	component alu_1bit_overflow_detection is
+	port(	a			:	in std_logic;
+			b			:	in std_logic;
+			carryOut	:	in	std_logic;
+			res		:	in std_logic;
+			overflow	:	out std_logic;
+			Binvert	:	in	std_logic);
+	end component;
+			
 	signal a_tmp	:	std_logic;
 	signal b_tmp	:	std_logic;
 	signal and_res	:	std_logic;
 	signal or_res	:	std_logic;
 	signal add_res	:	std_logic;
+	signal xor_res : std_logic;
+	signal less_or_xor : std_logic;
+	
+	signal carryOut: 	std_logic;
+	signal overflow_tmp	: std_logic;
 	
 begin
 
@@ -54,22 +69,30 @@ begin
 				res		=>	add_res,
 				carryOut	=>	carryOut);
 				
+	xor_res	<= (not(a_tmp) and b_tmp) or (a_tmp and not(b_tmp));
+			
+	less_or_xor <= xor_res when Ainvert = '1' and Binvert = '1' else
+	               less;
 				
 	res	<= and_res	when Operation = "00" else
 				or_res	when Operation = "01" else
 				add_res	when Operation = "10" else
-				less		when Operation = "11";
+				less_or_xor		when Operation = "11";
 				
-	--res	<= (x & y) when ALUOp = "0000" else -- AND
-	--			(x | y)	when ALUOp = "0001" else -- OR
-	--			x + y when ALUOp = "0010" else -- ADD
-	--			x - y when ALUOp = "0110" else -- SUB
-	--		  (x > y)when ALUOp = "0111" else -- SetOnLessThan  	--acabar d'implementar be
-	--		 !(x + y)when ALUOp = "1100";								--acabar d'implementar be
-		  
+	set 	<= add_res xor overflow_tmp; -- LT for ca2 must consider signs
+	
+	--overflow detection here
+	Overflow_detector : alu_1bit_overflow_detection 
+	port map(a			=> a_tmp,
+				b			=>	b_tmp,
+				carryOut	=>	carryOut,
+				res 		=> add_res,
+				overflow => overflow_tmp,
+				Binvert 	=> Binvert);	
+				
+	overflow <= overflow_tmp;
 	
 end Structure;
-
 
 
 

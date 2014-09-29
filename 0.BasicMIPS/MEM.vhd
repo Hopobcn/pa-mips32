@@ -50,7 +50,7 @@ begin
 	RegWrite_out	<= RegWrite_in;
 	Jump_out			<= Jump_in;
 	MemtoReg_out	<=	MemtoReg_in;
-	PCSrc				<= Branch and Zero; --AND of 2 bits
+	PCSrc				<= Branch and Zero; 
 	
 	data_memory	: data_mem
 	port map(addr			=> addr,

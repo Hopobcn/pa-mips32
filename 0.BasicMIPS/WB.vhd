@@ -17,23 +17,13 @@ end write_back;
 
 architecture Structure of write_back is
 	
-	component mux is
-	port (a	:	in	std_logic_vector(31 downto 0);
-			b	:	in std_logic_vector(31 downto 0);
-			c	:	out std_logic_vector(31 downto 0);
-			s	:	in	std_logic);
-	end component;
-	
 begin
 	addr_regw_out 	<=	addr_regw_in;
 	
 	RegWrite_out	<= Regwrite_in;
 	
-	--caution! in all figures this mux is expressed (a=1,b=0) my mux is(a=0,b=1)swap->buses
-	reg2reg_or_mem2reg : mux 
-	port map(a	=> bypass_mem,
-				b	=> read_data,
-				c	=> write_data,
-				s	=> MemtoReg);
-				
+		
+	write_data <= bypass_mem when MemtoReg = '0' else
+	              read_data;
+		
 end Structure;

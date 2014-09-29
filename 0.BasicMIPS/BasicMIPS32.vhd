@@ -2,6 +2,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity BasicMIPS32 is
+	port(	clk	: in std_logic;
+			boot	: in std_logic);
+			
 end BasicMIPS32;
 
 architecture Structure of BasicMIPS32 is
@@ -25,10 +28,12 @@ architecture Structure of BasicMIPS32 is
 			addr_jump		:	out std_logic_vector(31 downto 0);	--to EXE,MEM,IF
 			pc_up_in			:	in	std_logic_vector(31 downto 0);	--from IF
 			pc_up_out		:	out std_logic_vector(31 downto 0);	--to EXE
+			opcode			:	out std_logic_vector(5 downto 0);	--to EXE
 			rs					:	out std_logic_vector(31 downto 0);	--to EXE
 			rt					:	out std_logic_vector(31 downto 0);	--to EXE
 			rd					:	in	std_logic_vector(31 downto 0);	--from WB			
 			sign_ext 		:	out std_logic_vector(31 downto 0);	--to EXE
+			zero_ext			:	out std_logic_vector(31 downto 0);	--to EXE
 			addr_rt			:	out std_logic_vector(4 downto 0);	--to EXE
 			addr_rd			:	out std_logic_vector(4 downto 0);	--to EXE
 			addr_regw		:	in	std_logic_vector(4 downto 0);		--from WB
@@ -41,7 +46,7 @@ architecture Structure of BasicMIPS32 is
 			MemWrite			:	out std_logic;								--to EXE,MEM
 			MemtoReg			:	out std_logic;								--to EXE,MEM,WB
 			RegDst			:	out std_logic;								--to EXE
-			ALUOp				:	out std_logic_vector(1 downto 0);	--to EXE
+			ALUOp				:	out std_logic_vector(2 downto 0);	--to EXE
 			ALUSrc			:	out std_logic;								--to EXE
 			RegWrite_in		:	in	std_logic);								--from WB		
 	end component;
@@ -49,9 +54,11 @@ architecture Structure of BasicMIPS32 is
 	component execute is
 	port (-- buses
 			pc_up				:	in	std_logic_vector(31 downto 0);	--from ID
+			opcode			:	in	std_logic_vector(5 downto 0);		--from ID
 			rs					:	in std_logic_vector(31 downto 0);	--from ID
 			rt					:	in std_logic_vector(31 downto 0);	--from ID
 			sign_ext 		:	in std_logic_vector(31 downto 0);	--from ID
+			zero_ext			:	in std_logic_vector(31 downto 0);	--from ID
 			addr_rt			:	in std_logic_vector(4 downto 0);		--from ID
 			addr_rd			:	in std_logic_vector(4 downto 0);		--from ID
 			addr_jump_in	:	in	std_logic_vector(31 downto 0);	--from ID
@@ -74,7 +81,7 @@ architecture Structure of BasicMIPS32 is
 			MemtoReg_in		:	in std_logic;								--from EXE
 			MemtoReg_out	:	out std_logic;								--to MEM,WB
 			RegDst			:	in std_logic;								--from ID
-			ALUOp				:	in std_logic_vector(1 downto 0);		--from ID
+			ALUOp				:	in std_logic_vector(2 downto 0);		--from ID
 			ALUSrc			:	in std_logic;								--from ID
 			Zero				:	out std_logic);							--to MEM
 	end component;
@@ -131,12 +138,14 @@ architecture Structure of BasicMIPS32 is
 	signal pc_up_2to3			:	std_logic_vector(31 downto 0);
 	
 	signal instruction_1to2	:	std_logic_vector(31 downto 0);
+	signal opcode_2to3		:	std_logic_vector(5 downto 0);
 	
 	signal register_s_2to3	:	std_logic_vector(31 downto 0);
 	signal register_t_2to3	:	std_logic_vector(31 downto 0);
 	signal register_d_5to2	:	std_logic_vector(31 downto 0);
 	
 	signal sign_ext_2to3		:	std_logic_vector(31 downto 0);
+	signal zero_ext_2to3		: 	std_logic_vector(31 downto 0);
 	
 	signal alu_res_3to4		:	std_logic_vector(31 downto 0);
 	
@@ -166,7 +175,7 @@ architecture Structure of BasicMIPS32 is
 	signal Branch_3to4		:	std_logic;
 	
 	signal RegDst_2to3		:	std_logic;
-	signal ALUOp_2to3			:	std_logic_vector(1 downto 0);
+	signal ALUOp_2to3			:	std_logic_vector(2 downto 0);
 	signal ALUSrc_2to3		:	std_logic;
 	
 	signal MemRead_2to3		:	std_logic;
@@ -181,8 +190,6 @@ architecture Structure of BasicMIPS32 is
 	
 	signal Zero_3to4			:	std_logic;
 	
-	signal clk					:	std_logic; --think if it's the best place to define the clock
-	signal boot					: 	std_logic;
 begin
 
 	first_stage	:	instruction_fetch
@@ -200,10 +207,12 @@ begin
 				addr_jump	=> addr_jump_2to3,
 				pc_up_in		=> pc_up_1to2,
 				pc_up_out	=> pc_up_2to3,
+				opcode		=> opcode_2to3,
 				rs				=> register_s_2to3,
 				rt				=> register_t_2to3,
 				rd				=> register_d_5to2,
 				sign_ext 	=> sign_ext_2to3,
+				zero_ext		=> zero_ext_2to3,
 				addr_rt		=> addr_rt_2to3,
 				addr_rd		=> addr_rd_2to3,
 				addr_regw	=> addr_regw_5to2,
@@ -221,9 +230,11 @@ begin
 	
 	third_stage	:	execute
 	port map(pc_up			=> pc_up_2to3,
+				opcode		=> opcode_2to3,
 				rs				=> register_s_2to3,
 				rt				=> register_t_2to3,
 				sign_ext 	=> sign_ext_2to3,
+				zero_ext		=> zero_ext_2to3,
 				addr_rt		=> addr_rt_2to3,
 				addr_rd		=> addr_rd_2to3,
 				addr_jump_in =>addr_jump_2to3,
@@ -284,7 +295,4 @@ begin
 				RegWrite_out	=> RegWrite_5to2,
 				MemtoReg			=>	MemtoReg_4to5);
 			
-	clk 	<= not clk after 10ns;
-	boot	<= '1' after 5 ns, '0' after 15 ns; 
-	-- should I boot first memory (that loads the instructions from a file) and then the rest of the processor?
 end Structure;

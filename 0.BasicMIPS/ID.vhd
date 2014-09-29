@@ -7,10 +7,12 @@ entity instruction_decode is
 			addr_jump		:	out std_logic_vector(31 downto 0);	--to EXE,MEM,IF
 			pc_up_in			:	in	std_logic_vector(31 downto 0);	--from IF
 			pc_up_out		:	out std_logic_vector(31 downto 0);	--to EXE
+			opcode			:	out std_logic_vector(5 downto 0);	--to EXE
 			rs					:	out std_logic_vector(31 downto 0);	--to EXE
 			rt					:	out std_logic_vector(31 downto 0);	--to EXE
 			rd					:	in	std_logic_vector(31 downto 0);	--from WB			
 			sign_ext 		:	out std_logic_vector(31 downto 0);	--to EXE
+			zero_ext			:	out std_logic_vector(31 downto 0);	--to EXE
 			addr_rt			:	out std_logic_vector(4 downto 0);	--to EXE
 			addr_rd			:	out std_logic_vector(4 downto 0);	--to EXE
 			addr_regw		:	in	std_logic_vector(4 downto 0);		--from WB
@@ -23,7 +25,7 @@ entity instruction_decode is
 			MemWrite			:	out std_logic;								--to EXE,MEM
 			MemtoReg			:	out std_logic;								--to EXE,MEM,WB
 			RegDst			:	out std_logic;								--to EXE
-			ALUOp				:	out std_logic_vector(1 downto 0);	--to EXE
+			ALUOp				:	out std_logic_vector(2 downto 0);	--to EXE
 			ALUSrc			:	out std_logic;								--to EXE
 			RegWrite_in		:	in	std_logic);								--from WB
 			
@@ -41,7 +43,7 @@ architecture Structure of instruction_decode is
 			MemWrite		:	out std_logic;	
 			MemtoReg		:	out std_logic;
 			RegDst		:	out std_logic;	
-			ALUOp			:	out std_logic_vector(1 downto 0);
+			ALUOp			:	out std_logic_vector(2 downto 0);
 			ALUSrc		:	out std_logic);	
 	end component;
 	
@@ -65,6 +67,7 @@ begin
 		--jump addres is PC+4[31-28]+Shift_left_2(Instruction[25-0])
 	addr_jump	<= pc_up_in(31 downto 28) & instruction(25 downto 0) & "00";
 	pc_up_out 	<= pc_up_in;
+	opcode		<= instruction(31 downto 26);
 	addr_rt 	 	<= instruction(20 downto 16);
 	addr_rd		<=	instruction(15 downto 11);
 	
@@ -75,7 +78,7 @@ begin
 				Jump			=> Jump,
 				Branch 		=> Branch,
 				MemRead		=> MemRead,
-				MemWrite		=> MemRead,
+				MemWrite		=> MemWrite,
 				MemtoReg		=> MemtoReg,
 				RegDst		=> RegDst,
 				ALUOp			=> ALUOp,
@@ -94,5 +97,7 @@ begin
 	sign_extend_unit	:	seu
 	port map(input		=> instruction(15 downto 0),
 				output 	=> sign_ext);
+	
+	zero_ext <= "0000000000000000" & instruction(15 downto 0);
 	
 end Structure;

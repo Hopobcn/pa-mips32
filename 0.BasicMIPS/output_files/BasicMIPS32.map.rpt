@@ -1,5 +1,5 @@
 Analysis & Synthesis report for BasicMIPS32
-Mon Sep 22 17:24:58 2014
+Mon Sep 29 11:39:55 2014
 Quartus II 64-Bit Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
 
 
@@ -10,75 +10,46 @@ Quartus II 64-Bit Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
   2. Analysis & Synthesis Summary
   3. Analysis & Synthesis Settings
   4. Parallel Compilation
-  5. Port Connectivity Checks: "execute:third_stage|adder_branch:branches_pc_relative|adder_branch_1bit_adder:ADDER31"
-  6. Port Connectivity Checks: "execute:third_stage|adder_branch:branches_pc_relative|adder_branch_1bit_adder:ADDER0"
-  7. Port Connectivity Checks: "execute:third_stage|adder_branch:branches_pc_relative"
-  8. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu_msb:ALU31"
-  9. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU30"
- 10. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU29"
- 11. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU28"
- 12. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU27"
- 13. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU26"
- 14. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU25"
- 15. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU24"
- 16. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU23"
- 17. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU22"
- 18. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU21"
- 19. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU20"
- 20. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU19"
- 21. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU18"
- 22. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU17"
- 23. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU16"
- 24. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU15"
- 25. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU14"
- 26. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU13"
- 27. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU12"
- 28. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU11"
- 29. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU10"
- 30. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU9"
- 31. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU8"
- 32. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU7"
- 33. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU6"
- 34. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU5"
- 35. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU4"
- 36. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU3"
- 37. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU2"
- 38. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU1"
- 39. Port Connectivity Checks: "execute:third_stage|alu:integer_alu"
- 40. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER31"
- 41. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER30"
- 42. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER29"
- 43. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER28"
- 44. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER27"
- 45. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER26"
- 46. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER25"
- 47. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER24"
- 48. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER23"
- 49. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER22"
- 50. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER21"
- 51. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER20"
- 52. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER19"
- 53. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER18"
- 54. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER17"
- 55. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER16"
- 56. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER15"
- 57. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER14"
- 58. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER13"
- 59. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER12"
- 60. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER11"
- 61. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER10"
- 62. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER9"
- 63. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER8"
- 64. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER7"
- 65. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER6"
- 66. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER5"
- 67. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER4"
- 68. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER3"
- 69. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER0"
- 70. Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit"
- 71. Port Connectivity Checks: "instruction_fetch:first_stage"
- 72. Elapsed Time Per Partition
- 73. Analysis & Synthesis Messages
+  5. Analysis & Synthesis Source Files Read
+  6. Analysis & Synthesis Resource Usage Summary
+  7. Analysis & Synthesis Resource Utilization by Entity
+  8. General Register Statistics
+  9. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu_msb:ALU31"
+ 10. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU30"
+ 11. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU29"
+ 12. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU28"
+ 13. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU27"
+ 14. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU26"
+ 15. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU25"
+ 16. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU24"
+ 17. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU23"
+ 18. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU22"
+ 19. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU21"
+ 20. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU20"
+ 21. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU19"
+ 22. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU18"
+ 23. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU17"
+ 24. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU16"
+ 25. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU15"
+ 26. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU14"
+ 27. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU13"
+ 28. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU12"
+ 29. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU11"
+ 30. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU10"
+ 31. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU9"
+ 32. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU8"
+ 33. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU7"
+ 34. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU6"
+ 35. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU5"
+ 36. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU4"
+ 37. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU3"
+ 38. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU2"
+ 39. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU1"
+ 40. Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU0"
+ 41. Port Connectivity Checks: "execute:third_stage|alu:integer_alu"
+ 42. Post-Synthesis Netlist Statistics for Top Partition
+ 43. Elapsed Time Per Partition
+ 44. Analysis & Synthesis Messages
 
 
 
@@ -102,22 +73,27 @@ agreement for further details.
 
 
 
-+--------------------------------------------------------------------------+
-; Analysis & Synthesis Summary                                             ;
-+-----------------------------+--------------------------------------------+
-; Analysis & Synthesis Status ; Failed - Mon Sep 22 17:24:58 2014          ;
-; Quartus II 64-Bit Version   ; 14.0.0 Build 200 06/17/2014 SJ Web Edition ;
-; Revision Name               ; BasicMIPS32                                ;
-; Top-level Entity Name       ; BasicMIPS32                                ;
-; Family                      ; Cyclone V                                  ;
-; Logic utilization (in ALMs) ; N/A until Partition Merge                  ;
-; Total registers             ; N/A until Partition Merge                  ;
-; Total pins                  ; N/A until Partition Merge                  ;
-; Total virtual pins          ; N/A until Partition Merge                  ;
-; Total block memory bits     ; N/A until Partition Merge                  ;
-; Total PLLs                  ; N/A until Partition Merge                  ;
-; Total DLLs                  ; N/A until Partition Merge                  ;
-+-----------------------------+--------------------------------------------+
++------------------------------------------------------------------------------+
+; Analysis & Synthesis Summary                                                 ;
++---------------------------------+--------------------------------------------+
+; Analysis & Synthesis Status     ; Successful - Mon Sep 29 11:39:55 2014      ;
+; Quartus II 64-Bit Version       ; 14.0.0 Build 200 06/17/2014 SJ Web Edition ;
+; Revision Name                   ; BasicMIPS32                                ;
+; Top-level Entity Name           ; BasicMIPS32                                ;
+; Family                          ; Cyclone V                                  ;
+; Logic utilization (in ALMs)     ; N/A                                        ;
+; Total registers                 ; 0                                          ;
+; Total pins                      ; 2                                          ;
+; Total virtual pins              ; 0                                          ;
+; Total block memory bits         ; 0                                          ;
+; Total DSP Blocks                ; 0                                          ;
+; Total HSSI RX PCSs              ; 0                                          ;
+; Total HSSI PMA RX Deserializers ; 0                                          ;
+; Total HSSI TX PCSs              ; 0                                          ;
+; Total HSSI PMA TX Serializers   ; 0                                          ;
+; Total PLLs                      ; 0                                          ;
+; Total DLLs                      ; 0                                          ;
++---------------------------------+--------------------------------------------+
 
 
 +---------------------------------------------------------------------------------------------------------------------------+
@@ -128,7 +104,6 @@ agreement for further details.
 ; Device                                                                          ; 5CGXFC7C7F23C8     ;                    ;
 ; Top-level entity name                                                           ; BasicMIPS32        ; BasicMIPS32        ;
 ; Family name                                                                     ; Cyclone V          ; Cyclone IV GX      ;
-; VHDL Show LMF Mapping Messages                                                  ; Off                ;                    ;
 ; Use smart compilation                                                           ; Off                ; Off                ;
 ; Enable parallel Assembler and TimeQuest Timing Analyzer during compilation      ; On                 ; On                 ;
 ; Enable compact report table                                                     ; Off                ; Off                ;
@@ -220,310 +195,371 @@ Parallel compilation was disabled, but you have multiple processors available. E
 +----------------------------+--------+
 
 
-+--------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|adder_branch:branches_pc_relative|adder_branch_1bit_adder:ADDER31"  ;
-+----------+--------+----------+-------------------------------------------------------------------------------------+
-; Port     ; Type   ; Severity ; Details                                                                             ;
-+----------+--------+----------+-------------------------------------------------------------------------------------+
-; carryout ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
-+----------+--------+----------+-------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|adder_branch:branches_pc_relative|adder_branch_1bit_adder:ADDER0" ;
-+---------+-------+----------+-------------------------------------------------------------------------------------+
-; Port    ; Type  ; Severity ; Details                                                                             ;
-+---------+-------+----------+-------------------------------------------------------------------------------------+
-; carryin ; Input ; Info     ; Stuck at GND                                                                        ;
-+---------+-------+----------+-------------------------------------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|adder_branch:branches_pc_relative" ;
-+--------------+-------+----------+-------------------------------------------------+
-; Port         ; Type  ; Severity ; Details                                         ;
-+--------------+-------+----------+-------------------------------------------------+
-; offset[1..0] ; Input ; Info     ; Stuck at GND                                    ;
-+--------------+-------+----------+-------------------------------------------------+
-
-
-+----------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu_msb:ALU31" ;
-+------+-------+----------+--------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                      ;
-+------+-------+----------+--------------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                                 ;
-+------+-------+----------+--------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU30" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU29" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU28" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU27" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU26" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU25" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU24" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU23" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU22" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU21" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU20" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU19" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU18" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU17" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU16" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU15" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU14" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU13" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU12" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU11" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU10" ;
-+------+-------+----------+----------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                  ;
-+------+-------+----------+----------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                             ;
-+------+-------+----------+----------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU9" ;
-+------+-------+----------+---------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                 ;
-+------+-------+----------+---------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                            ;
-+------+-------+----------+---------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU8" ;
-+------+-------+----------+---------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                 ;
-+------+-------+----------+---------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                            ;
-+------+-------+----------+---------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU7" ;
-+------+-------+----------+---------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                 ;
-+------+-------+----------+---------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                            ;
-+------+-------+----------+---------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU6" ;
-+------+-------+----------+---------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                 ;
-+------+-------+----------+---------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                            ;
-+------+-------+----------+---------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU5" ;
-+------+-------+----------+---------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                 ;
-+------+-------+----------+---------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                            ;
-+------+-------+----------+---------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU4" ;
-+------+-------+----------+---------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                 ;
-+------+-------+----------+---------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                            ;
-+------+-------+----------+---------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU3" ;
-+------+-------+----------+---------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                 ;
-+------+-------+----------+---------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                            ;
-+------+-------+----------+---------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU2" ;
-+------+-------+----------+---------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                 ;
-+------+-------+----------+---------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                            ;
-+------+-------+----------+---------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU1" ;
-+------+-------+----------+---------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                 ;
-+------+-------+----------+---------------------------------------------------------+
-; less ; Input ; Info     ; Stuck at GND                                            ;
-+------+-------+----------+---------------------------------------------------------+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Source Files Read                                                                                                                                                                                      ;
++-------------------------------------------+-----------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+---------+
+; File Name with User-Entered Path          ; Used in Netlist ; File Type       ; File Name with Absolute Path                                                                                                      ; Library ;
++-------------------------------------------+-----------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+---------+
+; 3.EXE/alu/alu_shifter.vhd                 ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_shifter.vhd                 ;         ;
+; 3.EXE/alu/alu_multiplier.vhd              ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_multiplier.vhd              ;         ;
+; 3.EXE/alu/alu_core.vhd                    ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_core.vhd                    ;         ;
+; 4.MEM/data_mem.vhd                        ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/4.MEM/data_mem.vhd                        ;         ;
+; 3.EXE/alu/alu_1bit_overflow_detection.vhd ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_overflow_detection.vhd ;         ;
+; 3.EXE/alu/alu_1bit_alu_msb.vhd            ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu_msb.vhd            ;         ;
+; 3.EXE/alu/alu_1bit_alu.vhd                ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_alu.vhd                ;         ;
+; 3.EXE/alu/alu_1bit_adder.vhd              ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu/alu_1bit_adder.vhd              ;         ;
+; 3.EXE/alu_control.vhd                     ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu_control.vhd                     ;         ;
+; 2.ID/control_inst_decode.vhd              ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/control_inst_decode.vhd              ;         ;
+; 3.EXE/alu.vhd                             ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/3.EXE/alu.vhd                             ;         ;
+; 2.ID/seu.vhd                              ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/seu.vhd                              ;         ;
+; 2.ID/regfile.vhd                          ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/2.ID/regfile.vhd                          ;         ;
+; 1.IF/reg_pc.vhd                           ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/reg_pc.vhd                           ;         ;
+; 1.IF/inst_mem.vhd                         ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/1.IF/inst_mem.vhd                         ;         ;
+; BasicMIPS32.vhd                           ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/BasicMIPS32.vhd                           ;         ;
+; IF.vhd                                    ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/IF.vhd                                    ;         ;
+; ID.vhd                                    ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/ID.vhd                                    ;         ;
+; EXE.vhd                                   ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/EXE.vhd                                   ;         ;
+; MEM.vhd                                   ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/MEM.vhd                                   ;         ;
+; WB.vhd                                    ; yes             ; User VHDL File  ; /home/pau/Dropbox/Universitat/FIB/Master MIRI - HPC/PA/Laboratori/PA MIPS32/0.BasicMIPS/WB.vhd                                    ;         ;
++-------------------------------------------+-----------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+---------+
+
+
++-----------------------------------------------------+
+; Analysis & Synthesis Resource Usage Summary         ;
++---------------------------------------------+-------+
+; Resource                                    ; Usage ;
++---------------------------------------------+-------+
+; Estimate of Logic utilization (ALMs needed) ; 0     ;
+;                                             ;       ;
+; Combinational ALUT usage for logic          ; 0     ;
+;     -- 7 input functions                    ; 0     ;
+;     -- 6 input functions                    ; 0     ;
+;     -- 5 input functions                    ; 0     ;
+;     -- 4 input functions                    ; 0     ;
+;     -- <=3 input functions                  ; 0     ;
+;                                             ;       ;
+; Dedicated logic registers                   ; 0     ;
+;                                             ;       ;
+; I/O pins                                    ; 2     ;
+; Total DSP Blocks                            ; 0     ;
+; Maximum fan-out node                        ; clk   ;
+; Maximum fan-out                             ; 1     ;
+; Total fan-out                               ; 2     ;
+; Average fan-out                             ; 0.50  ;
++---------------------------------------------+-------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Resource Utilization by Entity                                                                                                       ;
++----------------------------+-------------------+--------------+-------------------+------------+------+--------------+---------------------+--------------+
+; Compilation Hierarchy Node ; LC Combinationals ; LC Registers ; Block Memory Bits ; DSP Blocks ; Pins ; Virtual Pins ; Full Hierarchy Name ; Library Name ;
++----------------------------+-------------------+--------------+-------------------+------------+------+--------------+---------------------+--------------+
+; |BasicMIPS32               ; 0 (0)             ; 0 (0)        ; 0                 ; 0          ; 2    ; 0            ; |BasicMIPS32        ; work         ;
++----------------------------+-------------------+--------------+-------------------+------------+------+--------------+---------------------+--------------+
+Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
+
+
++------------------------------------------------------+
+; General Register Statistics                          ;
++----------------------------------------------+-------+
+; Statistic                                    ; Value ;
++----------------------------------------------+-------+
+; Total registers                              ; 0     ;
+; Number of registers using Synchronous Clear  ; 0     ;
+; Number of registers using Synchronous Load   ; 0     ;
+; Number of registers using Asynchronous Clear ; 0     ;
+; Number of registers using Asynchronous Load  ; 0     ;
+; Number of registers using Clock Enable       ; 0     ;
+; Number of registers using Preset             ; 0     ;
++----------------------------------------------+-------+
+
+
++----------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu_msb:ALU31" ;
++------+-------+----------+--------------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                              ;
++------+-------+----------+--------------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                         ;
++------+-------+----------+--------------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU30" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU29" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU28" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU27" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU26" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU25" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU24" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU23" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU22" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU21" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU20" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU19" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU18" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU17" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU16" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU15" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU14" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU13" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU12" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU11" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU10" ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                          ;
++------+-------+----------+----------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                     ;
++------+-------+----------+----------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU9" ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                         ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                    ;
++------+-------+----------+---------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU8" ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                         ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                    ;
++------+-------+----------+---------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU7" ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                         ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                    ;
++------+-------+----------+---------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU6" ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                         ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                    ;
++------+-------+----------+---------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU5" ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                         ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                    ;
++------+-------+----------+---------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU4" ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                         ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                    ;
++------+-------+----------+---------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU3" ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                         ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                    ;
++------+-------+----------+---------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU2" ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                         ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                    ;
++------+-------+----------+---------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU1" ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                         ;
++------+-------+----------+---------------------------------------------------------------------------------+
+; less ; Input ; Info     ; Stuck at GND                                                                    ;
++------+-------+----------+---------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU0" ;
++---------+-------+----------+------------------------------------------------------------------------------+
+; Port    ; Type  ; Severity ; Details                                                                      ;
++---------+-------+----------+------------------------------------------------------------------------------+
+; carryin ; Input ; Info     ; Stuck at GND                                                                 ;
++---------+-------+----------+------------------------------------------------------------------------------+
 
 
 +-----------------------------------------------------------------------------------------------------------------------------------------+
@@ -535,294 +571,16 @@ Parallel compilation was disabled, but you have multiple processors available. E
 +----------+--------+----------+----------------------------------------------------------------------------------------------------------+
 
 
-+--------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER31"  ;
-+----------+--------+----------+-------------------------------------------------------------------------------------+
-; Port     ; Type   ; Severity ; Details                                                                             ;
-+----------+--------+----------+-------------------------------------------------------------------------------------+
-; b        ; Input  ; Info     ; Stuck at GND                                                                        ;
-; carryout ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
-+----------+--------+----------+-------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER30" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER29" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER28" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER27" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER26" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER25" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER24" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER23" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER22" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER21" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER20" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER19" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER18" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER17" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER16" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER15" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER14" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER13" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER12" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER11" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+-------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER10" ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                 ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                            ;
-+------+-------+----------+-----------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER9" ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                           ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER8" ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                           ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER7" ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                           ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER6" ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                           ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER5" ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                           ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER4" ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                           ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER3" ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; Port ; Type  ; Severity ; Details                                                                                ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-; b    ; Input ; Info     ; Stuck at GND                                                                           ;
-+------+-------+----------+----------------------------------------------------------------------------------------+
-
-
-+------------------------------------------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER0" ;
-+---------+-------+----------+-------------------------------------------------------------------------------------+
-; Port    ; Type  ; Severity ; Details                                                                             ;
-+---------+-------+----------+-------------------------------------------------------------------------------------+
-; carryin ; Input ; Info     ; Stuck at GND                                                                        ;
-+---------+-------+----------+-------------------------------------------------------------------------------------+
-
-
-+-----------------------------------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage|adder:increment_pc_unit" ;
-+------------+-------+----------+---------------------------------------------------+
-; Port       ; Type  ; Severity ; Details                                           ;
-+------------+-------+----------+---------------------------------------------------+
-; four[1..0] ; Input ; Info     ; Stuck at GND                                      ;
-; four[2]    ; Input ; Info     ; Stuck at VCC                                      ;
-+------------+-------+----------+---------------------------------------------------+
-
-
-+-----------------------------------------------------------+
-; Port Connectivity Checks: "instruction_fetch:first_stage" ;
-+------+-------+----------+---------------------------------+
-; Port ; Type  ; Severity ; Details                         ;
-+------+-------+----------+---------------------------------+
-; boot ; Input ; Info     ; Stuck at VCC                    ;
-+------+-------+----------+---------------------------------+
++-----------------------------------------------------+
+; Post-Synthesis Netlist Statistics for Top Partition ;
++-------------------+---------------------------------+
+; Type              ; Count                           ;
++-------------------+---------------------------------+
+; boundary_port     ; 2                               ;
+;                   ;                                 ;
+; Max LUT depth     ; 0.00                            ;
+; Average LUT depth ; 0.00                            ;
++-------------------+---------------------------------+
 
 
 +-------------------------------+
@@ -840,15 +598,22 @@ Parallel compilation was disabled, but you have multiple processors available. E
 Info: *******************************************************************
 Info: Running Quartus II 64-Bit Analysis & Synthesis
     Info: Version 14.0.0 Build 200 06/17/2014 SJ Web Edition
-    Info: Processing started: Mon Sep 22 17:24:57 2014
+    Info: Processing started: Mon Sep 29 11:39:48 2014
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off BasicMIPS32 -c BasicMIPS32
+Info (20034): Auto device selection is not supported for Cyclone V device family. The default device, 5CGXFC7C7F23C8, is set.
 Warning (20028): Parallel compilation is not licensed and has been disabled
+Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/alu/alu_shifter.vhd
+    Info (12022): Found design unit 1: alu_shifter-Structure
+    Info (12023): Found entity 1: alu_shifter
+Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/alu/alu_multiplier.vhd
+    Info (12022): Found design unit 1: alu_multiplier-Structure
+    Info (12023): Found entity 1: alu_multiplier
+Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/alu/alu_core.vhd
+    Info (12022): Found design unit 1: alu_core-Structure
+    Info (12023): Found entity 1: alu_core
 Info (12021): Found 2 design units, including 1 entities, in source file 4.MEM/data_mem.vhd
     Info (12022): Found design unit 1: data_mem-Structure
     Info (12023): Found entity 1: data_mem
-Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/adder_branch/adder_branch_1bit_adder.vhd
-    Info (12022): Found design unit 1: adder_branch_1bit_adder-Structure
-    Info (12023): Found entity 1: adder_branch_1bit_adder
 Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/alu/alu_1bit_overflow_detection.vhd
     Info (12022): Found design unit 1: alu_1bit_overflow_detection-Structure
     Info (12023): Found entity 1: alu_1bit_overflow_detection
@@ -861,18 +626,12 @@ Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/a
 Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/alu/alu_1bit_adder.vhd
     Info (12022): Found design unit 1: alu_1bit_adder-Structure
     Info (12023): Found entity 1: alu_1bit_adder
-Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/adder_branch.vhd
-    Info (12022): Found design unit 1: adder_branch-Structure
-    Info (12023): Found entity 1: adder_branch
 Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/alu_control.vhd
     Info (12022): Found design unit 1: alu_control-Structure
     Info (12023): Found entity 1: alu_control
 Info (12021): Found 2 design units, including 1 entities, in source file 2.ID/control_inst_decode.vhd
     Info (12022): Found design unit 1: control_inst_decode-Structure
     Info (12023): Found entity 1: control_inst_decode
-Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/mux.vhd
-    Info (12022): Found design unit 1: mux_exe-Structure
-    Info (12023): Found entity 1: mux_exe
 Info (12021): Found 2 design units, including 1 entities, in source file 3.EXE/alu.vhd
     Info (12022): Found design unit 1: alu-Structure
     Info (12023): Found entity 1: alu
@@ -885,16 +644,9 @@ Info (12021): Found 2 design units, including 1 entities, in source file 2.ID/re
 Info (12021): Found 2 design units, including 1 entities, in source file 1.IF/reg_pc.vhd
     Info (12022): Found design unit 1: reg_pc-Structure
     Info (12023): Found entity 1: reg_pc
-Warning (12090): Entity "mux" obtained from "1.IF/mux.vhd" instead of from Quartus II megafunction library
-Info (12021): Found 2 design units, including 1 entities, in source file 1.IF/mux.vhd
-    Info (12022): Found design unit 1: mux-Structure
-    Info (12023): Found entity 1: mux
 Info (12021): Found 2 design units, including 1 entities, in source file 1.IF/inst_mem.vhd
     Info (12022): Found design unit 1: inst_mem-Structure
     Info (12023): Found entity 1: inst_mem
-Info (12021): Found 2 design units, including 1 entities, in source file 1.IF/adder.vhd
-    Info (12022): Found design unit 1: adder-Structure
-    Info (12023): Found entity 1: adder
 Info (12021): Found 2 design units, including 1 entities, in source file BasicMIPS32.vhd
     Info (12022): Found design unit 1: BasicMIPS32-Structure
     Info (12023): Found entity 1: BasicMIPS32
@@ -914,41 +666,46 @@ Info (12021): Found 2 design units, including 1 entities, in source file WB.vhd
     Info (12022): Found design unit 1: write_back-Structure
     Info (12023): Found entity 1: write_back
 Info (12127): Elaborating entity "BasicMIPS32" for the top level hierarchy
-Warning (10785): VHDL warning at BasicMIPS32.vhd(288): synthesis ignores all but the first waveform
 Info (12128): Elaborating entity "instruction_fetch" for hierarchy "instruction_fetch:first_stage"
-Info (12128): Elaborating entity "mux" for hierarchy "instruction_fetch:first_stage|mux:mux_pc_or_branch"
 Info (12128): Elaborating entity "reg_pc" for hierarchy "instruction_fetch:first_stage|reg_pc:program_counter"
-Info (12128): Elaborating entity "adder" for hierarchy "instruction_fetch:first_stage|adder:increment_pc_unit"
-Warning (10036): Verilog HDL or VHDL warning at adder.vhd(52): object "caOut31" assigned a value but never read
-Info (12128): Elaborating entity "adder_branch_1bit_adder" for hierarchy "instruction_fetch:first_stage|adder:increment_pc_unit|adder_branch_1bit_adder:ADDER0"
+Warning (10492): VHDL Process Statement warning at reg_pc.vhd(27): signal "pc_tmp" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
 Info (12128): Elaborating entity "inst_mem" for hierarchy "instruction_fetch:first_stage|inst_mem:instruction_memory"
-Warning (10541): VHDL Signal Declaration warning at inst_mem.vhd(19): used implicit default value for signal "mem" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
+Warning (10873): Using initial value X (don't care) for net "mem[255..4]" at inst_mem.vhd(19)
 Info (12128): Elaborating entity "instruction_decode" for hierarchy "instruction_decode:second_stage"
-Warning (10541): VHDL Signal Declaration warning at ID.vhd(23): used implicit default value for signal "MemWrite" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
 Info (12128): Elaborating entity "control_inst_decode" for hierarchy "instruction_decode:second_stage|control_inst_decode:control"
 Info (12128): Elaborating entity "regfile" for hierarchy "instruction_decode:second_stage|regfile:register_file"
 Info (12128): Elaborating entity "seu" for hierarchy "instruction_decode:second_stage|seu:sign_extend_unit"
 Info (12128): Elaborating entity "execute" for hierarchy "execute:third_stage"
 Info (12128): Elaborating entity "alu_control" for hierarchy "execute:third_stage|alu_control:control"
 Info (12128): Elaborating entity "alu" for hierarchy "execute:third_stage|alu:integer_alu"
-Warning (10541): VHDL Signal Declaration warning at alu.vhd(47): used implicit default value for signal "caIn0" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
-Info (12128): Elaborating entity "alu_1bit_alu" for hierarchy "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU0"
-Info (10041): Inferred latch for "res" at alu_1bit_alu.vhd(58)
-Info (12128): Elaborating entity "alu_1bit_adder" for hierarchy "execute:third_stage|alu:integer_alu|alu_1bit_alu:ALU0|alu_1bit_adder:adder"
-Info (12128): Elaborating entity "alu_1bit_alu_msb" for hierarchy "execute:third_stage|alu:integer_alu|alu_1bit_alu_msb:ALU31"
-Info (10041): Inferred latch for "res" at alu_1bit_alu_msb.vhd(71)
-Info (12128): Elaborating entity "alu_1bit_overflow_detection" for hierarchy "execute:third_stage|alu:integer_alu|alu_1bit_alu_msb:ALU31|alu_1bit_overflow_detection:Overflow_detector"
-Info (12128): Elaborating entity "adder_branch" for hierarchy "execute:third_stage|adder_branch:branches_pc_relative"
-Warning (10036): Verilog HDL or VHDL warning at adder_branch.vhd(54): object "caOut31" assigned a value but never read
+Info (12128): Elaborating entity "alu_core" for hierarchy "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit"
+Info (12128): Elaborating entity "alu_1bit_alu" for hierarchy "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU0"
+Info (10041): Inferred latch for "res" at alu_1bit_alu.vhd(64)
+Info (12128): Elaborating entity "alu_1bit_adder" for hierarchy "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu:ALU0|alu_1bit_adder:adder"
+Info (12128): Elaborating entity "alu_1bit_alu_msb" for hierarchy "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu_msb:ALU31"
+Info (10041): Inferred latch for "res" at alu_1bit_alu_msb.vhd(77)
+Info (12128): Elaborating entity "alu_1bit_overflow_detection" for hierarchy "execute:third_stage|alu:integer_alu|alu_core:basic_ops_unit|alu_1bit_alu_msb:ALU31|alu_1bit_overflow_detection:Overflow_detector"
+Info (12128): Elaborating entity "alu_shifter" for hierarchy "execute:third_stage|alu:integer_alu|alu_shifter:shift_unit"
+Info (12128): Elaborating entity "alu_multiplier" for hierarchy "execute:third_stage|alu:integer_alu|alu_multiplier:mult_div_unit"
+Warning (10541): VHDL Signal Declaration warning at alu_multiplier.vhd(11): used implicit default value for signal "resHi" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
+Warning (10541): VHDL Signal Declaration warning at alu_multiplier.vhd(12): used implicit default value for signal "resLo" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
+Warning (10541): VHDL Signal Declaration warning at alu_multiplier.vhd(14): used implicit default value for signal "Overflow" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
 Info (12128): Elaborating entity "mem" for hierarchy "mem:fourth_stage"
 Info (12128): Elaborating entity "data_mem" for hierarchy "mem:fourth_stage|data_mem:data_memory"
 Info (12128): Elaborating entity "write_back" for hierarchy "write_back:fifth_stage"
-Error (12061): Can't synthesize current design -- Top partition does not contain any logic
 Warning (12241): 1 hierarchies have connectivity warnings - see the Connectivity Checks report folder
-Error: Quartus II 64-Bit Analysis & Synthesis was unsuccessful. 1 error, 9 warnings
-    Error: Peak virtual memory: 818 megabytes
-    Error: Processing ended: Mon Sep 22 17:24:59 2014
-    Error: Elapsed time: 00:00:02
-    Error: Total CPU time (on all processors): 00:00:02
+Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
+    Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
+Warning (21074): Design contains 2 input pin(s) that do not drive logic
+    Warning (15610): No output dependent on input pin "clk"
+    Warning (15610): No output dependent on input pin "boot"
+Info (21057): Implemented 2 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 2 input pins
+    Info (21059): Implemented 0 output pins
+Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 10 warnings
+    Info: Peak virtual memory: 840 megabytes
+    Info: Processing ended: Mon Sep 29 11:39:55 2014
+    Info: Elapsed time: 00:00:07
+    Info: Total CPU time (on all processors): 00:00:02
 
 
