@@ -263,14 +263,14 @@ begin
 					'0' when opcode = "001010" else -- slti (Set less than immediate)
 					'0' when opcode = "001011" else -- sltiu (Set less than immediate unsigned)
 					--Branch Instructions					
-					'Z' when opcode = "000100" else -- beq (Branch on equal)
-					'Z' when opcode = "000101" else -- bne (Branch on not equal)
-					'Z' when opcode = "000110" else -- blez (Branch on less than equal zero)
-					'Z' when opcode = "000111" else -- bgtz (Branch on greather than zero)					
-					'Z' when opcode = "000001" else -- bgez/bgezal/bltzal/bltz (Branch on ... and link)
+					'-' when opcode = "000100" else -- beq (Branch on equal)
+					'-' when opcode = "000101" else -- bne (Branch on not equal)
+					'-' when opcode = "000110" else -- blez (Branch on less than equal zero)
+					'-' when opcode = "000111" else -- bgtz (Branch on greather than zero)					
+					'-' when opcode = "000001" else -- bgez/bgezal/bltzal/bltz (Branch on ... and link)
 					--Jump Instructions
-					'Z' when opcode = "000010" else -- j (jump)
-					'Z' when opcode = "000011" else -- jal (jump and link)
+					'-' when opcode = "000010" else -- j (jump)
+					'-' when opcode = "000011" else -- jal (jump and link)
 					--Load Instructions
 					'1' when opcode = "100000" else -- lb (Load Byte)
 					'1' when opcode = "100001" else -- lh (Load Half word)
@@ -282,14 +282,14 @@ begin
 					'1' when opcode = "110000" else -- ll (Load Link -- FOR MULTIPROCESSORS & Atomics)
 				 --'1' when opcode = "110001" else -- lwc1 (Load word coprocessor 1 - for floating point)
 					--Store Instructions
-					'Z' when opcode = "101000" else -- sb (Store Byte)
-					'Z' when opcode = "101001" else -- sh (Store Half word)
-					'Z' when opcode = "101010" else -- swl (Store word left)
-					'Z' when opcode = "101011" else -- sw
-					'Z' when opcode = "101110" else -- swr (Store word right)
-				 --'Z' when opcode = "110001" else -- swc1 (Store word coprocessor 1 - for floating point)
-					'Z' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
-				 --'Z' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
+					'-' when opcode = "101000" else -- sb (Store Byte)
+					'-' when opcode = "101001" else -- sh (Store Half word)
+					'-' when opcode = "101010" else -- swl (Store word left)
+					'-' when opcode = "101011" else -- sw
+					'-' when opcode = "101110" else -- swr (Store word right)
+				 --'-' when opcode = "110001" else -- swc1 (Store word coprocessor 1 - for floating point)
+					'-' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
+				 --'-' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
 					'X';
@@ -309,14 +309,14 @@ begin
 					'0' when opcode = "001010" else -- slti (Set less than immediate)
 					'0' when opcode = "001011" else -- sltiu (Set less than immediate unsigned)
 					--Branch Instructions					
-					'Z' when opcode = "000100" else -- beq (Branch on equal)
-					'Z' when opcode = "000101" else -- bne (Branch on not equal)
-					'Z' when opcode = "000110" else -- blez (Branch on less than equal zero)
-					'Z' when opcode = "000111" else -- bgtz (Branch on greather than zero)					
-					'Z' when opcode = "000001" else -- bgez/bgezal/bltzal/bltz (Branch on ... and link)
+					'-' when opcode = "000100" else -- beq (Branch on equal)
+					'-' when opcode = "000101" else -- bne (Branch on not equal)
+					'-' when opcode = "000110" else -- blez (Branch on less than equal zero)
+					'-' when opcode = "000111" else -- bgtz (Branch on greather than zero)					
+					'-' when opcode = "000001" else -- bgez/bgezal/bltzal/bltz (Branch on ... and link)
 					--Jump Instructions
-					'Z' when opcode = "000010" else -- j (jump)
-					'Z' when opcode = "000011" else -- jal (jump and link)
+					'-' when opcode = "000010" else -- j (jump)
+					'-' when opcode = "000011" else -- jal (jump and link)
 					--Load Instructions
 					'0' when opcode = "100000" else -- lb (Load Byte)
 					'0' when opcode = "100001" else -- lh (Load Half word)
@@ -328,14 +328,14 @@ begin
 					'0' when opcode = "110000" else -- ll (Load Link -- FOR MULTIPROCESSORS & Atomics)
 				 --'0' when opcode = "110001" else -- lwc1 (Load word coprocessor 1 - for floating point)
 					--Store Instructions
-					'Z' when opcode = "101000" else -- sb (Store Byte)
-					'Z' when opcode = "101001" else -- sh (Store Half word)
-					'Z' when opcode = "101010" else -- swl (Store word left)
-					'Z' when opcode = "101011" else -- sw
-					'Z' when opcode = "101110" else -- swr (Store word right)
-				 --'Z' when opcode = "110001" else -- swc1 (Store word coprocessor 1 - for floating point)
-					'Z' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
-				 --'Z' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
+					'-' when opcode = "101000" else -- sb (Store Byte)
+					'-' when opcode = "101001" else -- sh (Store Half word)
+					'-' when opcode = "101010" else -- swl (Store word left)
+					'-' when opcode = "101011" else -- sw
+					'-' when opcode = "101110" else -- swr (Store word right)
+				 --'-' when opcode = "110001" else -- swc1 (Store word coprocessor 1 - for floating point)
+					'-' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
+				 --'-' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
 					'X';
@@ -346,7 +346,7 @@ begin
 					"100" when opcode = "001000" else -- addi
 					"100" when opcode = "001001" else -- addiu
 					"100" when opcode = "001100" else -- andi
-					"ZZZ" when opcode = "011100" else -- clo/clz/mul/madd/maddu/msub/msuub
+					"---" when opcode = "011100" else -- clo/clz/mul/madd/maddu/msub/msuub
 					"100" when opcode = "001101" else -- ori
 					"100" when opcode = "001110" else -- xori
 					--Constant Manipulating Instructions
@@ -404,12 +404,12 @@ begin
 					--Branch Instructions					
 					'0' when opcode = "000100" else -- beq (Branch on equal)
 					'0' when opcode = "000101" else -- bne (Branch on not equal)
-					'Z' when opcode = "000110" else -- blez (Branch on less than equal zero)
-					'Z' when opcode = "000111" else -- bgtz (Branch on greather than zero)					
-					'Z' when opcode = "000001" else -- bgez/bgezal/bltzal/bltz (Branch on ... and link)
+					'-' when opcode = "000110" else -- blez (Branch on less than equal zero)
+					'-' when opcode = "000111" else -- bgtz (Branch on greather than zero)					
+					'-' when opcode = "000001" else -- bgez/bgezal/bltzal/bltz (Branch on ... and link)
 					--Jump Instructions
-					'Z' when opcode = "000010" else -- j (jump)
-					'Z' when opcode = "000011" else -- jal (jump and link)
+					'-' when opcode = "000010" else -- j (jump)
+					'-' when opcode = "000011" else -- jal (jump and link)
 					--Load Instructions
 					'1' when opcode = "100000" else -- lb (Load Byte)
 					'1' when opcode = "100001" else -- lh (Load Half word)

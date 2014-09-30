@@ -86,7 +86,7 @@ begin
 				funct 		=> sign_ext(5 downto 0), --only 6 bits
 				ALUOp_in 	=> ALUOp,
 				ALUOp_out 	=> ALUOp_control,
-				SignedSrc => SignedSrc,
+				SignedSrc   => SignedSrc,
 				ShiftSrc		=> ShiftSrc);
 				
 	integer_alu	: alu
