@@ -78,26 +78,35 @@ begin
 				Overflow	=> Overflow_multiplier,
 				ALUOp		=> ALUOp);
 				
-	res <= result_core 		when (funct = "000000" or 		--sll
-											funct = "000010" or 		--srl
-											funct = "000011" or 		--sra
-											funct = "000100" or 		--sllv
-											funct = "000110" or 		--srlv
-											funct = "000111") else 	--srav
-			 result_shifter 	when (funct = "100000" or 		--add
-											funct = "100001" or 		--addu
-											funct = "100010" or 		--sub
-											funct = "100011" or 		--subu
-											funct = "100100" or 		--and
-											funct = "100101" or 		--or
-											funct = "100110" or 		--xor
-											funct = "100111" or 		--nor
-											funct = "101010" or 		--slt
-											funct = "101011") else 	--sltu
-			 result_multiLo	when (funct = "011000" or 		--mult
-											funct = "011001" or		--multu
-											funct = "011010" or		--div
-											funct = "011011") else  --divu
+	-- "0000" and | andi         [core]
+	-- "0001" or  | ori          [core]
+	-- "0010" add | addi | addiu [core]
+	-- "0011" sll                [shifter]
+	-- "0100" srl                [shifter]
+	-- "0101" sra                [shifter]
+	-- "0110" sub          			[core]
+	-- "0111" slt | slti | sltiu [core]
+	-- "1000" 
+	-- "1001"   
+	-- "1010" mult               [multiplier]
+	-- "1011" div                [multiplier]
+	-- "1100" nor                [core]
+	-- "1101"
+	-- "1110" 
+	-- "1111" xor | xori         [core]
+				
+	res <= result_shifter 	when (ALUOp = "0011" or 		--sll
+											ALUOp = "0100" or 		--srl
+											ALUOp = "0101") else		--sra
+			 result_core	 	when (ALUOp = "0000" or			--and | andi 
+											ALUOp = "0001" or			--or  | ori
+											ALUOp = "0010" or			--add | addi | addiu
+											ALUOp = "0110" or			--sub
+											ALUOp = "0111" or			--slt | slti | sltiu
+											ALUOp = "1100" or			--nor
+											ALUOp = "1111") else 	--xor | xori
+			 result_multiLo	when (ALUOp = "1010" or			--mult 
+											ALUOp = "1011") else 	--divu
 			 result_multiHi;
 			 
 	Zero 		<= Zero_core;

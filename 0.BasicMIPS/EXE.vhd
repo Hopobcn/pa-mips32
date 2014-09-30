@@ -45,8 +45,8 @@ architecture Structure of execute is
 			funct 	: in std_logic_vector(5 downto 0); 
 			ALUOp_in : in std_logic_vector(2 downto 0);
 			ALUOp_out: out std_logic_vector(3 downto 0);
-			UnsignedSrc : out std_logic;
-			ShiftSrc		: out std_logic);
+			SignedSrc: out std_logic;
+			ShiftSrc	: out std_logic);
 	end component;
 	
 	component alu is
@@ -67,7 +67,7 @@ architecture Structure of execute is
 	signal ALUOp_control	:	std_logic_vector(3 downto 0);
 	signal sign_ext_sh2	: 	std_logic_vector(31 downto 0);
 	
-	signal UnsignedSrc	:  std_logic;
+	signal SignedSrc		:  std_logic;
 	signal ShiftSrc		: 	std_logic;
 begin
 
@@ -86,7 +86,7 @@ begin
 				funct 		=> sign_ext(5 downto 0), --only 6 bits
 				ALUOp_in 	=> ALUOp,
 				ALUOp_out 	=> ALUOp_control,
-				UnsignedSrc => UnsignedSrc,
+				SignedSrc => SignedSrc,
 				ShiftSrc		=> ShiftSrc);
 				
 	integer_alu	: alu
@@ -101,14 +101,14 @@ begin
 				
 	shamt <= "000000000000000000000000000" & zero_ext(10 downto 6);
 	
-	sign_immed_mux <= sign_ext 	when UnsignedSrc = '0' else
-							zero_ext;
+	sign_immed_mux <= zero_ext 	when SignedSrc = '0' else
+							sign_ext;
 	
 	alusrc_mux 		<= rt        	when ALUSrc = '0' else
 							sign_immed_mux;          
 
-	shiftsrc_mux	<=	shamt			when ShiftSrc = '0' else
-							alusrc_mux;
+	shiftsrc_mux	<=	alusrc_mux	when ShiftSrc = '0' else
+							shamt;
 	
 	
 	addr_regw <= addr_rt 			when RegDst = '0' else

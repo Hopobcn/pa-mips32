@@ -343,17 +343,17 @@ begin
 					--ARREGLAR LA ALU PER INSTRUCCIONS AMB INMEDIAT!
 	ALUOp		<=	"010" when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
 					--Arithmetic Instructions                      (sll,sllv,sra,srav,srl,srlv,sub,subu,xor,slt,sltu,jalr,jr)
-					"000" when opcode = "001000" else -- addi
-					"000" when opcode = "001001" else -- addiu
+					"100" when opcode = "001000" else -- addi
+					"100" when opcode = "001001" else -- addiu
 					"100" when opcode = "001100" else -- andi
 					"ZZZ" when opcode = "011100" else -- clo/clz/mul/madd/maddu/msub/msuub
-					"101" when opcode = "001101" else -- ori
-					"110" when opcode = "001110" else -- xori
+					"100" when opcode = "001101" else -- ori
+					"100" when opcode = "001110" else -- xori
 					--Constant Manipulating Instructions
 					"000" when opcode = "001111" else -- lui (Load upper immediate)
 					--Comparison Instructions
-					"010" when opcode = "001010" else -- slti (Set less than immediate)
-					"010" when opcode = "001011" else -- sltiu (Set less than immediate unsigned)
+					"100" when opcode = "001010" else -- slti (Set less than immediate)
+					"100" when opcode = "001011" else -- sltiu (Set less than immediate unsigned)
 					--Branch Instructions					
 					"001" when opcode = "000100" else -- beq (Branch on equal)
 					"001" when opcode = "000101" else -- bne (Branch on not equal)
