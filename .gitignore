@@ -1,7 +1,9 @@
 *.bak
-0.BasicMIPS/db
-0.BasicMIPS/incremental_db
-0.BasicMIPS/output_files
-0.BasicMIPS/simulation
+*.qws
+*.ddb
+**/db/
+**/incremental_db/
+**/output_files/
+**/simulation/
 .qsys_edit/
 0.BasicMIPS-test/work
