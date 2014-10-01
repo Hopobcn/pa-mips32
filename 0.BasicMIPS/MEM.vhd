@@ -22,7 +22,9 @@ entity mem is
 			Branch			:	in std_logic;								--from EXE
 			PCSrc				:	out std_logic;								--to ID
 			MemRead			:	in std_logic;								--from EXE
-			MemWrite			:	in std_logic;								--from EXE
+			MemWrite			:	in std_logic;								--from EXE;
+			ByteAddress 	:  in std_logic;								--from EXE
+			WordAddress		:	in	std_logic;								--from EXE
 			MemtoReg_in		:	in std_logic;								--from MEM
 			MemtoReg_out	:	out std_logic;								--to WB
 			Zero				:	in std_logic);								--from EXE
@@ -37,7 +39,9 @@ architecture Structure of mem is
 			read_data	:	out std_logic_vector(31 downto 0);
 			clk			:	in std_logic;
 			MemRead		:	in std_logic;
-			MemWrite		:	in	std_logic);
+			MemWrite		:	in	std_logic;
+			ByteAddress :  in std_logic;
+			WordAddress	:	in	std_logic);
 	end component;
 	
 begin

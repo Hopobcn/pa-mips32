@@ -83,7 +83,8 @@ architecture Structure of alu_core is
 	
 begin
 	-- Ripple carry ALU
-	caIn0  <= '0';
+	caIn0  <=  '1' when ALUOp = "0110" else
+	           '0';
 	
 	ALU0	: alu_1bit_alu
 	port map(a			=> a(0),

@@ -28,7 +28,11 @@ entity execute is
 			MemRead_in		:	in std_logic;								--from ID 
 			MemRead_out		:	out std_logic;								--to MEM
 			MemWrite_in		:	in std_logic;								--from ID  
-			MemWrite_out	:	out std_logic;								--to MEM		
+			MemWrite_out	:	out std_logic;								--to MEM	
+			ByteAddress_in	:  in std_logic;								--from ID
+			ByteAddress_out:  out std_logic;								--from MEM
+			WordAddress_in	:	in	std_logic;								--from ID
+			WordAddress_out:	out std_logic;								--from MEM	
 			MemtoReg_in		:	in std_logic;								--from EXE
 			MemtoReg_out	:	out std_logic;								--to MEM,WB
 			RegDst			:	in std_logic;								--from ID
@@ -79,6 +83,8 @@ begin
 	Branch_out		<= Branch_in;
 	MemRead_out		<= MemRead_in;
 	MemWrite_out	<= MemWrite_in;
+	ByteAddress_out<= ByteAddress_in;
+	WordAddress_out<= WordAddress_in;
 	MemtoReg_out	<=	MemtoReg_in;
 	
 	control : alu_control

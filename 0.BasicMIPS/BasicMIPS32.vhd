@@ -44,6 +44,8 @@ architecture Structure of BasicMIPS32 is
 			Branch			:	out std_logic;								--to EXE,MEM
 			MemRead			:	out std_logic;								--to EXE,MEM
 			MemWrite			:	out std_logic;								--to EXE,MEM
+			ByteAddress 	:  out std_logic;								--to EXE,MEM
+			WordAddress		:	out std_logic;								--to EXE,MEM
 			MemtoReg			:	out std_logic;								--to EXE,MEM,WB
 			RegDst			:	out std_logic;								--to EXE
 			ALUOp				:	out std_logic_vector(2 downto 0);	--to EXE
@@ -78,6 +80,10 @@ architecture Structure of BasicMIPS32 is
 			MemRead_out		:	out std_logic;								--to MEM
 			MemWrite_in		:	in std_logic;								--from ID  
 			MemWrite_out	:	out std_logic;								--to MEM
+			ByteAddress_in	:  in std_logic;								--from ID
+			ByteAddress_out:  out std_logic;								--from MEM
+			WordAddress_in	:	in	std_logic;								--from ID
+			WordAddress_out:	out std_logic;								--from MEM
 			MemtoReg_in		:	in std_logic;								--from EXE
 			MemtoReg_out	:	out std_logic;								--to MEM,WB
 			RegDst			:	in std_logic;								--from ID
@@ -108,6 +114,8 @@ architecture Structure of BasicMIPS32 is
 			PCSrc				:	out std_logic;								--to ID
 			MemRead			:	in std_logic;								--from EXE
 			MemWrite			:	in std_logic;								--from EXE
+			ByteAddress 	:  in std_logic;								--from EXE
+			WordAddress		:	in	std_logic;								--from EXE
 			MemtoReg_in		:	in std_logic;								--from MEM
 			MemtoReg_out	:	out std_logic;								--to WB
 			Zero				:	in std_logic);								--from EXE
@@ -184,6 +192,11 @@ architecture Structure of BasicMIPS32 is
 	signal MemWrite_2to3		:	std_logic;
 	signal MemWrite_3to4		:	std_logic;
 			
+	signal ByteAddress_2to3	:	std_logic;
+	signal ByteAddress_3to4	:	std_logic;
+	signal WordAddress_2to3	:	std_logic;
+	signal WordAddress_3to4	:	std_logic;
+	
 	signal MemtoReg_2to3		:	std_logic;
 	signal MemtoReg_3to4		:	std_logic;
 	signal MemtoReg_4to5		:	std_logic;
@@ -222,6 +235,8 @@ begin
 				Branch		=> Branch_2to3,
 				MemRead		=>	MemRead_2to3,
 				MemWrite		=>	MemWrite_2to3,
+				ByteAddress	=> ByteAddress_2to3,
+				WordAddress	=> WordAddress_2to3,
 				MemtoReg		=> MemtoReg_2to3,
 				RegDst		=> RegDst_2to3,
 				ALUOp			=> ALUOp_2to3,
@@ -253,6 +268,10 @@ begin
 				MemRead_out	=>	MemRead_3to4,
 				MemWrite_in	=> MemWrite_2to3,
 				MemWrite_out=> MemWrite_3to4,
+				ByteAddress_in => ByteAddress_2to3,
+				ByteAddress_out=> ByteAddress_3to4,
+				WordAddress_in	=> WordAddress_2to3,
+				WordAddress_out=>	WordAddress_3to4,
 				MemtoReg_in	=> MemtoReg_2to3,
 				MemtoReg_out=> MemtoReg_3to4,
 				RegDst		=> RegDst_2to3,
@@ -281,6 +300,8 @@ begin
 				PCSrc					=> PCSrc_4to1,
 				MemRead				=> MemRead_3to4,
 				MemWrite				=> MemWrite_3to4,
+				ByteAddress			=> ByteAddress_3to4,
+				WordAddress			=> WordAddress_3to4,
 				MemtoReg_in			=> MemtoReg_3to4,
 				MemtoReg_out		=> MemtoReg_4to5,
 				Zero					=> Zero_3to4);

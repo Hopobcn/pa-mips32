@@ -23,6 +23,8 @@ entity instruction_decode is
 			Branch			:	out std_logic;								--to EXE,MEM
 			MemRead			:	out std_logic;								--to EXE,MEM
 			MemWrite			:	out std_logic;								--to EXE,MEM
+			ByteAddress 	:  out std_logic;								--to EXE,MEM
+			WordAddress		:	out std_logic;								--to EXE,MEM
 			MemtoReg			:	out std_logic;								--to EXE,MEM,WB
 			RegDst			:	out std_logic;								--to EXE
 			ALUOp				:	out std_logic_vector(2 downto 0);	--to EXE
@@ -41,6 +43,8 @@ architecture Structure of instruction_decode is
 			Branch		:	out std_logic;
 			MemRead		:	out std_logic;								
 			MemWrite		:	out std_logic;	
+			ByteAddress	:	out std_logic;
+			WordAddress	:	out std_logic;
 			MemtoReg		:	out std_logic;
 			RegDst		:	out std_logic;	
 			ALUOp			:	out std_logic_vector(2 downto 0);
@@ -79,6 +83,8 @@ begin
 				Branch 		=> Branch,
 				MemRead		=> MemRead,
 				MemWrite		=> MemWrite,
+				ByteAddress => ByteAddress,
+				WordAddress	=> WordAddress,
 				MemtoReg		=> MemtoReg,
 				RegDst		=> RegDst,
 				ALUOp			=> ALUOp,

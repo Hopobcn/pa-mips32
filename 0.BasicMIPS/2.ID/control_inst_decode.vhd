@@ -10,6 +10,8 @@ entity control_inst_decode is
 			Branch		:	out std_logic;
 			MemRead		:	out std_logic;								
 			MemWrite		:	out std_logic;
+			ByteAddress	:	out std_logic;
+			WordAddress	:	out std_logic;
 			MemtoReg		:	out std_logic;
 			RegDst		:	out std_logic;	
 			ALUOp			:	out std_logic_vector(2 downto 0);
@@ -248,7 +250,46 @@ begin
 					--Floating-Point Instructions					
 					'X';
 					
-	
+	ByteAddress <= '1' when opcode = "100000" else -- lb (Load Byte)
+					'0' when opcode = "100001" else -- lh (Load Half word)
+					'0' when opcode = "100010" else -- lwl (Load word left)
+					'0' when opcode = "100011" else -- lw
+					'1' when opcode = "100100" else -- lbu (Load Byte unsigned)
+					'0' when opcode = "100101" else -- lhu (Load Half word unsigned)
+					'0' when opcode = "100110" else -- lwr (Load word right)
+					'0' when opcode = "110000" else -- ll (Load Link -- FOR MULTIPROCESSORS & Atomics)
+				 --'0' when opcode = "110001" else -- lwc1 (Load word coprocessor 1 - for floating point)
+					--Store Instructions
+					'1' when opcode = "101000" else -- sb (Store Byte)
+					'0' when opcode = "101001" else -- sh (Store Half word)
+					'0' when opcode = "101010" else -- swl (Store word left)
+					'0' when opcode = "101011" else -- sw
+					'0' when opcode = "101110" else -- swr (Store word right)
+				 --'0' when opcode = "110001" else -- swc1 (Store word coprocessor 1 - for floating point)
+					'0' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
+				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
+					'-';
+						
+	WordAddress <= '0' when opcode = "100000" else -- lb (Load Byte)
+					'0' when opcode = "100001" else -- lh (Load Half word)
+					'1' when opcode = "100010" else -- lwl (Load word left)
+					'1' when opcode = "100011" else -- lw
+					'0' when opcode = "100100" else -- lbu (Load Byte unsigned)
+					'0' when opcode = "100101" else -- lhu (Load Half word unsigned)
+					'1' when opcode = "100110" else -- lwr (Load word right)
+					'1' when opcode = "110000" else -- ll (Load Link -- FOR MULTIPROCESSORS & Atomics)
+				 --'1' when opcode = "110001" else -- lwc1 (Load word coprocessor 1 - for floating point)
+					--Store Instructions
+					'0' when opcode = "101000" else -- sb (Store Byte)
+					'0' when opcode = "101001" else -- sh (Store Half word)
+					'1' when opcode = "101010" else -- swl (Store word left)
+					'1' when opcode = "101011" else -- sw
+					'1' when opcode = "101110" else -- swr (Store word right)
+				 --'1' when opcode = "110001" else -- swc1 (Store word coprocessor 1 - for floating point)
+					'1' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
+				 --'1' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
+					'-';
+						
 	MemtoReg <=	'0' when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
 					--Arithmetic Instructions                      (sll,sllv,sra,srav,srl,srlv,sub,subu,xor,slt,sltu,jalr,jr)
 					'0' when opcode = "001000" else -- addi
