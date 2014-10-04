@@ -66,7 +66,8 @@ architecture Structure of execute is
 	
 	signal shamt			:	std_logic_vector(31 downto 0);
 	signal sign_immed_mux:	std_logic_vector(31 downto 0);
-	signal alusrc_mux		:	std_logic_vector(31 downto 0);
+	signal alusrc_a_mux	:	std_logic_vector(31 downto 0);
+	signal alusrc_b_mux	:	std_logic_vector(31 downto 0);
 	signal shiftsrc_mux	: 	std_logic_vector(31 downto 0);
 	signal ALUOp_control	:	std_logic_vector(3 downto 0);
 	signal sign_ext_sh2	: 	std_logic_vector(31 downto 0);
@@ -96,7 +97,7 @@ begin
 				ShiftSrc		=> ShiftSrc);
 				
 	integer_alu	: alu
-	port map(a		=> rs,
+	port map(a		=> alusrc_a_mux,
 				b		=> shiftsrc_mux,
 				res	=> alu_res,
 				Zero	=>	Zero,
@@ -110,11 +111,16 @@ begin
 	sign_immed_mux <= zero_ext 	when SignedSrc = '0' else
 							sign_ext;
 	
-	alusrc_mux 		<= rt        	when ALUSrc = '0' else
+	alusrc_b_mux 	<= rt        	when ALUSrc = '0' else
 							sign_immed_mux;          
 
-	shiftsrc_mux	<=	alusrc_mux	when ShiftSrc = '0' else
+	shiftsrc_mux	<=	alusrc_b_mux	when ShiftSrc = '0' else
 							shamt;
+	
+	
+	
+	alusrc_a_mux	<= rs				when ShiftSrc = '0' else
+							rt;
 	
 	
 	addr_regw <= addr_rt 			when RegDst = '0' else

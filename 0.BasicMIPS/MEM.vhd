@@ -62,6 +62,8 @@ begin
 				read_data	=>	read_data,
 				clk			=> clk,
 				MemRead		=> MemRead,
-				MemWrite		=> MemWrite);
+				MemWrite		=> MemWrite,
+				ByteAddress => ByteAddress,
+				WordAddress	=>	WordAddress);
 				
 end Structure;

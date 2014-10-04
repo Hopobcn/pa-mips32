@@ -26,10 +26,19 @@ begin
 	begin
 		if (clk'event and clk = '1') then
 			if (MemRead = '1') then
-				read_data(7 downto 0) <= mem(to_integer(unsigned(addr)));
-				read_data(15 downto 8) <= mem(to_integer(unsigned(addr)));
-				read_data(23 downto 16) <= mem(to_integer(unsigned(addr)));
-				read_data(31 downto 24) <= mem(to_integer(unsigned(addr)));
+				if (ByteAddress = '1' and WordAddress = '0') then
+					read_data(7 downto 0) 	<= mem(to_integer(unsigned(addr)));
+					read_data(31 downto 8)	<=	x"000000";    -- LB should sign ext and LBU should put Zeros
+				elsif (ByteAddress = '0' and WordAddress = '0') then
+					read_data(7 downto 0) 	<= mem(to_integer(unsigned(addr)));
+					read_data(15 downto 8) 	<= mem(to_integer(unsigned(addr)));
+					read_data(31 downto 16)	<=	x"0000";
+				else 
+					read_data(7 downto 0) 	<= mem(to_integer(unsigned(addr)));
+					read_data(15 downto 8) 	<= mem(to_integer(unsigned(addr)));
+					read_data(23 downto 16) <= mem(to_integer(unsigned(addr)));
+					read_data(31 downto 24) <= mem(to_integer(unsigned(addr)));
+				end if;
 			end if;
 		end if;
 	end process data_mem_read;
@@ -38,10 +47,17 @@ begin
 	begin
 		if (clk'event and clk = '1') then
 			if (MemWrite = '1') then
-				mem(to_integer(unsigned(addr      ))) <= write_data(7 downto 0);
-				mem(to_integer(unsigned(addr+x"01"))) <= write_data(15 downto 8);
-				mem(to_integer(unsigned(addr+x"02"))) <= write_data(23 downto 16);
-				mem(to_integer(unsigned(addr+x"03"))) <= write_data(31 downto 24);
+				if (ByteAddress = '1' and WordAddress = '0') then
+					mem(to_integer(unsigned(addr      ))) <= write_data(7 downto 0);
+				elsif (ByteAddress = '0' and WordAddress = '0') then
+					mem(to_integer(unsigned(addr      ))) <= write_data(7 downto 0);
+					mem(to_integer(unsigned(addr+x"01"))) <= write_data(15 downto 8);
+				else
+					mem(to_integer(unsigned(addr      ))) <= write_data(7 downto 0);
+					mem(to_integer(unsigned(addr+x"01"))) <= write_data(15 downto 8);
+					mem(to_integer(unsigned(addr+x"02"))) <= write_data(23 downto 16);
+					mem(to_integer(unsigned(addr+x"03"))) <= write_data(31 downto 24);
+				end if;
 			end if;
 		end if;
 	end process data_mem_write;
