@@ -50,7 +50,6 @@ add wave -noupdate /basicmips32test/processor/third_stage/ALUOp_control
 add wave -noupdate -radix hexadecimal /basicmips32test/processor/third_stage/rt
 add wave -noupdate -radix hexadecimal /basicmips32test/processor/third_stage/sign_ext
 add wave -noupdate /basicmips32test/processor/third_stage/ALUSrc
-add wave -noupdate -radix hexadecimal /basicmips32test/processor/third_stage/rt_mux
 add wave -noupdate -radix hexadecimal /basicmips32test/processor/third_stage/rs
 add wave -noupdate -radix hexadecimal /basicmips32test/processor/third_stage/alu_res
 add wave -noupdate /basicmips32test/processor/third_stage/Zero
@@ -60,6 +59,8 @@ add wave -noupdate -radix hexadecimal /basicmips32test/processor/fourth_stage/wr
 add wave -noupdate -radix hexadecimal /basicmips32test/processor/fourth_stage/read_data
 add wave -noupdate /basicmips32test/processor/fourth_stage/MemRead
 add wave -noupdate /basicmips32test/processor/fourth_stage/MemWrite
+add wave -noupdate /basicmips32test/processor/fourth_stage/ByteAddress
+add wave -noupdate /basicmips32test/processor/fourth_stage/WordAddress
 add wave -noupdate /basicmips32test/processor/fourth_stage/Branch
 add wave -noupdate /basicmips32test/processor/fourth_stage/Zero
 add wave -noupdate /basicmips32test/processor/fourth_stage/PCSrc
@@ -69,7 +70,7 @@ add wave -noupdate -radix hexadecimal /basicmips32test/processor/fifth_stage/rea
 add wave -noupdate /basicmips32test/processor/fifth_stage/MemtoReg
 add wave -noupdate -radix hexadecimal /basicmips32test/processor/fifth_stage/write_data
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1374 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1697 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 344
 configure wave -valuecolwidth 211
@@ -85,4 +86,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {814 ps}
+WaveRestoreZoom {1327 ps} {2141 ps}
