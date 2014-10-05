@@ -36,12 +36,16 @@ architecture Structure of instruction_fetch is
 	signal pc_up_tmp		:	std_logic_vector(31 downto 0);
 	signal pc_up_tmp2		:	std_logic_vector(31 downto 0);
 	signal pc_tmp			:	std_logic_vector(31 downto 0);
+	
+	signal Jump_tmp  : std_logic;
 begin
+	Jump_tmp			<= Jump when boot = '0' else
+							'0';
 
 	first_mux_res 	<= addr_branch 	when PCSrc = '1' else
 							pc_up_tmp2;
 		
-	pc_up_tmp	<= first_mux_res when Jump = '0' else
+	pc_up_tmp	<= first_mux_res when Jump_tmp = '0' else
 						addr_jump;
 	
 	program_counter	:	reg_pc

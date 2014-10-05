@@ -59,28 +59,27 @@ begin
 	addr2 <= addr + x"02";
 	addr3 <= addr + x"03";
 	
-	-- Degut a que el process instruction_mem_read est� controlat pel clock
-	-- el processador no comen�a a subministrar l'instrucci� fins al cicle2
-	-- i nosaltres volem que si el PC=0x0000 l'instruccio 0x0000 es carregui
-	-- i no 1 cicle mes tard..
-	instruction <= mem(to_integer(unsigned(addr3))) & 
+	-- In MIPS we write in the first semi-cycle and read in the second semi-cycle					
+	instruction_mem_read	 : process(clk)
+	begin
+		if (falling_edge(clk)) then
+			instruction <= mem(to_integer(unsigned(addr3))) & 
 								mem(to_integer(unsigned(addr2))) &
 								mem(to_integer(unsigned(addr1))) &
 								mem(to_integer(unsigned(addr )));
-								
-	instruction_mem_read : process(clk)
+		end if;
+	end process instruction_mem_read;
+						
+						
+	instruction_mem_write : process(clk)
 	begin
-		if (clk'event and clk = '1') then
+		if (rising_edge(clk)) then
 			if boot = '1' then
 				-- Load the instructions from a file
 				Load_File_DataMem(mem);
 			end if;
-			
-			--instruction <= mem(conv_integer(addr3)) & 
-			--					mem(conv_integer(addr2)) &
-			--					mem(conv_integer(addr1)) &
-			--					mem(conv_integer(addr ));
 		end if;
-	end process instruction_mem_read;
+	end process instruction_mem_write;
+	
 	
 end Structure;

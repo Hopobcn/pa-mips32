@@ -67,7 +67,7 @@ begin
 				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
-					'X';
+					'0';
 					
 					
 	Jump		<=	'0' when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
@@ -113,7 +113,7 @@ begin
 				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
-					'X';
+					'0';
 	
 	Branch 	<=	'0' when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
 					--Arithmetic Instructions                      (sll,sllv,sra,srav,srl,srlv,sub,subu,xor,slt,sltu,jalr,jr)
@@ -158,7 +158,7 @@ begin
 				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
-					'X';
+					'0';
 	
 	MemRead	<=	'0' when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
 					--Arithmetic Instructions                      (sll,sllv,sra,srav,srl,srlv,sub,subu,xor,slt,sltu,jalr,jr)
@@ -203,7 +203,7 @@ begin
 				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
-					'X';
+					'0';
 	
 	MemWrite	<=	'0' when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
 					--Arithmetic Instructions                      (sll,sllv,sra,srav,srl,srlv,sub,subu,xor,slt,sltu,jalr,jr)
@@ -248,7 +248,7 @@ begin
 				 --'1' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
-					'X';
+					'0';
 					
 	ByteAddress <= '1' when opcode = "100000" else -- lb (Load Byte)
 					'0' when opcode = "100001" else -- lh (Load Half word)
@@ -268,7 +268,7 @@ begin
 				 --'0' when opcode = "110001" else -- swc1 (Store word coprocessor 1 - for floating point)
 					'0' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
 				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
-					'-';
+					'0';
 						
 	WordAddress <= '0' when opcode = "100000" else -- lb (Load Byte)
 					'0' when opcode = "100001" else -- lh (Load Half word)
@@ -288,7 +288,7 @@ begin
 				 --'1' when opcode = "110001" else -- swc1 (Store word coprocessor 1 - for floating point)
 					'1' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
 				 --'1' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
-					'-';
+					'1';
 						
 	MemtoReg <=	'0' when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
 					--Arithmetic Instructions                      (sll,sllv,sra,srav,srl,srlv,sub,subu,xor,slt,sltu,jalr,jr)
@@ -333,7 +333,7 @@ begin
 				 --'-' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
-					'X';
+					'0';
 					
 					
 	RegDst	<=	'1' when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
@@ -379,7 +379,7 @@ begin
 				 --'-' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
-					'X';
+					'1';
 					
 					--ARREGLAR LA ALU PER INSTRUCCIONS AMB INMEDIAT!
 	ALUOp		<=	"010" when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
@@ -472,6 +472,6 @@ begin
 				 --'1' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
 					--Floating-Point Instructions					
-					'X';
+					'0';
 	
 end Structure;

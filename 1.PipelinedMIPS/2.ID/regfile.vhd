@@ -17,12 +17,8 @@ end regfile;
 architecture Structure of regfile is
 	type REGISTER_BLOCK is array (2**5-1 downto 0) of std_logic_vector(31 downto 0);
 	signal reg : REGISTER_BLOCK;
-	
-	signal RegWrite_tmp  : std_logic;
 begin
 
-	RegWrite_tmp	<= '0' when addr_rd = "00000" else
-							RegWrite;
 	
 	rs <= x"00000000" when addr_rs = "00000" else
 	      reg(to_integer(unsigned(addr_rs)));    
@@ -32,7 +28,7 @@ begin
 	                    
 	--register_file_read : process(clk)
 	--begin
-	--	if (clk'event and clk = '1') then
+	--	if (rising_edge(clk)) then
 			-- Read Register Rs & Register Rt
 			--#zero should be read as zeros 
 	--		if (addr_rs = "00000") then       --crec que no va
@@ -51,8 +47,8 @@ begin
 	
 	register_file_write : process(clk)
 	begin
-		if (clk'event and clk = '0') then
-			if (RegWrite_tmp = '1') then
+		if (falling_edge(clk)) then
+			if (RegWrite = '1' and addr_rd /= "00000") then
 			  -- Write Register Rd
 				reg(to_integer(unsigned(addr_rd))) <= rd; 
 			end if;

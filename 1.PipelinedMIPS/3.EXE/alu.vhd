@@ -109,7 +109,14 @@ begin
 											ALUOp = "1011") else 	--divu
 			 result_multiHi;
 			 
-	Zero 		<= Zero_core;
+	Zero 		<= Zero_core when (ALUOp = "0000" or			--and | andi 
+											ALUOp = "0001" or			--or  | ori
+											ALUOp = "0010" or			--add | addi | addiu
+											ALUOp = "0110" or			--sub
+											ALUOp = "0111" or			--slt | slti | sltiu
+											ALUOp = "1100" or			--nor
+											ALUOp = "1111") else 	--xor | xori
+						'0';
 						--CHECK OPERATIONS THAT THROW OVERFLOWS
 	Overflow <= Overflow_core 			when (funct = "100000" or 		--add
 														funct = "100010" or 		--sub
