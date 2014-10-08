@@ -13,6 +13,7 @@ entity mem is
 			bypass_mem		:	out std_logic_vector(31 downto 0); 	--to WB
 			addr_regw_in	: 	in	std_logic_vector(4 downto 0);		--from EXE
 			addr_regw_out	:	out std_logic_vector(4 downto 0);	--to WB, then IF
+			fwd_path_mem	:	out std_logic_vector(31 downto 0);	--to ID [FWD]
 			-- control signals
 			clk				:	in std_logic;
 			RegWrite_in		:	in std_logic;								--from EXE
@@ -95,6 +96,8 @@ architecture Structure of mem is
 			WordAddress	:	in	std_logic);
 	end component;
 	
+	signal read_data_tmp	:	std_logic_vector(31 downto 0);
+	
 begin
 
 	-- EXE/MEM Register 
@@ -144,11 +147,12 @@ begin
 	data_memory	: data_mem
 	port map(addr			=> addr_reg,
 				write_data	=>	write_data_reg,
-				read_data	=>	read_data,
+				read_data	=>	read_data_tmp,
 				clk			=> clk,
 				MemRead		=> MemRead_reg,
 				MemWrite		=> MemWrite_reg,
 				ByteAddress => ByteAddress_reg,
 				WordAddress	=>	WordAddress_reg);
 				
+	fwd_path_mem <= read_data_tmp;			
 end Structure;

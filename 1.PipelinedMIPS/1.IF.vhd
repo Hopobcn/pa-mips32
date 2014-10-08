@@ -12,8 +12,9 @@ entity instruction_fetch is
 			clk				:	in std_logic;
 			boot				:	in std_logic;
 			Jump				:	in std_logic;								--from MEM
-			PCSrc				:	in std_logic);								--from MEM
-	
+			PCSrc				:	in std_logic;								--from MEM
+			Stall				:	in std_logic); 		
+			
 end instruction_fetch;
 
 architecture Structure of instruction_fetch is
@@ -21,6 +22,7 @@ architecture Structure of instruction_fetch is
 	component reg_pc is
 	port (pc_up	:	in	std_logic_vector(31 downto 0);
 			pc 	:	out std_logic_vector(31 downto 0);
+			Stall : 	in std_logic;
 			clk	:	in	std_logic;
 			boot	:	in	std_logic);
 	end component;
@@ -51,6 +53,7 @@ begin
 	program_counter	:	reg_pc
 	port map(pc_up	=>	pc_up_tmp,
 				pc		=> pc_tmp,
+				Stall	=> Stall,
 				clk	=> clk,
 				boot	=> boot);
 				

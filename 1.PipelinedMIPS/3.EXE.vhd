@@ -10,14 +10,18 @@ entity execute is
 			rt					:	in std_logic_vector(31 downto 0);	--from ID
 			sign_ext 		:	in std_logic_vector(31 downto 0);	--from ID
 			zero_ext			:	in std_logic_vector(31 downto 0);	--from ID
-			addr_rt			:	in std_logic_vector(4 downto 0);		--from ID
+			addr_rt_in		:	in std_logic_vector(4 downto 0);		--from ID
+			addr_rt_out		:	out std_logic_vector(4 downto 0);	--to Hazard Ctrl
 			addr_rd			:	in std_logic_vector(4 downto 0);		--from ID
 			addr_jump_in	:	in	std_logic_vector(31 downto 0);	--from ID
 			addr_jump_out	:	out std_logic_vector(31 downto 0);	--to MEM,IF
 			addr_branch		:	out std_logic_vector(31 downto 0);	--to MEM,then IF
 			alu_res			:	out std_logic_vector(31 downto 0);	--to MEM
-			write_data		:	out std_logic_vector(31 downto 0);	--to MEM
+			write_data_in	:	in  std_logic_vector(31 downto 0);	--from ID
+			write_data_out	:	out std_logic_vector(31 downto 0);	--to MEM
 			addr_regw		:	out std_logic_vector(4 downto 0);	--to MEM,WB, then IF
+			fwd_path_alu	:	out std_logic_vector(31 downto 0);	--to ID 		[FWD]
+			fwd_path_mem	:	in	 std_logic_vector(31 downto 0);	--from MEM 	[FWD]
 			-- control signals
 			clk				:	in std_logic;
 			RegWrite_in		:	in std_logic;								--from ID
@@ -39,8 +43,8 @@ entity execute is
 			RegDst			:	in std_logic;								--from ID
 			ALUOp				:	in std_logic_vector(2 downto 0);		--from ID
 			ALUSrc			:	in std_logic;								--from ID
-			Zero				:	out std_logic);							--to MEM
-			
+			Zero				:	out std_logic;								--to MEM
+			fwd_mem_regmem	:	in std_logic);							--from FWD Ctrl
 			
 end execute;
 
@@ -135,6 +139,7 @@ architecture Structure of execute is
 			ALUOp		:	in	std_logic_vector(3 downto 0));
 	end component;
 	
+	signal alu_result		:  std_logic_vector(31 downto 0);
 	signal shamt			:	std_logic_vector(31 downto 0);
 	signal sign_immed_mux:	std_logic_vector(31 downto 0);
 	signal alusrc_a_mux	:	std_logic_vector(31 downto 0);
@@ -161,7 +166,7 @@ begin
 				sign_ext_out 	=> sign_ext_reg,
 				zero_ext_in		=> zero_ext,
 				zero_ext_out	=> zero_ext_reg,
-				addr_rt_in		=> addr_rt,
+				addr_rt_in		=> addr_rt_in,
 				addr_rt_out		=> addr_rt_reg,
 				addr_rd_in		=> addr_rd,
 				addr_rd_out		=> addr_rd_reg,
@@ -195,7 +200,8 @@ begin
 
 
 	addr_jump_out	<= addr_jump_reg;
-	write_data 		<= rt_reg;
+	write_data_out	<= fwd_path_mem when fwd_mem_regmem = '1' else
+							write_data_in;
 
 	RegWrite_out	<= RegWrite_reg;
 	Jump_out			<= Jump_reg;
@@ -214,16 +220,8 @@ begin
 				SignedSrc   => SignedSrc,
 				ShiftSrc		=> ShiftSrc);
 				
-	integer_alu	: alu
-	port map(a		=> alusrc_a_mux,
-				b		=> shiftsrc_mux,
-				res	=> alu_res,
-				Zero	=>	Zero,
-			 --Overflow	=>
-			 --CarryOut	=>
-				funct	=> sign_ext_reg(5 downto 0),
-				ALUOp	=> ALUOp_control); 
-				
+	addr_rt_out	<= addr_rt_reg;
+	
 	shamt <= "000000000000000000000000000" & zero_ext_reg(10 downto 6);
 	
 	sign_immed_mux <= zero_ext_reg	when SignedSrc = '0' else
@@ -244,8 +242,20 @@ begin
 				
 	sign_ext_sh2	<= sign_ext_reg(29 downto 0)&"00";
 			
-	addr_branch <= pc_up_reg + sign_ext_sh2;		 
-
-				
+	addr_branch <= pc_up_reg + sign_ext_sh2;		
+	
+	integer_alu	: alu
+	port map(a		=> alusrc_a_mux,
+				b		=> shiftsrc_mux,
+				res	=> alu_result,
+				Zero	=>	Zero,
+			 --Overflow	=>
+			 --CarryOut	=>
+				funct	=> sign_ext_reg(5 downto 0),
+				ALUOp	=> ALUOp_control); 
+	
+	fwd_path_alu <= alu_result;
+	alu_res		 <= alu_result;
+	 		
 				
 end Structure;

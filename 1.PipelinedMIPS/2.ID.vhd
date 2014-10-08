@@ -13,11 +13,15 @@ entity instruction_decode is
 			rd					:	in	std_logic_vector(31 downto 0);	--from WB			
 			sign_ext 		:	out std_logic_vector(31 downto 0);	--to EXE
 			zero_ext			:	out std_logic_vector(31 downto 0);	--to EXE
+			addr_rs			:	out std_logic_vector(4 downto 0);	--to HAZARD CTRL
 			addr_rt			:	out std_logic_vector(4 downto 0);	--to EXE
 			addr_rd			:	out std_logic_vector(4 downto 0);	--to EXE
+			write_data		: 	out std_logic_vector(31 downto 0);  --to EXE,MEM
 			addr_regw		:	in	std_logic_vector(4 downto 0);		--from WB
+			fwd_path_alu	:	in	std_logic_vector(31 downto 0);	--from ALU [FWD]
+			fwd_path_mem	:	in	std_logic_vector(31 downto 0);	--from MEM [FWD]
 			-- control signals
-			clk				:	in std_logic;
+			clk				:	in  std_logic;
 			RegWrite_out	:	out std_logic;								--to EXE,MEM,WB and then ID
 			Jump				:	out std_logic;								--to EXE,MEM,IF
 			Branch			:	out std_logic;								--to EXE,MEM
@@ -29,7 +33,11 @@ entity instruction_decode is
 			RegDst			:	out std_logic;								--to EXE
 			ALUOp				:	out std_logic_vector(2 downto 0);	--to EXE
 			ALUSrc			:	out std_logic;								--to EXE
-			RegWrite_in		:	in	std_logic);								--from WB
+			RegWrite_in		:	in	 std_logic;								--from WB	
+			fwd_aluRs		:	in  std_logic_vector(1 downto 0);	--from FWD Ctrl
+			fwd_aluRt		:	in  std_logic_vector(1 downto 0);	--from FWD Ctrl
+			fwd_alu_regmem	: 	in  std_logic_vector(1 downto 0);	--from FWD Ctrl	
+			Stall				:	in	 std_logic); 
 			
 end instruction_decode;
 
@@ -79,6 +87,15 @@ architecture Structure of instruction_decode is
 			output :	out std_logic_vector(31 downto 0));
 	end component;
 	
+	signal RegWrite_tmp 	: 	std_logic;
+	signal MemtoReg_tmp	:	std_logic;
+	signal MemWrite_tmp	:	std_logic;
+	signal MemRead_tmp	:	std_logic;
+	signal RegDst_tmp		:	std_logic;
+	signal ALUOp_tmp		:	std_logic_vector(2 downto 0);
+	
+	signal rs_regfile		: 	std_logic_vector(31 downto 0);
+	signal rt_regfile		: 	std_logic_vector(31 downto 0);
 begin
 
 	-- IF/ID Register 
@@ -87,41 +104,71 @@ begin
 				instruction_out=> instruction_reg,
 				pc_up_in			=> pc_up_in,
 				pc_up_out		=> pc_up_reg,
-				enable			=> '1',
+				enable			=> not Stall, 
 				clk				=> clk);
 				
 		--jump addres is PC+4[31-28]+Shift_left_2(Instruction[25-0])
 	addr_jump	<= pc_up_reg(31 downto 28) & instruction_reg(25 downto 0) & "00";
 	pc_up_out 	<= pc_up_reg;
 	opcode		<= instruction_reg(31 downto 26);
+	addr_rs		<= instruction_reg(25 downto 21);
 	addr_rt 	 	<= instruction_reg(20 downto 16);
 	addr_rd		<=	instruction_reg(15 downto 11);
 	
 	--logica de control enmascarada, aixi es mes facil gestionar-la
 	control : control_inst_decode 
 	port map(opcode 		=> instruction_reg(31 downto 26),
-				RegWrite 	=> RegWrite_out,
+				RegWrite 	=> RegWrite_tmp,
 				Jump			=> Jump,
 				Branch 		=> Branch,
-				MemRead		=> MemRead,
-				MemWrite		=> MemWrite,
+				MemRead		=> MemRead_tmp,
+				MemWrite		=> MemWrite_tmp,
 				ByteAddress => ByteAddress,
 				WordAddress	=> WordAddress,
-				MemtoReg		=> MemtoReg,
-				RegDst		=> RegDst,
-				ALUOp			=> ALUOp,
+				MemtoReg		=> MemtoReg_tmp,
+				RegDst		=> RegDst_tmp,
+				ALUOp			=> ALUOp_tmp,
 				ALUSrc		=> ALUSrc);
-				
+	
+	--big nop multiplexor
+	RegWrite_out 	<= RegWrite_tmp when Stall = '0' else
+							'0';
+	MemRead			<= MemRead_tmp  when Stall = '0' else
+							'0';
+	MemWrite			<= MemWrite_tmp when Stall = '0' else
+							'0';
+	MemtoReg			<= MemtoReg_tmp when	Stall = '0' else
+							'0';
+	RegDst			<= RegDst_tmp	 when Stall = '0' else
+							'0';
+	ALUOp				<= ALUOp_tmp	 when Stall = '0' else
+							"010"; 									 -- NOP = R0 = R0 OR R0
+						
+						
+						
+						
 	register_file	:	regfile
 	port map(clk		=> clk,
 				addr_rs	=>	instruction_reg(25 downto 21),
 				addr_rt	=> instruction_reg(20 downto 16),
 				addr_rd	=> addr_regw,
-				rs			=> rs,
-				rt			=> rt,
+				rs			=> rs_regfile,
+				rt			=> rt_regfile,
 				rd			=> rd,
 				RegWrite	=> RegWrite_in);
 				
+	rs <= fwd_path_alu	when fwd_aluRs = "11" else
+			fwd_path_mem	when fwd_aluRs = "10" else
+			rs_regfile; 		--fwd_aluRs = "00"
+			
+	rt <= fwd_path_alu	when fwd_aluRt = "11" else
+			fwd_path_mem	when fwd_aluRt = "10" else
+			rt_regfile; 		--fwd_aluRt = "00"
+			
+	write_data <= 	fwd_path_alu when fwd_alu_regmem = "11" else
+						fwd_path_mem when fwd_alu_regmem = "10" else
+						rt_regfile;
+	
 	sign_extend_unit	:	seu
 	port map(input		=> instruction_reg(15 downto 0),
 				output 	=> sign_ext);

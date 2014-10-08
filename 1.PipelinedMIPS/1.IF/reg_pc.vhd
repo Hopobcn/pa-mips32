@@ -6,6 +6,7 @@ entity reg_pc is
 			pc_up	:	in	std_logic_vector(31 downto 0);
 			pc 	:	out std_logic_vector(31 downto 0);
 			-- control signals
+			Stall : 	in std_logic;
 			clk	:	in	std_logic;
 			boot	:	in	std_logic);
 end reg_pc;
@@ -17,11 +18,13 @@ begin
 	
 	instruction_register : process(clk)
 	begin
-		if (clk'event and clk = '1') then
+		if (rising_edge(clk)) then
 			if (boot = '1') then
 				pc_tmp <= x"00000000";
-			else
+			elsif (Stall = '0') then
 				pc_tmp <= pc_up;
+			else
+				pc_tmp <= pc_tmp;
 			end if;
 		else
 			pc_tmp <= pc_tmp;

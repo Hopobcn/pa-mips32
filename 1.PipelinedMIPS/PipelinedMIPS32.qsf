@@ -55,6 +55,8 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name VHDL_FILE PipelinedMIPS32.vhd
+set_global_assignment -name VHDL_FILE 0.CL/hazard_ctrl.vhd
+set_global_assignment -name VHDL_FILE 0.CL/forwarding_ctrl.vhd
 set_global_assignment -name VHDL_FILE 1.IF.vhd
 set_global_assignment -name VHDL_FILE 1.IF/reg_pc.vhd
 set_global_assignment -name VHDL_FILE 1.IF/inst_mem.vhd

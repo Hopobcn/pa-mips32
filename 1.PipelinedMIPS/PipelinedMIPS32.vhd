@@ -19,7 +19,8 @@ architecture Structure of PipelinedMIPS32 is
 			clk				:	in std_logic;
 			boot				:	in std_logic;
 			Jump				:	in std_logic;								--from MEM
-			PCSrc				:	in std_logic);								--from MEM
+			PCSrc				:	in std_logic;								--from MEM
+			Stall				:	in std_logic); 			
 	end component;
 	
 	component instruction_decode is
@@ -34,11 +35,15 @@ architecture Structure of PipelinedMIPS32 is
 			rd					:	in	std_logic_vector(31 downto 0);	--from WB			
 			sign_ext 		:	out std_logic_vector(31 downto 0);	--to EXE
 			zero_ext			:	out std_logic_vector(31 downto 0);	--to EXE
+			addr_rs			:	out std_logic_vector(4 downto 0);	--to HAZARD CTRL
 			addr_rt			:	out std_logic_vector(4 downto 0);	--to EXE
 			addr_rd			:	out std_logic_vector(4 downto 0);	--to EXE
+			write_data		: 	out std_logic_vector(31 downto 0);  --to EXE,MEM
 			addr_regw		:	in	std_logic_vector(4 downto 0);		--from WB
+			fwd_path_alu	:	in	std_logic_vector(31 downto 0);	--from ALU [FWD]
+			fwd_path_mem	:	in	std_logic_vector(31 downto 0);	--from MEM [FWD]
 			-- control signals
-			clk				:	in std_logic;
+			clk				:	in  std_logic;
 			RegWrite_out	:	out std_logic;								--to EXE,MEM,WB and then ID
 			Jump				:	out std_logic;								--to EXE,MEM,IF
 			Branch			:	out std_logic;								--to EXE,MEM
@@ -50,7 +55,11 @@ architecture Structure of PipelinedMIPS32 is
 			RegDst			:	out std_logic;								--to EXE
 			ALUOp				:	out std_logic_vector(2 downto 0);	--to EXE
 			ALUSrc			:	out std_logic;								--to EXE
-			RegWrite_in		:	in	std_logic);								--from WB		
+			RegWrite_in		:	in	 std_logic;								--from WB		
+			fwd_aluRs		:	in  std_logic_vector(1 downto 0);	--from FWD Ctrl
+			fwd_aluRt		:	in  std_logic_vector(1 downto 0);	--from FWD Ctrl
+			fwd_alu_regmem	: 	in  std_logic_vector(1 downto 0);	--from FWD Ctrl
+			Stall				:	in	 std_logic); 
 	end component;
 
 	component execute is
@@ -61,14 +70,18 @@ architecture Structure of PipelinedMIPS32 is
 			rt					:	in std_logic_vector(31 downto 0);	--from ID
 			sign_ext 		:	in std_logic_vector(31 downto 0);	--from ID
 			zero_ext			:	in std_logic_vector(31 downto 0);	--from ID
-			addr_rt			:	in std_logic_vector(4 downto 0);		--from ID
+			addr_rt_in		:	in std_logic_vector(4 downto 0);		--from ID
+			addr_rt_out		:	out std_logic_vector(4 downto 0);	--to Hazard Ctrl
 			addr_rd			:	in std_logic_vector(4 downto 0);		--from ID
 			addr_jump_in	:	in	std_logic_vector(31 downto 0);	--from ID
 			addr_jump_out	:	out std_logic_vector(31 downto 0);	--to MEM,IF
 			addr_branch		:	out std_logic_vector(31 downto 0);	--to MEM,then IF
 			alu_res			:	out std_logic_vector(31 downto 0);	--to MEM
-			write_data		:	out std_logic_vector(31 downto 0);	--to MEM
+			write_data_in	:	in  std_logic_vector(31 downto 0);	--from ID
+			write_data_out	:	out std_logic_vector(31 downto 0);	--to MEM
 			addr_regw		:	out std_logic_vector(4 downto 0);	--to MEM,WB, then IF
+			fwd_path_alu	:	out std_logic_vector(31 downto 0);	--to ID 		[FWD]
+			fwd_path_mem	:	in	 std_logic_vector(31 downto 0);	--from MEM 	[FWD]
 			-- control signals
 			clk				:	in std_logic;
 			RegWrite_in		:	in std_logic;								--from ID
@@ -90,7 +103,8 @@ architecture Structure of PipelinedMIPS32 is
 			RegDst			:	in std_logic;								--from ID
 			ALUOp				:	in std_logic_vector(2 downto 0);		--from ID
 			ALUSrc			:	in std_logic;								--from ID
-			Zero				:	out std_logic);							--to MEM
+			Zero				:	out std_logic;								--to MEM
+			fwd_mem_regmem	:	in std_logic);							--from FWD Ctrl
 	end component;
 			
 	component mem is
@@ -105,6 +119,7 @@ architecture Structure of PipelinedMIPS32 is
 			bypass_mem		:	out std_logic_vector(31 downto 0); 	--to WB
 			addr_regw_in	: 	in	std_logic_vector(4 downto 0);		--from EXE
 			addr_regw_out	:	out std_logic_vector(4 downto 0);	--to WB, then IF
+			fwd_path_mem	:	out std_logic_vector(31 downto 0);	--to ID [FWD]
 			-- control signals
 			clk				:	in std_logic;
 			RegWrite_in		:	in std_logic;								--from EXE
@@ -136,6 +151,34 @@ architecture Structure of PipelinedMIPS32 is
 			MemtoReg			:	in	std_logic);
 	end component;
 	
+	component hazard_ctrl is
+	port (idRegisterRs	: 	in std_logic_vector(4 downto 0);  --consumidor
+			idRegisterRt	:	in	std_logic_vector(4 downto 0);  --consumidor
+			exeRegisterRt	:	in	std_logic_vector(4 downto 0);  --productor
+			exeMemRead		:	in std_logic;
+			Branch			:	in	std_logic;
+			Jump				:	in	std_logic;
+			Stall				:	out std_logic); 
+	end component;
+	
+	component forwarding_ctrl is
+	port (idRegisterRs	: 	in std_logic_vector(4 downto 0);  --consumidor
+			idRegisterRt 	:	in	std_logic_vector(4 downto 0);  --consumidor
+			exeRegisterRd	:	in	std_logic_vector(4 downto 0);  --productor
+			exeRegisterRt	:	in	std_logic_vector(4 downto 0);
+			memRegisterRd	: 	in std_logic_vector(4 downto 0);  --productor
+			exeRegWrite		:	in std_logic;
+			memRegWrite		:	in	std_logic;
+			idMemWrite		:	in std_logic;
+			exeMemWrite		:	in	std_logic;
+			fwd_aluRs		:	out std_logic_vector(1 downto 0);
+			fwd_aluRt		:	out std_logic_vector(1 downto 0);
+			fwd_alu_regmem	: 	out std_logic_vector(1 downto 0);
+			fwd_mem_regmem	:	out std_logic); 
+	end component;
+	
+	
+	
 	-- buses
 	signal addr_jump_2to3	:	std_logic_vector(31 downto 0);
 	signal addr_jump_3to4	:	std_logic_vector(31 downto 0);
@@ -159,15 +202,21 @@ architecture Structure of PipelinedMIPS32 is
 	
 	signal alu_res_3to4		:	std_logic_vector(31 downto 0);
 	
+	signal write_data_2to3	:	std_logic_vector(31 downto 0);
 	signal write_data_3to4	:	std_logic_vector(31 downto 0);
 	signal read_data_4to5	:	std_logic_vector(31 downto 0);
 	signal bypass_mem_4to5	:	std_logic_vector(31 downto 0);
 	
+	signal addr_rs_2toCtrl	:	std_logic_vector(4 downto 0);
 	signal addr_rt_2to3		:	std_logic_vector(4 downto 0);
+	signal addr_rt_3toCtrl	:	std_logic_vector(4 downto 0);
 	signal addr_rd_2to3		:	std_logic_vector(4 downto 0);
 	signal addr_regw_3to4	: 	std_logic_vector(4 downto 0);
 	signal addr_regw_4to5	: 	std_logic_vector(4 downto 0);
 	signal addr_regw_5to2	: 	std_logic_vector(4 downto 0);
+	
+	signal fwd_path_alu_3to2: 	std_logic_vector(31 downto 0);
+	signal fwd_path_mem_4to2and3	:	std_logic_vector(31 downto 0);
 	
 	-- control signals
 	signal PCSrc_4to1			:	std_logic;
@@ -205,6 +254,13 @@ architecture Structure of PipelinedMIPS32 is
 	
 	signal Zero_3to4			:	std_logic;
 	
+	signal Stall				: 	std_logic;
+	
+	signal fwd_aluRs_to2			:	std_logic_vector(1 downto 0);
+	signal fwd_aluRt_to2			:	std_logic_vector(1 downto 0);
+	signal fwd_alu_regmem_to2	: 	std_logic_vector(1 downto 0);
+	signal fwd_mem_regmem_to3	:	std_logic;
+	
 begin
 
 	first_stage	:	instruction_fetch
@@ -215,7 +271,8 @@ begin
 				clk			=> clk,
 				boot			=> boot,
 				Jump			=> Jump_4to1,
-				PCSrc			=> PCSrc_4to1);
+				PCSrc			=> PCSrc_4to1,
+				Stall			=> Stall); 
 
 	second_stage	:	instruction_decode 
 	port map(instruction	=> instruction_1to2,
@@ -228,9 +285,13 @@ begin
 				rd				=> register_d_5to2,
 				sign_ext 	=> sign_ext_2to3,
 				zero_ext		=> zero_ext_2to3,
+				addr_rs		=> addr_rs_2toCtrl,
 				addr_rt		=> addr_rt_2to3,
 				addr_rd		=> addr_rd_2to3,
+				write_data	=> write_data_2to3,
 				addr_regw	=> addr_regw_5to2,
+				fwd_path_alu=> fwd_path_alu_3to2,
+				fwd_path_mem=> fwd_path_mem_4to2and3,
 				clk			=> clk,
 				RegWrite_out=> RegWrite_2to3,
 				Jump			=> Jump_2to3,
@@ -243,44 +304,53 @@ begin
 				RegDst		=> RegDst_2to3,
 				ALUOp			=> ALUOp_2to3,
 				ALUSrc		=> ALUSrc_2to3,
-				RegWrite_in => RegWrite_5to2);
+				RegWrite_in => RegWrite_5to2,
+				fwd_aluRs		=> fwd_aluRs_to2,
+				fwd_aluRt		=> fwd_aluRt_to2,
+				fwd_alu_regmem => fwd_alu_regmem_to2,
+				Stall			=> Stall); 
 	
 	third_stage	:	execute
-	port map(pc_up			=> pc_up_2to3,
-				opcode		=> opcode_2to3,
-				rs				=> register_s_2to3,
-				rt				=> register_t_2to3,
-				sign_ext 	=> sign_ext_2to3,
-				zero_ext		=> zero_ext_2to3,
-				addr_rt		=> addr_rt_2to3,
-				addr_rd		=> addr_rd_2to3,
-				addr_jump_in =>addr_jump_2to3,
-				addr_jump_out=>addr_jump_3to4,
-				addr_branch	=> addr_branch_3to4,
-				alu_res		=> alu_res_3to4,
-				write_data	=> write_data_3to4,
-				addr_regw	=> addr_regw_3to4,
-				clk			=> clk,
-				RegWrite_in => RegWrite_2to3,
-				RegWrite_out=> RegWrite_3to4,
-				Jump_in		=>	Jump_2to3,
-				Jump_out		=>	Jump_3to4,
-				Branch_in	=> Branch_2to3,
-				Branch_out	=> Branch_3to4,
-				MemRead_in	=>	MemRead_2to3,
-				MemRead_out	=>	MemRead_3to4,
-				MemWrite_in	=> MemWrite_2to3,
-				MemWrite_out=> MemWrite_3to4,
+	port map(pc_up				=> pc_up_2to3,
+				opcode			=> opcode_2to3,
+				rs					=> register_s_2to3,
+				rt					=> register_t_2to3,
+				sign_ext 		=> sign_ext_2to3,
+				zero_ext			=> zero_ext_2to3,
+				addr_rt_in		=> addr_rt_2to3,
+				addr_rt_out		=>	addr_rt_3toCtrl,
+				addr_rd			=> addr_rd_2to3,
+				addr_jump_in 	=>addr_jump_2to3,
+				addr_jump_out	=>addr_jump_3to4,
+				addr_branch		=> addr_branch_3to4,
+				alu_res			=> alu_res_3to4,
+				write_data_in	=> write_data_2to3,
+				write_data_out	=> write_data_3to4,
+				addr_regw		=> addr_regw_3to4,
+				fwd_path_alu	=> fwd_path_alu_3to2,
+				fwd_path_mem	=> fwd_path_mem_4to2and3,
+				clk				=> clk,
+				RegWrite_in 	=> RegWrite_2to3,
+				RegWrite_out	=> RegWrite_3to4,
+				Jump_in			=>	Jump_2to3,
+				Jump_out			=>	Jump_3to4,
+				Branch_in		=> Branch_2to3,
+				Branch_out		=> Branch_3to4,
+				MemRead_in		=>	MemRead_2to3,
+				MemRead_out		=>	MemRead_3to4,
+				MemWrite_in		=> MemWrite_2to3,
+				MemWrite_out	=> MemWrite_3to4,
 				ByteAddress_in => ByteAddress_2to3,
 				ByteAddress_out=> ByteAddress_3to4,
 				WordAddress_in	=> WordAddress_2to3,
 				WordAddress_out=>	WordAddress_3to4,
-				MemtoReg_in	=> MemtoReg_2to3,
-				MemtoReg_out=> MemtoReg_3to4,
-				RegDst		=> RegDst_2to3,
-				ALUOp			=> ALUOp_2to3,
-				ALUSrc		=> ALUSrc_2to3,
-				Zero			=> Zero_3to4);
+				MemtoReg_in		=> MemtoReg_2to3,
+				MemtoReg_out	=> MemtoReg_3to4,
+				RegDst			=> RegDst_2to3,
+				ALUOp				=> ALUOp_2to3,
+				ALUSrc			=> ALUSrc_2to3,
+				Zero				=> Zero_3to4,
+				fwd_mem_regmem => fwd_mem_regmem_to3);
 				
 	fourth_stage	:	mem
 	port map(
@@ -294,6 +364,7 @@ begin
 				bypass_mem			=> bypass_mem_4to5,
 				addr_regw_in		=> addr_regw_3to4,
 				addr_regw_out		=> addr_regw_4to5,
+				fwd_path_mem		=> fwd_path_mem_4to2and3,
 				clk					=> clk,
 				RegWrite_in			=> RegWrite_3to4,
 				RegWrite_out		=> RegWrite_4to5,
@@ -320,4 +391,30 @@ begin
 				RegWrite_out	=> RegWrite_5to2,
 				MemtoReg			=>	MemtoReg_4to5);
 			
+			
+	hazard_contol_logic : hazard_ctrl
+	port map(idRegisterRs	=> addr_rs_2toCtrl,
+				idRegisterRt	=> addr_rt_2to3,
+				exeRegisterRt	=> addr_rt_3toCtrl, --this is addr_rt
+				exeMemRead		=> MemRead_3to4,
+				Branch			=> Branch_2to3,
+				Jump				=> Jump_2to3,
+				Stall				=> Stall); 
+
+	
+	forwarding_control_logic : forwarding_ctrl 
+	port map(idRegisterRs	=> addr_rs_2toCtrl,
+				idRegisterRt 	=> addr_rt_2to3,
+				exeRegisterRd	=> addr_regw_3to4,
+				exeRegisterRt	=> addr_rt_3toCtrl,
+				memRegisterRd	=> addr_regw_4to5,
+				exeRegWrite		=> RegWrite_3to4,
+				memRegWrite		=> RegWrite_4to5,
+				idMemWrite		=> MemWrite_2to3,
+				exeMemWrite		=> MemWrite_3to4,
+				fwd_aluRs		=> fwd_aluRs_to2,
+				fwd_aluRt		=> fwd_aluRt_to2,
+				fwd_alu_regmem	=> fwd_alu_regmem_to2,
+				fwd_mem_regmem	=> fwd_mem_regmem_to3); 
+	
 end Structure;
