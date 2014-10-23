@@ -96,15 +96,19 @@ architecture Structure of instruction_decode is
 	
 	signal rs_regfile		: 	std_logic_vector(31 downto 0);
 	signal rt_regfile		: 	std_logic_vector(31 downto 0);
+	
+	signal enable      : std_logic;
 begin
-
+  
+  enable <= not Stall;
+  
 	-- IF/ID Register 
 	IF_ID_register : if_id_reg
 	port map(instruction_in	=> instruction,
 				instruction_out=> instruction_reg,
 				pc_up_in			=> pc_up_in,
 				pc_up_out		=> pc_up_reg,
-				enable			=> not Stall, 
+				enable			=> enable, 
 				clk				=> clk);
 				
 		--jump addres is PC+4[31-28]+Shift_left_2(Instruction[25-0])
