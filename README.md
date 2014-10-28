@@ -22,10 +22,12 @@ We are going to try to implement this features:
       Order of importance: Data Cach > Instruction Cach
 
 --------------------------------In this point, ask the professor for advice:
+
 * 3.PredictorMIPS: Implement Branch prediction
 * 4.MulticycleMIPS: Implement a long-cycle instruction (floating point?). A new register file and LD/ST for FP.. With Reorder Buffer or History File or Renaming...
 
 -------------------------------- The scope of the project is until here.
+
 * 5.OutoforderMIPS: 
 
 Others: 
