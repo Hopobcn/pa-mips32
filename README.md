@@ -16,14 +16,20 @@ for example:
 We are going to try to implement this features:
 
 * 0.BasicMIPS : A MIPS32 processor without pipelining. It's not needed for the project but it's important as we want to start from a correct implementation.
-* 1.PipelinedMIPS: A pipelined version of the last implementation. It will include forward-paths, hazard detectors, (basic)exceptions and interrupts. (branch predictor if we are going ok of time)
-* 2.AdvancedMIPS: Extend our 5 stage pipeline to support cache hierachy plus a realistic store pipeline and support for virtual memory.
+* 1.PipelinedMIPS: A pipelined version of the last implementation. It will include forwarding-paths, hazard detectors, (basic)exceptions and interrupts.
+      Order of importance: Interrupts > Exception (overflow, parity) 
+* 2.CatchedMIPS: Extend our 5 stage pipeline to support cache hierachy plus a realistic store pipeline and support for virtual memory.
+      Order of importance: Data Cach > Instruction Cach
 
---------------------------------Until here is the target for the project if we are going ahead of schedule we will implement this other features:
+--------------------------------In this point, ask the professor for advice:
+* 3.PredictorMIPS: Implement Branch prediction
+* 4.MulticycleMIPS: Implement a long-cycle instruction (floating point?). A new register file and LD/ST for FP.. With Reorder Buffer or History File or Renaming...
 
-* 3.MulticycleMIPS: Implement new instructions for adding floating point capabilities to our processor. A new register file and LD/ST for FP + fix broken things.
-* 4.PredictorMIPS: Implement a complete Branch predictor...
+-------------------------------- The scope of the project is until here.
 * 5.OutoforderMIPS: 
+
+Others: 
+* A program/script that computes the CPI of a small code in each iteration of our implementations.
 
 ### How do I get set up? ###
 
