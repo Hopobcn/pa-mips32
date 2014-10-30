@@ -8,9 +8,8 @@ entity mem is
 			addr_branch_in	:	in std_logic_vector(31 downto 0);	--from MEM
 			addr_branch_out:	out std_logic_vector(31 downto 0);	--to IF
 			addr				:	in std_logic_vector(31 downto 0);	--from EXE --named alu_res in EXE
-			write_data		:	in std_logic_vector(31 downto 0);	--from EXE
-			read_data		:	out std_logic_vector(31 downto 0);	--to WB
-			bypass_mem		:	out std_logic_vector(31 downto 0); 	--to WB
+			write_data_mem	:	in std_logic_vector(31 downto 0);	--from EXE
+			write_data_rb  :  out std_logic_vector(31 downto 0);  -- to WB
 			addr_regw_in	: 	in	std_logic_vector(4 downto 0);		--from EXE
 			addr_regw_out	:	out std_logic_vector(4 downto 0);	--to WB, then IF
 			fwd_path_mem	:	out std_logic_vector(31 downto 0);	--to ID [FWD]
@@ -26,8 +25,7 @@ entity mem is
 			MemWrite			:	in std_logic;								--from EXE;
 			ByteAddress 	:  in std_logic;								--from EXE
 			WordAddress		:	in	std_logic;								--from EXE
-			MemtoReg_in		:	in std_logic;								--from MEM
-			MemtoReg_out	:	out std_logic;								--to WB
+			MemtoReg			:	in std_logic;								--from MEM
 			Zero				:	in std_logic);								--from EXE
 			
 end mem;
@@ -73,7 +71,7 @@ architecture Structure of mem is
 	signal addr_jump_reg		:	std_logic_vector(31 downto 0);	
 	signal addr_branch_reg	:	std_logic_vector(31 downto 0);	
 	signal addr_reg			:	std_logic_vector(31 downto 0);	
-	signal write_data_reg	:	std_logic_vector(31 downto 0);
+	signal write_data_mem_reg	:	std_logic_vector(31 downto 0);
 	signal addr_regw_reg		: 	std_logic_vector(4 downto 0);	
 	signal RegWrite_reg		:	std_logic;							
 	signal Jump_reg			:	std_logic;		
@@ -96,8 +94,9 @@ architecture Structure of mem is
 			WordAddress	:	in	std_logic);
 	end component;
 	
-	signal read_data_tmp	:	std_logic_vector(31 downto 0);
-	
+	signal read_data_mem	:	std_logic_vector(31 downto 0);
+	signal bypass_mem    : 	std_logic_vector(31 downto 0);
+	signal load_or_bypass:  std_logic_vector(31 downto 0);
 begin
 
 	-- EXE/MEM Register 
@@ -108,8 +107,8 @@ begin
 				addr_branch_out=> addr_branch_reg,
 				addr_in			=> addr,
 				addr_out			=> addr_reg,
-				write_data_in	=> write_data,
-				write_data_out	=> write_data_reg,
+				write_data_in	=> write_data_mem,
+				write_data_out	=> write_data_mem_reg,
 				addr_regw_in	=> addr_regw_in,
 				addr_regw_out	=> addr_regw_reg,
 				RegWrite_in		=> RegWrite_in,				
@@ -126,7 +125,7 @@ begin
 				ByteAddress_out=> ByteAddress_reg,
 				WordAddress_in	=> WordAddress,
 				WordAddress_out=> WordAddress_reg,
-				MemtoReg_in		=> MemtoReg_in,
+				MemtoReg_in		=> MemtoReg,
 				MemtoReg_out	=> MemtoReg_reg,
 				Zero_in			=> Zero,
 				Zero_out			=> Zero_reg,
@@ -141,18 +140,21 @@ begin
 	
 	RegWrite_out	<= RegWrite_reg;
 	Jump_out			<= Jump_reg;
-	MemtoReg_out	<=	MemtoReg_reg;
 	PCSrc				<= Branch_reg and Zero_reg; 
 	
 	data_memory	: data_mem
 	port map(addr			=> addr_reg,
-				write_data	=>	write_data_reg,
-				read_data	=>	read_data_tmp,
+				write_data	=>	write_data_mem_reg,
+				read_data	=>	read_data_mem,
 				clk			=> clk,
 				MemRead		=> MemRead_reg,
 				MemWrite		=> MemWrite_reg,
 				ByteAddress => ByteAddress_reg,
 				WordAddress	=>	WordAddress_reg);
 				
-	fwd_path_mem <= read_data_tmp;			
+	load_or_bypass <= 	bypass_mem when MemtoReg_reg = '0' else
+							read_data_mem;
+			
+	write_data_rb 	<= load_or_bypass;
+	fwd_path_mem 	<= load_or_bypass;			
 end Structure;

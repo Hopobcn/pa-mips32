@@ -18,13 +18,16 @@ entity data_mem is
 end data_mem;
 
 architecture Structure of data_mem is
-	type DATA_MEM is array (2**8-1 downto 0) of std_logic_vector(7 downto 0);
+	type DATA_MEM is array (2**8-1 downto 0) of std_logic_vector(7 downto 0) ;
 	signal mem : DATA_MEM;
 begin
 
+	-- ATM memory reads in the second semi-cycle (in the falling edge of the clock)
+	-- if we try to use raising_edge the memory reads at the end of the cycle making the fordwarding paths impossible (or with junk)
+	-- We should FIX this issue when implementing caches... this isn't acceptable, the memory access shoud happend from the beginning of the cycle!
 	data_mem_read : process(clk)
 	begin
-		if (clk'event and clk = '1') then
+		if (falling_edge(clk)) then
 			if (MemRead = '1') then
 				if (ByteAddress = '1' and WordAddress = '0') then
 					read_data(7 downto 0) 	<= mem(to_integer(unsigned(addr)));
@@ -45,7 +48,7 @@ begin
 	
 	data_mem_write : process(clk)
 	begin
-		if (clk'event and clk = '1') then
+		if (falling_edge(clk)) then
 			if (MemWrite = '1') then
 				if (ByteAddress = '1' and WordAddress = '0') then
 					mem(to_integer(unsigned(addr      ))) <= write_data(7 downto 0);

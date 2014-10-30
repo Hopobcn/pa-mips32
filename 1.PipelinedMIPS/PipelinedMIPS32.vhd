@@ -49,6 +49,7 @@ architecture Structure of PipelinedMIPS32 is
 			Branch			:	out std_logic;								--to EXE,MEM
 			MemRead			:	out std_logic;								--to EXE,MEM
 			MemWrite			:	out std_logic;								--to EXE,MEM
+			MemWriteHazard :  out std_logic;								--to Hazard control (pure value without NOP, if not weird things occur)
 			ByteAddress 	:  out std_logic;								--to EXE,MEM
 			WordAddress		:	out std_logic;								--to EXE,MEM
 			MemtoReg			:	out std_logic;								--to EXE,MEM,WB
@@ -114,9 +115,8 @@ architecture Structure of PipelinedMIPS32 is
 			addr_branch_in	:	in std_logic_vector(31 downto 0);	--from MEM
 			addr_branch_out:	out std_logic_vector(31 downto 0);	--to IF
 			addr				:	in std_logic_vector(31 downto 0);	--from EXE --named alu_res in EXE
-			write_data		:	in std_logic_vector(31 downto 0);	--from EXE
-			read_data		:	out std_logic_vector(31 downto 0);	--to WB
-			bypass_mem		:	out std_logic_vector(31 downto 0); 	--to WB
+			write_data_mem	:	in std_logic_vector(31 downto 0);	--from EXE
+			write_data_rb  :  out std_logic_vector(31 downto 0);  -- to WB
 			addr_regw_in	: 	in	std_logic_vector(4 downto 0);		--from EXE
 			addr_regw_out	:	out std_logic_vector(4 downto 0);	--to WB, then IF
 			fwd_path_mem	:	out std_logic_vector(31 downto 0);	--to ID [FWD]
@@ -129,32 +129,30 @@ architecture Structure of PipelinedMIPS32 is
 			Branch			:	in std_logic;								--from EXE
 			PCSrc				:	out std_logic;								--to ID
 			MemRead			:	in std_logic;								--from EXE
-			MemWrite			:	in std_logic;								--from EXE
+			MemWrite			:	in std_logic;								--from EXE;
 			ByteAddress 	:  in std_logic;								--from EXE
 			WordAddress		:	in	std_logic;								--from EXE
-			MemtoReg_in		:	in std_logic;								--from MEM
-			MemtoReg_out	:	out std_logic;								--to WB
+			MemtoReg			:	in std_logic;								--from MEM
 			Zero				:	in std_logic);								--from EXE
 	end component;
 		
 	component write_back is
 	port (-- buses
-			read_data		:	in std_logic_vector(31 downto 0);	--from MEM
-			bypass_mem		:	in std_logic_vector(31 downto 0); 	--from MEM
-			write_data		:	out std_logic_vector(31 downto 0);	--to IF
-			addr_regw_in	:	in	std_logic_vector(4 downto 0);	--from MEM
+			write_data_in	:	in std_logic_vector(31 downto 0); 	--from MEM
+			write_data_out	:	out std_logic_vector(31 downto 0);	--to IF
+			addr_regw_in	:	in	std_logic_vector(4 downto 0);	   --from MEM
 			addr_regw_out	:	out std_logic_vector(4 downto 0);	--to IF
 			-- control signals
 			clk				:	in std_logic;
 			RegWrite_in		:	in std_logic;
-			RegWrite_out	:	out std_logic;
-			MemtoReg			:	in	std_logic);
+			RegWrite_out	:	out std_logic);
 	end component;
 	
 	component hazard_ctrl is
 	port (idRegisterRs	: 	in std_logic_vector(4 downto 0);  --consumidor
 			idRegisterRt	:	in	std_logic_vector(4 downto 0);  --consumidor
 			exeRegisterRt	:	in	std_logic_vector(4 downto 0);  --productor
+			idMemWrite  	: 	in std_logic;
 			exeMemRead		:	in std_logic;
 			Branch			:	in	std_logic;
 			Jump				:	in	std_logic;
@@ -195,6 +193,7 @@ architecture Structure of PipelinedMIPS32 is
 	
 	signal register_s_2to3	:	std_logic_vector(31 downto 0);
 	signal register_t_2to3	:	std_logic_vector(31 downto 0);
+	signal register_d_4to5	:  std_logic_vector(31 downto 0);
 	signal register_d_5to2	:	std_logic_vector(31 downto 0);
 	
 	signal sign_ext_2to3		:	std_logic_vector(31 downto 0);
@@ -204,8 +203,6 @@ architecture Structure of PipelinedMIPS32 is
 	
 	signal write_data_2to3	:	std_logic_vector(31 downto 0);
 	signal write_data_3to4	:	std_logic_vector(31 downto 0);
-	signal read_data_4to5	:	std_logic_vector(31 downto 0);
-	signal bypass_mem_4to5	:	std_logic_vector(31 downto 0);
 	
 	signal addr_rs_2toCtrl	:	std_logic_vector(4 downto 0);
 	signal addr_rt_2to3		:	std_logic_vector(4 downto 0);
@@ -242,7 +239,8 @@ architecture Structure of PipelinedMIPS32 is
 	
 	signal MemWrite_2to3		:	std_logic;
 	signal MemWrite_3to4		:	std_logic;
-			
+	signal MemWrite_2toHazardCtrl : std_logic;
+	
 	signal ByteAddress_2to3	:	std_logic;
 	signal ByteAddress_3to4	:	std_logic;
 	signal WordAddress_2to3	:	std_logic;
@@ -298,6 +296,7 @@ begin
 				Branch		=> Branch_2to3,
 				MemRead		=>	MemRead_2to3,
 				MemWrite		=>	MemWrite_2to3,
+				MemWriteHazard => MemWrite_2toHazardCtrl,
 				ByteAddress	=> ByteAddress_2to3,
 				WordAddress	=> WordAddress_2to3,
 				MemtoReg		=> MemtoReg_2to3,
@@ -353,15 +352,13 @@ begin
 				fwd_mem_regmem => fwd_mem_regmem_to3);
 				
 	fourth_stage	:	mem
-	port map(
-				addr_jump_in 		=> addr_jump_3to4,
+	port map(addr_jump_in 		=> addr_jump_3to4,
 				addr_jump_out		=> addr_jump_4to1,
 				addr_branch_in		=> addr_branch_3to4,
 				addr_branch_out	=>	addr_branch_4to1,
 				addr					=> alu_res_3to4,
-				write_data			=> write_data_3to4,
-				read_data			=> read_data_4to5,
-				bypass_mem			=> bypass_mem_4to5,
+				write_data_mem		=> write_data_3to4,
+				write_data_rb		=> register_d_4to5,
 				addr_regw_in		=> addr_regw_3to4,
 				addr_regw_out		=> addr_regw_4to5,
 				fwd_path_mem		=> fwd_path_mem_4to2and3,
@@ -376,26 +373,25 @@ begin
 				MemWrite				=> MemWrite_3to4,
 				ByteAddress			=> ByteAddress_3to4,
 				WordAddress			=> WordAddress_3to4,
-				MemtoReg_in			=> MemtoReg_3to4,
-				MemtoReg_out		=> MemtoReg_4to5,
+				MemtoReg				=> MemtoReg_3to4,
 				Zero					=> Zero_3to4);
 	
+			
 	fifth_stage	:	write_back
-	port map(read_data		=> read_data_4to5,
-				bypass_mem		=> bypass_mem_4to5,
-				write_data		=> register_d_5to2,
+	port map(write_data_in	=> register_d_4to5,
+				write_data_out	=> register_d_5to2,
 				addr_regw_in	=> addr_regw_4to5,
 				addr_regw_out	=> addr_regw_5to2,
 				clk				=> clk,
 				RegWrite_in		=> RegWrite_4to5,
-				RegWrite_out	=> RegWrite_5to2,
-				MemtoReg			=>	MemtoReg_4to5);
-			
+				RegWrite_out	=> RegWrite_5to2);
+
 			
 	hazard_contol_logic : hazard_ctrl
 	port map(idRegisterRs	=> addr_rs_2toCtrl,
 				idRegisterRt	=> addr_rt_2to3,
 				exeRegisterRt	=> addr_rt_3toCtrl, --this is addr_rt
+				idMemWrite  	=> MemWrite_2toHazardCtrl,
 				exeMemRead		=> MemRead_3to4,
 				Branch			=> Branch_2to3,
 				Jump				=> Jump_2to3,
@@ -410,7 +406,7 @@ begin
 				memRegisterRd	=> addr_regw_4to5,
 				exeRegWrite		=> RegWrite_3to4,
 				memRegWrite		=> RegWrite_4to5,
-				idMemWrite		=> MemWrite_2to3,
+				idMemWrite		=> MemWrite_2toHazardCtrl,
 				exeMemWrite		=> MemWrite_3to4,
 				fwd_aluRs		=> fwd_aluRs_to2,
 				fwd_aluRt		=> fwd_aluRt_to2,

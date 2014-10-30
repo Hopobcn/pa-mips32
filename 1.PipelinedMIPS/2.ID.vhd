@@ -27,6 +27,7 @@ entity instruction_decode is
 			Branch			:	out std_logic;								--to EXE,MEM
 			MemRead			:	out std_logic;								--to EXE,MEM
 			MemWrite			:	out std_logic;								--to EXE,MEM
+			MemWriteHazard :  out std_logic;								--to Hazard control (pure value without NOP, if not weird things occur)
 			ByteAddress 	:  out std_logic;								--to EXE,MEM
 			WordAddress		:	out std_logic;								--to EXE,MEM
 			MemtoReg			:	out std_logic;								--to EXE,MEM,WB
@@ -139,6 +140,7 @@ begin
 							'0';
 	MemRead			<= MemRead_tmp  when Stall = '0' else
 							'0';
+	MemWriteHazard <= MemWrite_tmp;
 	MemWrite			<= MemWrite_tmp when Stall = '0' else
 							'0';
 	MemtoReg			<= MemtoReg_tmp when	Stall = '0' else

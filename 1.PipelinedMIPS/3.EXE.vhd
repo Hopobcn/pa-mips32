@@ -236,14 +236,6 @@ begin
 	alusrc_a_mux	<= rs_reg			when ShiftSrc = '0' else
 							rt_reg;
 	
-	addr_regw <= addr_rt_reg			when RegDst_reg = '0' else
-					 addr_rd_reg;	
-
-				
-	sign_ext_sh2	<= sign_ext_reg(29 downto 0)&"00";
-			
-	addr_branch <= pc_up_reg + sign_ext_sh2;		
-	
 	integer_alu	: alu
 	port map(a		=> alusrc_a_mux,
 				b		=> shiftsrc_mux,
@@ -257,5 +249,13 @@ begin
 	fwd_path_alu <= alu_result;
 	alu_res		 <= alu_result;
 	 		
+		
+	addr_regw <= addr_rt_reg			when RegDst_reg = '0' else
+					 addr_rd_reg;	
+
 				
+	sign_ext_sh2	<= sign_ext_reg(29 downto 0)&"00";
+			
+	addr_branch <= pc_up_reg + sign_ext_sh2;		
+			
 end Structure;
