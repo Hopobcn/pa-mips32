@@ -19,7 +19,7 @@ architecture Structure of mem_wb_reg is
 
 begin
 
-	mem_wb_reg : process(clk,enable)
+	mem_wb_reg : process(clk)
 	begin
 		if (enable = '1') then
 			if (rising_edge(clk)) then

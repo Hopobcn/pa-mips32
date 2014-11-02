@@ -115,7 +115,7 @@ begin
 											ALUOp = "0110" or			--sub
 											ALUOp = "0111" or			--slt | slti | sltiu
 											ALUOp = "1100" or			--nor
-											ALUOp = "1111") else 	--xor | xori
+											ALUOp = "1111") else 	--xor | xorisim:/pipelinedmips32test/processor/third_stage/integer_alu/Zero sim:/pipelinedmips32test/processor/third_stage/integer_alu/Zero_core sim:/pipelinedmips32test/processor/third_stage/integer_alu/ALUOp
 						'0';
 						--CHECK OPERATIONS THAT THROW OVERFLOWS
 	Overflow <= Overflow_core 			when (funct = "100000" or 		--add

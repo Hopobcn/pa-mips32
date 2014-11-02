@@ -54,7 +54,7 @@ architecture Structure of id_exe_reg is
 
 begin
 	
-	id_exe_register : process(clk,enable)
+	id_exe_register : process(clk)
 	begin
 		if (enable = '1') then
 			if (rising_edge(clk)) then

@@ -126,7 +126,8 @@ architecture Structure of PipelinedMIPS32 is
 			RegWrite_out	:	out std_logic;								--to WB, then ID
 			Jump_in			:	in std_logic;								--from EXE
 			Jump_out			:	out std_logic;								--to IF
-			Branch			:	in std_logic;								--from EXE
+			Branch_in			:	in std_logic;								--from EXE
+			Branch_out  : out std_logic;       --to control
 			PCSrc				:	out std_logic;								--to ID
 			MemRead			:	in std_logic;								--from EXE
 			MemWrite			:	in std_logic;								--from EXE;
@@ -154,9 +155,15 @@ architecture Structure of PipelinedMIPS32 is
 			exeRegisterRt	:	in	std_logic_vector(4 downto 0);  --productor
 			idMemWrite  	: 	in std_logic;
 			exeMemRead		:	in std_logic;
-			Branch			:	in	std_logic;
-			Jump				:	in	std_logic;
-			Stall				:	out std_logic); 
+			Branch_2			:	in	std_logic;
+      Branch_3			:	in	std_logic;
+      Branch_4			:	in	std_logic;
+			Jump_2				:	in	std_logic;
+			Jump_3    : in std_logic;
+			Jump_4    : in std_logic;
+			Stall				:	out std_logic;
+			clk      : in std_logic;
+			boot     : in std_logic); 
 	end component;
 	
 	component forwarding_ctrl is
@@ -229,6 +236,7 @@ architecture Structure of PipelinedMIPS32 is
 	
 	signal Branch_2to3		:	std_logic;
 	signal Branch_3to4		:	std_logic;
+	signal Branch_4toCtrl : std_logic;
 	
 	signal RegDst_2to3		:	std_logic;
 	signal ALUOp_2to3			:	std_logic_vector(2 downto 0);
@@ -367,7 +375,8 @@ begin
 				RegWrite_out		=> RegWrite_4to5,
 				Jump_in				=>	Jump_3to4,
 				Jump_out				=>	Jump_4to1,
-				Branch				=> Branch_3to4,
+				Branch_in				=> Branch_3to4,
+				Branch_out   => Branch_4toCtrl,
 				PCSrc					=> PCSrc_4to1,
 				MemRead				=> MemRead_3to4,
 				MemWrite				=> MemWrite_3to4,
@@ -393,9 +402,15 @@ begin
 				exeRegisterRt	=> addr_rt_3toCtrl, --this is addr_rt
 				idMemWrite  	=> MemWrite_2toHazardCtrl,
 				exeMemRead		=> MemRead_3to4,
-				Branch			=> Branch_2to3,
-				Jump				=> Jump_2to3,
-				Stall				=> Stall); 
+				Branch_2			=> Branch_2to3,
+				Branch_3			=> Branch_3to4,
+        Branch_4			=> Branch_4toCtrl,
+				Jump_2				=> Jump_2to3,
+				Jump_3    => Jump_3to4,
+				Jump_4    => Jump_4to1,
+				Stall				=> Stall,
+				clk      => clk,
+				boot     => boot); 
 
 	
 	forwarding_control_logic : forwarding_ctrl 

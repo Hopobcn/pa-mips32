@@ -94,6 +94,8 @@ architecture Structure of instruction_decode is
 	signal MemRead_tmp	:	std_logic;
 	signal RegDst_tmp		:	std_logic;
 	signal ALUOp_tmp		:	std_logic_vector(2 downto 0);
+	signal Jump_tmp : std_logic;
+	signal Branch_tmp : std_logic;
 	
 	signal rs_regfile		: 	std_logic_vector(31 downto 0);
 	signal rt_regfile		: 	std_logic_vector(31 downto 0);
@@ -124,8 +126,8 @@ begin
 	control : control_inst_decode 
 	port map(opcode 		=> instruction_reg(31 downto 26),
 				RegWrite 	=> RegWrite_tmp,
-				Jump			=> Jump,
-				Branch 		=> Branch,
+				Jump			=> Jump_tmp,
+				Branch 		=> Branch_tmp,
 				MemRead		=> MemRead_tmp,
 				MemWrite		=> MemWrite_tmp,
 				ByteAddress => ByteAddress,
@@ -150,7 +152,11 @@ begin
 	ALUOp				<= ALUOp_tmp	 when Stall = '0' else
 							"010"; 									 -- NOP = R0 = R0 OR R0
 						
-						
+	-- the Jump only goes through when not stalling
+	Jump <= Jump_tmp when Stall = '0' else
+	        '0';	
+	Branch <= Branch_tmp when Stall = '0' else
+	          '0';
 						
 						
 	register_file	:	regfile

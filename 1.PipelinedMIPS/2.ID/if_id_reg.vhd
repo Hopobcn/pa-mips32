@@ -16,7 +16,7 @@ architecture Structure of if_id_reg is
 	
 begin
 
-	if_id_register : process(clk,enable)
+	if_id_register : process(clk)
 	begin
 		if (enable = '1') then
 			if (rising_edge(clk)) then

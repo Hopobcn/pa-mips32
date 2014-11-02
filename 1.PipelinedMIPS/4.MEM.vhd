@@ -19,7 +19,8 @@ entity mem is
 			RegWrite_out	:	out std_logic;								--to WB, then ID
 			Jump_in			:	in std_logic;								--from EXE
 			Jump_out			:	out std_logic;								--to IF
-			Branch			:	in std_logic;								--from EXE
+			Branch_in		:	in std_logic;								--from EXE
+			Branch_out	:	out std_logic;								--to control (identify end of branch stall)
 			PCSrc				:	out std_logic;								--to ID
 			MemRead			:	in std_logic;								--from EXE
 			MemWrite			:	in std_logic;								--from EXE;
@@ -115,7 +116,7 @@ begin
 				RegWrite_out	=> RegWrite_reg,	
 				Jump_in			=> Jump_in,
 				Jump_out			=> Jump_reg,
-				Branch_in		=> Branch,
+				Branch_in		=> Branch_in,
 				Branch_out		=> Branch_reg,
 				MemRead_in		=> MemRead,
 				MemRead_out		=> MemRead_reg,
@@ -140,6 +141,7 @@ begin
 	
 	RegWrite_out	<= RegWrite_reg;
 	Jump_out			<= Jump_reg;
+	Branch_out <= Branch_reg;
 	PCSrc				<= Branch_reg and Zero_reg; 
 	
 	data_memory	: data_mem
