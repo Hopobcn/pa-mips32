@@ -17,6 +17,8 @@ architecture Structure of PipelinedMIPS32 is
 			instruction		: 	out std_logic_vector(31 downto 0);	--to stage ID
 			-- control signals
 			clk				:	in std_logic;
+			ClearIDreg  : out std_logic;
+			ClearEXEreg : out std_logic;
 			boot				:	in std_logic;
 			Jump				:	in std_logic;								--from MEM
 			PCSrc				:	in std_logic;								--from MEM
@@ -44,6 +46,7 @@ architecture Structure of PipelinedMIPS32 is
 			fwd_path_mem	:	in	std_logic_vector(31 downto 0);	--from MEM [FWD]
 			-- control signals
 			clk				:	in  std_logic;
+			clear   : in std_logic;
 			RegWrite_out	:	out std_logic;								--to EXE,MEM,WB and then ID
 			Jump				:	out std_logic;								--to EXE,MEM,IF
 			Branch			:	out std_logic;								--to EXE,MEM
@@ -85,6 +88,7 @@ architecture Structure of PipelinedMIPS32 is
 			fwd_path_mem	:	in	 std_logic_vector(31 downto 0);	--from MEM 	[FWD]
 			-- control signals
 			clk				:	in std_logic;
+			clear   : in std_logic;
 			RegWrite_in		:	in std_logic;								--from ID
 			RegWrite_out	:	out std_logic;								--to MEM,WB, then ID
 			Jump_in			:	in std_logic;								--from ID
@@ -155,12 +159,8 @@ architecture Structure of PipelinedMIPS32 is
 			exeRegisterRt	:	in	std_logic_vector(4 downto 0);  --productor
 			idMemWrite  	: 	in std_logic;
 			exeMemRead		:	in std_logic;
-			Branch_2			:	in	std_logic;
-      Branch_3			:	in	std_logic;
-      Branch_4			:	in	std_logic;
-			Jump_2				:	in	std_logic;
-			Jump_3    : in std_logic;
-			Jump_4    : in std_logic;
+			Branch			:	in	std_logic;
+			Jump    : in std_logic;
 			Stall				:	out std_logic;
 			clk      : in std_logic;
 			boot     : in std_logic); 
@@ -267,6 +267,9 @@ architecture Structure of PipelinedMIPS32 is
 	signal fwd_alu_regmem_to2	: 	std_logic_vector(1 downto 0);
 	signal fwd_mem_regmem_to3	:	std_logic;
 	
+	signal ClearIDreg : std_logic;
+	signal ClearEXEreg : std_logic;
+	
 begin
 
 	first_stage	:	instruction_fetch
@@ -275,6 +278,8 @@ begin
 				pc_up			=> pc_up_1to2,
 				instruction	=> instruction_1to2,
 				clk			=> clk,
+				ClearIDreg  => ClearIDreg,
+				ClearEXEreg => ClearEXEreg,
 				boot			=> boot,
 				Jump			=> Jump_4to1,
 				PCSrc			=> PCSrc_4to1,
@@ -315,6 +320,7 @@ begin
 				fwd_aluRs		=> fwd_aluRs_to2,
 				fwd_aluRt		=> fwd_aluRt_to2,
 				fwd_alu_regmem => fwd_alu_regmem_to2,
+			  clear   => ClearIDreg,
 				Stall			=> Stall); 
 	
 	third_stage	:	execute
@@ -337,6 +343,7 @@ begin
 				fwd_path_alu	=> fwd_path_alu_3to2,
 				fwd_path_mem	=> fwd_path_mem_4to2and3,
 				clk				=> clk,
+			  clear   => ClearEXEreg,
 				RegWrite_in 	=> RegWrite_2to3,
 				RegWrite_out	=> RegWrite_3to4,
 				Jump_in			=>	Jump_2to3,
@@ -402,12 +409,8 @@ begin
 				exeRegisterRt	=> addr_rt_3toCtrl, --this is addr_rt
 				idMemWrite  	=> MemWrite_2toHazardCtrl,
 				exeMemRead		=> MemRead_3to4,
-				Branch_2			=> Branch_2to3,
-				Branch_3			=> Branch_3to4,
-        Branch_4			=> Branch_4toCtrl,
-				Jump_2				=> Jump_2to3,
-				Jump_3    => Jump_3to4,
-				Jump_4    => Jump_4to1,
+				Branch			=> Branch_2to3,
+				Jump				=> Jump_2to3,
 				Stall				=> Stall,
 				clk      => clk,
 				boot     => boot); 

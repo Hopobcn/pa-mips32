@@ -24,6 +24,7 @@ entity execute is
 			fwd_path_mem	:	in	 std_logic_vector(31 downto 0);	--from MEM 	[FWD]
 			-- control signals
 			clk				:	in std_logic;
+			clear   : in std_logic;
 			RegWrite_in		:	in std_logic;								--from ID
 			RegWrite_out	:	out std_logic;								--to MEM,WB, then ID
 			Jump_in			:	in std_logic;								--from ID
@@ -94,7 +95,8 @@ architecture Structure of execute is
 			ALUSrc_in		:	in 	std_logic;			
 			ALUSrc_out		:	out 	std_logic;	
 			-- register control signals
-			enable			:	in std_logic;
+			enable		:	in std_logic;
+			clear   : in std_logic;
 			clk				:	in std_logic);
 	end component;
 
@@ -195,6 +197,7 @@ begin
 				ALUSrc_in		=>	ALUSrc,
 				ALUSrc_out		=>	ALUSrc_reg,
 				enable			=> '1',
+				clear   => clear,
 				clk				=> clk);
 
 

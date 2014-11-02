@@ -46,7 +46,8 @@ entity id_exe_reg is
 			ALUSrc_out		:	out 	std_logic;	
 			-- register control signals
 			enable			:	in std_logic;
-			clk				:	in std_logic);
+			clear    : in std_logic;
+			clk				 :	in std_logic);
 end id_exe_reg;
 
 architecture Structure of id_exe_reg is
@@ -56,7 +57,7 @@ begin
 	
 	id_exe_register : process(clk)
 	begin
-		if (enable = '1') then
+		if (clear = '0' and enable = '1') then
 			if (rising_edge(clk)) then
 				pc_up_out		<=	pc_up_in;
 				opcode_out		<=	opcode_in;
@@ -79,6 +80,18 @@ begin
 				ALUOp_out		<=	ALUOp_in;
 				ALUSrc_out		<=	ALUSrc_in;
 			end if;
+		elsif (clear = '1') then
+		  if (rising_edge(clk)) then
+  		    pc_up_out <= pc_up_in;
+    		  opcode_out <= "000000";
+    		  RegWrite_out <= '0';
+    		  Jump_out <= '0';
+    		  Branch_out <= '0';
+    		  MemRead_out <= '0';
+    		  MemWrite_out <= '0';
+    		  MemtoReg_out <= '0';
+    		  ALUOp_out <= "010";
+		  end if;
 		end if;
 	end process;	
 				

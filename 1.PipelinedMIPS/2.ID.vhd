@@ -38,6 +38,7 @@ entity instruction_decode is
 			fwd_aluRs		:	in  std_logic_vector(1 downto 0);	--from FWD Ctrl
 			fwd_aluRt		:	in  std_logic_vector(1 downto 0);	--from FWD Ctrl
 			fwd_alu_regmem	: 	in  std_logic_vector(1 downto 0);	--from FWD Ctrl	
+			clear : in std_logic;
 			Stall				:	in	 std_logic); 
 			
 end instruction_decode;
@@ -51,6 +52,7 @@ architecture Structure of instruction_decode is
 			pc_up_in			:	in	std_logic_vector(31 downto 0);	
 			pc_up_out		:	out std_logic_vector(31 downto 0);	
 			enable			:	in std_logic;
+			clear    : in std_logic;
 			clk				:	in std_logic);
 	end component;
 	
@@ -112,6 +114,7 @@ begin
 				pc_up_in			=> pc_up_in,
 				pc_up_out		=> pc_up_reg,
 				enable			=> enable, 
+				clear    => clear,
 				clk				=> clk);
 				
 		--jump addres is PC+4[31-28]+Shift_left_2(Instruction[25-0])

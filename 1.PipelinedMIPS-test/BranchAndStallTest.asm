@@ -33,8 +33,14 @@ FINISH:
 1c                    F D E M W
 20                      F F D E M W
 24                          F D E M W
-28                            F F F -
-08                                  F D E M W
+28                            F F -
+08                                F D E M W
 ----------------------------------------------------
 08    F D E M W
 0c      F D E M W
+10        F D D E M W
+14          F F D E M W
+18              F D E M W
+1c                F D E M W
+20                  F F -
+28                      F

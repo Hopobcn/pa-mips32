@@ -13,6 +13,8 @@ entity instruction_fetch is
 			boot				:	in std_logic;
 			Jump				:	in std_logic;								--from MEM
 			PCSrc				:	in std_logic;								--from MEM
+			ClearIDreg  : out std_logic;   -- to clear signal of if_id_reg
+			ClearEXEreg : out std_logic;   -- to clear signal of id_exe_reg
 			Stall				:	in std_logic); 		
 			
 end instruction_fetch;
@@ -49,6 +51,14 @@ begin
 		
 	pc_up_tmp	<= first_mux_res when Jump_tmp = '0' else
 						addr_jump;
+	
+	ClearIDreg <= '1' when Jump_tmp='1' else
+	              '1' when PCSrc='1' else
+	              '0';
+	              
+	ClearEXEreg <= '1' when Jump_tmp='1' else
+	               '1' when PCSrc='1' else
+	               '0';
 	
 	program_counter	:	reg_pc
 	port map(pc_up	=>	pc_up_tmp,

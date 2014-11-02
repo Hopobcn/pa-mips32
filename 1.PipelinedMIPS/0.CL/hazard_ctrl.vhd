@@ -8,12 +8,8 @@ entity hazard_ctrl is
 			exeRegisterRt	:	in	std_logic_vector(4 downto 0);  --productor
 			idMemWrite  	: 	in std_logic;
 			exeMemRead		:	in std_logic;
-			Branch_2			:	in	std_logic;
-      Branch_3			:	in	std_logic;
-      Branch_4   : in std_logic;
-			Jump_2				:	in	std_logic;
-			Jump_3    : in std_logic;
-			Jump_4    : in std_logic;
+			Branch			:	in	std_logic;
+			Jump				:	in	std_logic;
 			
 			-- control signals
 			Stall : 	out std_logic;
@@ -22,32 +18,31 @@ entity hazard_ctrl is
 end hazard_ctrl;
 
 architecture Structure of hazard_ctrl is
-  	-- Internal for branches and jumps
-	signal Branch_tmp			:	std_logic;
-	signal Jump_tmp     : std_logic;
 	 -- Register for avoiding feedback loop
 	signal Stall_tmp : std_logic;
+	signal Stall_machine_branch : std_logic_vector(1 downto 0);
+	signal Stall_machine_jump   : std_logic;
+	
+	signal Stall_by_branch : std_logic;
+	signal Stall_by_jump   : std_logic;
 begin
-  
-  Branch_tmp <= '0' when (Branch_2='1' and Branch_3='1' and Branch_4='1') else
-                '1' when (Branch_2='1') else
-                '0';
                 
-  Jump_tmp <= '0' when (Jump_2='1' and Jump_3='1' and Jump_4='1') else
-              '1' when (Jump_2='1') else
-              '0';
-              
-  Stall_tmp  <= '1' when (Branch_tmp = '1' or 
-	                Jump_tmp = '1' or
-	                 --- FIXME: if it is the zero register, should it be tested in addition to the other comparisons?
-   	             (exeMemRead = '1' and (exeRegisterRt = idRegisterRs or exeRegisterRt = idRegisterRt) and not idMemWrite = '1'))
+  Stall_tmp  <= '1' when --- FIXME: if it is the zero register, should it be tested in addition to the other comparisons?
+   	             (exeMemRead = '1' and (exeRegisterRt = idRegisterRs or exeRegisterRt = idRegisterRt) and not idMemWrite = '1')
  	               else
 				       '0';
-
+  Stall_by_branch <= Stall_machine_branch(0) or Stall_machine_branch(1);
+  Stall_by_jump   <= Stall_machine_jump;
+				       
 	stall_register : process(clk)
 	begin			
     if (falling_edge(clk)) then
-      Stall <= Stall_tmp;
+      Stall <= Stall_tmp or Stall_by_branch or Stall_by_jump;
+      Stall_machine_branch <= Stall_machine_branch(0) & Branch;
+      Stall_machine_jump <= Jump;
+    end if;
+    if (rising_edge(clk)) then
+      Stall <= Stall_by_branch or Stall_by_jump;
     end if;
   end process;
 
