@@ -3,8 +3,6 @@ use ieee.std_logic_1164.all;
 
 entity exe_mem_reg is
 	port (-- buses
-			addr_jump_in	:	in		std_logic_vector(31 downto 0);	
-			addr_jump_out	:	out 	std_logic_vector(31 downto 0);	
 			addr_branch_in	:	in 	std_logic_vector(31 downto 0);	
 			addr_branch_out:	out 	std_logic_vector(31 downto 0);
 			addr_in			:	in 	std_logic_vector(31 downto 0);	
@@ -15,9 +13,7 @@ entity exe_mem_reg is
 			addr_regw_out	:	out 	std_logic_vector(4 downto 0);
 			-- control signals
 			RegWrite_in		:	in 	std_logic;								
-			RegWrite_out	:	out 	std_logic;							
-			Jump_in			:	in 	std_logic;							
-			Jump_out			:	out 	std_logic;	
+			RegWrite_out	:	out 	std_logic;		
 			Branch_in		:	in 	std_logic;		
 			Branch_out		:	out 	std_logic;		
 			MemRead_in		:	in 	std_logic;	
@@ -44,13 +40,11 @@ begin
 	begin
 		if (enable = '1') then
 			if (rising_edge(clk)) then
-				addr_jump_out	<= addr_jump_in;
 				addr_branch_out<= addr_branch_in;
 				addr_out			<= addr_in;
 				write_data_out	<= write_data_in;
 				addr_regw_out	<= addr_regw_in;
 				RegWrite_out	<= RegWrite_in;
-				Jump_out			<= Jump_in;
 				Branch_out		<= Branch_in;
 				MemRead_out		<= MemRead_in;
 				MemWrite_out	<= MemWrite_in;

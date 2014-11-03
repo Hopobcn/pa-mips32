@@ -5,45 +5,85 @@ use ieee.std_logic_1164.all;
 entity hazard_ctrl is
 	port (idRegisterRs	: 	in std_logic_vector(4 downto 0);  --consumidor
 			idRegisterRt	:	in	std_logic_vector(4 downto 0);  --consumidor
-			exeRegisterRt	:	in	std_logic_vector(4 downto 0);  --productor
-			idMemWrite  	: 	in std_logic;
+			exeRegisterRt	:	in	std_logic_vector(4 downto 0);  --productor (load)
 			exeMemRead		:	in std_logic;
-			Branch			:	in	std_logic;
-			Jump				:	in	std_logic;
-			
+			Branch		   :	in	std_logic;                     -- from MEM stage (1=branch taken)
+			Jump			   :	in	std_logic;							 -- from EXE stage
+			Exception		:  in std_logic;							 -- from Exception Ctrl (WB stage) (all exceptions are processed at the end)
+			Interrupt		:  in std_logic;                     -- from Interrupt Ctrl (any point)
+			IC_Ready       :  in std_logic;                     -- from IF (means Instruction Cache Ready (1 when hit) if 0 stall)
+			DC_Ready       :  in std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
 			-- control signals
-			Stall : 	out std_logic;
-			clk	:	in	std_logic;
-			boot	:	in	std_logic);
+			Stall_PC 		: out std_logic;
+			Stall_IF_ID 	: out std_logic;
+			Stall_ID_EXE	: out std_logic;
+			Stall_EXE_MEM	: out std_logic;
+			NOP_to_ID 		: out std_logic;
+			NOP_to_EXE		: out std_logic;
+			NOP_to_MEM		: out std_logic;
+			NOP_to_WB		: out std_logic);
 end hazard_ctrl;
 
 architecture Structure of hazard_ctrl is
-	 -- Register for avoiding feedback loop
-	signal Stall_tmp : std_logic;
-	signal Stall_machine_branch : std_logic_vector(1 downto 0);
-	signal Stall_machine_jump   : std_logic;
 	
-	signal Stall_by_branch : std_logic;
-	signal Stall_by_jump   : std_logic;
 begin
                 
-  Stall_tmp  <= '1' when --- FIXME: if it is the zero register, should it be tested in addition to the other comparisons?
-   	             (exeMemRead = '1' and (exeRegisterRt = idRegisterRs or exeRegisterRt = idRegisterRt) and not idMemWrite = '1')
- 	               else
-				       '0';
-  Stall_by_branch <= Stall_machine_branch(0) or Stall_machine_branch(1);
-  Stall_by_jump   <= Stall_machine_jump;
+  
 				       
-	stall_register : process(clk)
-	begin			
-    if (falling_edge(clk)) then
-      Stall <= Stall_tmp or Stall_by_branch or Stall_by_jump;
-      Stall_machine_branch <= Stall_machine_branch(0) & Branch;
-      Stall_machine_jump <= Jump;
-    end if;
-    if (rising_edge(clk)) then
-      Stall <= Stall_by_branch or Stall_by_jump;
-    end if;
+	stall_logic : process(idRegisterRs,idRegisterRt,exeRegisterRt,exeMemRead,Branch,Jump,Exception,Interrupt,IC_Ready,DC_Ready)
+	begin
+		Stall_PC 		<= '0';
+		Stall_IF_ID 	<= '0';
+		Stall_ID_EXE	<= '0';
+		Stall_EXE_MEM	<= '0';
+		NOP_to_ID 		<= '0';
+		NOP_to_EXE		<= '0';
+		NOP_to_MEM		<= '0';
+		NOP_to_WB		<= '0';
+		if (Interrupt = '1') then
+			NOP_to_ID 		<= '1';
+			NOP_to_EXE		<= '1';
+			NOP_to_MEM		<= '1';
+			NOP_to_WB		<= '1';
+		else 
+			if (Exception = '1') then
+				NOP_to_ID 		<= '1';
+				NOP_to_EXE		<= '1';
+				NOP_to_MEM		<= '1';
+				NOP_to_WB		<= '1';
+			else
+				if (not DC_Ready = '1') then
+					Stall_PC 		<= '1';
+					Stall_IF_ID 	<= '1';
+					Stall_ID_EXE	<= '1';
+					Stall_EXE_MEM	<= '1';
+					NOP_to_WB		<= '0';
+				else
+				   if (Branch = '1') then 
+						NOP_to_ID 		<= '1';
+						NOP_to_EXE		<= '1';
+						NOP_to_MEM		<= '1';
+					else
+						if (Jump = '1') then
+							NOP_to_ID 	<= '1';
+							NOP_to_EXE 	<= '1';
+						else
+							if ((idRegisterRs = exeRegisterRt or idRegisterRt = exeRegisterRt) and exeMemRead = '1') then
+								Stall_PC		<= '1';
+								Stall_IF_ID <= '1';
+								NOP_to_EXE 	<= '1';
+							else
+								if (not IC_Ready = '1') then
+									Stall_PC 	<= '1';
+									NOP_to_ID 	<= '1';
+		
+								end if;
+							end if;
+						end if;
+					end if;
+				end if;
+			end if;
+		end if;
   end process;
 
 end Structure;

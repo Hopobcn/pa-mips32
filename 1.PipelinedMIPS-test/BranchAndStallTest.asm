@@ -49,15 +49,11 @@ add  R5, R6, R7     10            F D - - -                             <- Stall
 addi R6, R5, 8      14              F D E M W
                     14                F D E M W                         <- R5 comes from a forwarding path from E unit to E
 sw   R6, 4(R4)      18                  F D E M W
-beq  R4, R0, FINISH 1c                    F D E M W                     <- Stall due D(BZ) until Branch is finished in unit M
-addi R4, R4, -4     20                      F - - - -
-                    20                        F - - - -
-                    20                          F - - - -
-                    20                            F D E M W             <- BZ done, assuming R0=0 we can perform the addi
-j    LOOP           24                              F D E M W        <- Stall due D(J) until Jump is finished (impl. decision, our jump datapath is pipelined like an branch, in theory we don't need to) 
-sll  R0, R0, 0      28                                F - - - -
-                    28                                  F - - - -
-                    28                                    F - - - -
+beq  R4, R0, FINISH 1c                    F D E M W                     <- don't branch in M because it's not going to jump 
+addi R4, R0, 4      20                      F D E M W
+j    LOOP           24                        F D E M W                 <- Jump in EXE stage, put nops in IF,ID,ALU 
+sll  R0, R0, 0      28                          F D - - -
+-                   2C                            F - - - -
 ----------------------------------------------------------------------    
-lw R6, O(R4)        08                                      F D E M W  <- Jump resolved with a PC=0008
+lw R6, O(R4)        08                              F D E M W           <- Jump resolved with a PC=0008
 etc...
