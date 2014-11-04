@@ -46,7 +46,13 @@ entity id_exe_reg is
 			ALUSrc_out		:	out 	std_logic;	
 			-- register control signals
 			enable			:	in std_logic;
-			clk				 :	in std_logic);
+			clk				 :	in std_logic;
+	    -- exception identifier bits
+      exception_if_in   : in std_logic;
+      exception_if_out  : out std_logic;
+      exception_id_in   : in std_logic;
+      exception_id_out  : out std_logic);
+      
 end id_exe_reg;
 
 architecture Structure of id_exe_reg is
@@ -78,6 +84,10 @@ begin
 				RegDst_out		<=	RegDst_in;
 				ALUOp_out		<=	ALUOp_in;
 				ALUSrc_out		<=	ALUSrc_in;
+				-- forward of exception identifier bits
+				exception_if_out <= exception_if_in;
+				exception_id_out <= exception_id_in;
+
 			end if;
 		end if;
 	end process;	

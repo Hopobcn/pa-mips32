@@ -46,7 +46,14 @@ entity execute is
             Zero            :   out std_logic;                              --to MEM
             fwd_mem_regmem  :   in std_logic;                               --from FWD Ctrl
             NOP_to_MEM      :   in std_logic;                               --from Hazard Ctrl
-            Stall           :   in std_logic);
+            Stall           :   in std_logic;
+            -- exception bits
+            exception_if_in :   in  std_logic;
+            exception_if_out:   out std_logic;
+            exception_id_in :   in  std_logic;
+            exception_id_out:   out std_logic;
+            exception_exe   :   out std_logic);
+
             
 end execute;
 
@@ -97,7 +104,14 @@ architecture Structure of execute is
             ALUSrc_out      :   out std_logic;  
             -- register control signals
             enable          :   in std_logic;
-            clk             :   in std_logic);
+            clk             :   in std_logic;
+            
+            -- exceptions
+            exception_if_in   : in std_logic;
+            exception_if_out  : out std_logic;
+            exception_id_in   : in std_logic;
+            exception_id_out  : out std_logic);
+
     end component;
 
     signal pc_up_reg        :   std_logic_vector(31 downto 0);  
@@ -120,6 +134,10 @@ architecture Structure of execute is
     signal RegDst_reg       :   std_logic;
     signal ALUOp_reg        :   std_logic_vector(2 downto 0);       
     signal ALUSrc_reg       :   std_logic;  
+    
+    signal exception_if_reg   : std_logic;
+    signal exception_id_reg   : std_logic;
+    signal exception_internal : std_logic;
                     
     component alu_control is
     port (opcode        : in std_logic_vector(5 downto 0);
@@ -201,25 +219,43 @@ begin
              ALUSrc_in      =>  ALUSrc,
              ALUSrc_out     =>  ALUSrc_reg,
              enable         => enable,
-            clk             => clk);
+             clk             => clk,
+             -- exceptions 
+             exception_if_in  => exception_if_in,
+             exception_if_out => exception_if_reg,
+             exception_id_in  => exception_id_in,
+             exception_id_out => exception_id_reg);
+
+    -- Exception (ALU-related at least, WIP)
+    exception_internal <= '0';
+    
+    -- Output the exception (and put exceptions through)
+    exception_if_out <= exception_if_reg when NOP_to_MEM = '0' else
+                        '0';
+    exception_id_out <= exception_id_reg when NOP_to_MEM = '0' else
+                        '0';
+    exception_exe <= exception_internal when NOP_to_MEM = '0' else
+                     '0';
 
 
-   -- NOP IMPLEMENTATION ->DISCUSS: We don't need to put more bits to '0' right? 
-    -- with bits that can modify the state of the processor is enought
+   -- NOP IMPLEMENTATION
+    -- pulling to zero the bits that can modify the state of the processor seems enough (not all needed)
     addr_jump_out   <= addr_jump_reg;
     write_data_out  <= fwd_path_mem     when fwd_mem_regmem = '1' else
                        write_data_in;
 
-    RegWrite_out    <= '0' when NOP_to_MEM = '1' else
+    RegWrite_out    <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
                         RegWrite_reg;
-                            
-    Jump_out        <= Jump_reg;
-    Branch_out      <= Branch_reg;
+                        
+    Jump_out        <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
+                       Jump_reg;
+    Branch_out      <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
+                       Branch_reg;
     
-    MemRead_out     <= '0' when NOP_to_MEM = '1' else
+    MemRead_out     <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
                             MemRead_reg;
                             
-    MemWrite_out    <= '0' when NOP_to_MEM = '1' else
+    MemWrite_out    <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
                             MemWrite_reg;
     ByteAddress_out <= ByteAddress_reg;
     WordAddress_out <= WordAddress_reg;

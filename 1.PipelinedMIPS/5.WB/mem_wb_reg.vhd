@@ -13,6 +13,7 @@ entity mem_wb_reg is
 			-- register control signals
 			enable			:	in 	std_logic;
 			clk				:	in 	std_logic);
+
 end mem_wb_reg;
 
 architecture Structure of mem_wb_reg is

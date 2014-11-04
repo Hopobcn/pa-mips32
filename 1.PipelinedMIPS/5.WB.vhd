@@ -28,13 +28,14 @@ architecture Structure of write_back is
             -- register control signals
             enable          :   in  std_logic;
             clk             :   in  std_logic);
+
     end component;
 
     signal write_data_reg   :   std_logic_vector(31 downto 0);
     signal addr_regw_reg    :   std_logic_vector(4 downto 0);       
     signal RegWrite_reg     :   std_logic;
-    signal MemtoReg_reg     :   std_logic;      
-
+    signal MemtoReg_reg     :   std_logic;
+    
 begin
     
     -- MEM/WB Register 
@@ -47,8 +48,7 @@ begin
                 RegWrite_out    => RegWrite_reg,
                 enable          => '1',
                 clk             => clk);
-
-
+                
     addr_regw_out   <=  addr_regw_reg;
     
     RegWrite_out    <= RegWrite_reg;

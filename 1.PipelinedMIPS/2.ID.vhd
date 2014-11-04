@@ -39,7 +39,11 @@ entity instruction_decode is
             fwd_aluRt       :   in  std_logic_vector(1 downto 0);   --from FWD Ctrl
             fwd_alu_regmem  :   in  std_logic_vector(1 downto 0);   --from FWD Ctrl 
             NOP_to_EXE      :  in  std_logic;                       --from Hazard Ctrl
-            Stall           :   in   std_logic); 
+            Stall           :   in   std_logic; 
+            -- exception bits
+            exception_if_in :   in  std_logic;
+            exception_if_out:   out std_logic;
+            exception_id    :   out std_logic);
             
 end instruction_decode;
 
@@ -53,7 +57,11 @@ architecture Structure of instruction_decode is
           pc_up_out         :   out std_logic_vector(31 downto 0);  
           -- register control signals
           enable            :   in std_logic;
-          clk               :   in std_logic);
+          clk               :   in std_logic;
+          
+          -- exceptions
+          exception_if_in   : in std_logic;
+          exception_if_out  : out std_logic);
     end component;
     
     signal instruction_reg  :   std_logic_vector(31 downto 0);
@@ -102,6 +110,9 @@ architecture Structure of instruction_decode is
     signal rs_regfile       :   std_logic_vector(31 downto 0);
     signal rt_regfile       :   std_logic_vector(31 downto 0);
     
+    signal exception_if_reg   : std_logic;
+    signal exception_internal : std_logic;
+    
     signal enable           :   std_logic;
 begin
   
@@ -114,7 +125,10 @@ begin
              pc_up_in           => pc_up_in,
              pc_up_out          => pc_up_reg,
              enable             => enable, 
-             clk                => clk);
+             clk                => clk,
+             -- exceptions
+             exception_if_in  => exception_if_in,
+             exception_if_out => exception_if_reg);
                 
         --jump addres is PC+4[31-28]+Shift_left_2(Instruction[25-0])
     addr_jump   <= pc_up_reg(31 downto 28) & instruction_reg(25 downto 0) & "00";
@@ -138,25 +152,34 @@ begin
             RegDst      => RegDst_tmp,
             ALUOp       => ALUOp_tmp,
             ALUSrc      => ALUSrc);
+            
+    -- Exception (should detect problems with illegal decodings)
+    exception_internal <= '0';
+    
+    -- Output the exception (and put exceptions through)
+    exception_if_out <= exception_if_reg when NOP_to_EXE = '0' else
+                        '0';
+    exception_id <= exception_internal when NOP_to_EXE = '0' else
+                    '0';
     
     --big nop multiplexor
-    RegWrite_out    <= RegWrite_tmp when NOP_to_EXE = '0' else
+    RegWrite_out    <= RegWrite_tmp when NOP_to_EXE = '0' and exception_internal = '0' else
                        '0';
-    MemRead         <= MemRead_tmp  when NOP_to_EXE = '0' else
+    MemRead         <= MemRead_tmp  when NOP_to_EXE = '0' and exception_internal = '0' else
                        '0';
     MemWriteHazard  <= MemWrite_tmp;
-    MemWrite        <= MemWrite_tmp when NOP_to_EXE = '0' else
+    MemWrite        <= MemWrite_tmp when NOP_to_EXE = '0' and exception_internal = '0' else
                        '0';
-    MemtoReg        <= MemtoReg_tmp when    NOP_to_EXE = '0' else
+    MemtoReg        <= MemtoReg_tmp when    NOP_to_EXE = '0' and exception_internal = '0' else
                        '0';
-    RegDst          <= RegDst_tmp    when NOP_to_EXE = '0' else
+    RegDst          <= RegDst_tmp    when NOP_to_EXE = '0' and exception_internal = '0' else
                        '0';
-    ALUOp           <= ALUOp_tmp     when NOP_to_EXE = '0' else
+    ALUOp           <= ALUOp_tmp     when NOP_to_EXE = '0' and exception_internal = '0' else
                        "010";                                    -- NOP = R0 = R0 OR R0
     -- the Jump only goes through when not stalling
-    Jump            <= Jump_tmp     when NOP_to_EXE = '0' else
+    Jump            <= Jump_tmp     when NOP_to_EXE = '0' and exception_internal = '0' else
                        '0'; 
-    Branch          <= Branch_tmp   when NOP_to_EXE = '0' else
+    Branch          <= Branch_tmp   when NOP_to_EXE = '0' and exception_internal = '0' else
                        '0';
                         
                         

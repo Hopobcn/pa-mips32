@@ -21,7 +21,12 @@ architecture Structure of PipelinedMIPS32 is
 			Jump				:	in std_logic;								--from MEM
 			PCSrc				:	in std_logic;								--from MEM
 			NOP_to_ID		:  in std_logic;								--from Hazard Ctrl
-			Stall				:	in std_logic);  							--from Hazard Ctrl			
+			Stall				:	in std_logic;  							--from Hazard Ctrl
+			
+			-- exception bits
+      exception_if :   out std_logic);
+
+			
 	end component;
 	
 	component instruction_decode is
@@ -62,7 +67,13 @@ architecture Structure of PipelinedMIPS32 is
 			fwd_aluRt		:	in  std_logic_vector(1 downto 0);	--from FWD Ctrl
 			fwd_alu_regmem	: 	in  std_logic_vector(1 downto 0);	--from FWD Ctrl	
 			NOP_to_EXE		:  in  std_logic;								--from Hazard Ctrl
-			Stall				:	in	 std_logic); 
+			Stall				:	in	 std_logic;
+			
+			-- exception bits
+      exception_if_in :   in  std_logic;
+      exception_if_out:   out std_logic;
+      exception_id    :   out std_logic);
+ 
 	end component;
 
 	component execute is
@@ -109,7 +120,15 @@ architecture Structure of PipelinedMIPS32 is
 			Zero				:	out std_logic;								--to MEM
 			fwd_mem_regmem	:	in std_logic;								--from FWD Ctrl
 			NOP_to_MEM		:	in std_logic; 								--from Hazard Ctrl
-			Stall				: 	in std_logic);
+			Stall				: 	in std_logic;
+
+			-- exception bits
+      exception_if_in :   in  std_logic;
+      exception_if_out:   out std_logic;
+      exception_id_in :   in  std_logic;
+      exception_id_out:   out std_logic;
+      exception_exe   :   out std_logic);
+
 	end component;
 			
 	component mem is
@@ -136,7 +155,17 @@ architecture Structure of PipelinedMIPS32 is
 			MemtoReg			:	in std_logic;								--from MEM
 			Zero				:	in std_logic;								--from EXE
 			NOP_to_WB		:  in std_logic;
-			Stall				:  in std_logic);
+			Stall				:  in std_logic;
+			
+			-- exception bits
+      exception_if_in :   in  std_logic;
+      exception_if_out:   out std_logic;
+      exception_id_in :   in  std_logic;
+      exception_id_out:   out std_logic;
+      exception_exe_in  : in  std_logic;
+      exception_exe_out : out std_logic;
+      exception_mem   : out std_logic);
+
 	end component;
 		
 	component write_back is
@@ -149,6 +178,7 @@ architecture Structure of PipelinedMIPS32 is
 			clk				:	in std_logic;
 			RegWrite_in		:	in std_logic;
 			RegWrite_out	:	out std_logic);
+
 	end component;
 	
 	component hazard_ctrl is
@@ -287,6 +317,28 @@ architecture Structure of PipelinedMIPS32 is
 	signal Exception_ExcepCtrltoHazardCtrl 		: std_logic;
 	signal Interrupt_InterruptCtrltoHazaardCtrl : std_logic;
 	
+	--------------------------------
+	-- All the exceptions signals --
+	--------------------------------
+	
+	-- IF exception
+	signal exception_if_at_if   : std_logic;
+  signal exception_if_at_id   : std_logic;
+  signal exception_if_at_exe  : std_logic;
+  signal exception_if_at_mem  : std_logic;
+  
+  -- ID exception
+  signal exception_id_at_id   : std_logic;
+  signal exception_id_at_exe  : std_logic;
+  signal exception_id_at_mem  : std_logic;
+  
+  -- EXE exception
+  signal exception_exe_at_exe : std_logic;
+  signal exception_exe_at_mem : std_logic;
+  
+  -- MEM exception
+  signal exception_mem_at_mem : std_logic;
+	
 begin
 
 	first_stage	:	instruction_fetch
@@ -299,7 +351,10 @@ begin
 				Jump			=> Jump_3to1,
 				PCSrc			=> PCSrc_4to1,
 				NOP_to_ID	=> NOP_HazardCtrlto1,
-				Stall			=> Stall_HazardCtrlto1); 
+				Stall			=> Stall_HazardCtrlto1,
+				
+				-- exceptions
+				exception_if => exception_if_at_if);
 
 	second_stage	:	instruction_decode 
 	port map(instruction	=> instruction_1to2,
@@ -337,7 +392,12 @@ begin
 				fwd_aluRt		=> fwd_aluRt_to2,
 				fwd_alu_regmem => fwd_alu_regmem_to2,
 				NOP_to_EXE	=> NOP_HazardCtrlto2,
-				Stall			=> Stall_HazardCtrlto2); 
+				Stall			=> Stall_HazardCtrlto2,
+				
+				-- exceptions
+				exception_if_in  => exception_if_at_if,
+				exception_if_out => exception_if_at_id,
+				exception_id     => exception_id_at_id);
 	
 	third_stage	:	execute
 	port map(pc_up				=> pc_up_2to3,
@@ -381,7 +441,15 @@ begin
 				Zero				=> Zero_3to4,
 				fwd_mem_regmem => fwd_mem_regmem_to3,
 				NOP_to_MEM		=> NOP_HazardCtrlto3,
-				Stall				=> Stall_HazardCtrlto3);
+				Stall				=> Stall_HazardCtrlto3,
+				
+				-- exceptions
+				exception_if_in  => exception_if_at_id,
+				exception_if_out => exception_if_at_exe,
+				exception_id_in  => exception_id_at_id,
+				exception_id_out => exception_id_at_exe,
+				exception_exe    => exception_exe_at_exe);
+
 				
 	fourth_stage	:	mem
 	port map(addr_branch_in		=> addr_branch_3to4,
@@ -405,7 +473,16 @@ begin
 				MemtoReg				=> MemtoReg_3to4,
 				Zero					=> Zero_3to4,
 				NOP_to_WB			=> NOP_HazardCtrlto4,
-				Stall					=> Stall_HazardCtrlto4);
+				Stall					=> Stall_HazardCtrlto4,
+
+				-- exceptions
+				exception_if_in   => exception_if_at_exe,
+				exception_if_out  => exception_if_at_mem,
+				exception_id_in   => exception_id_at_exe,
+				exception_id_out  => exception_id_at_mem,
+				exception_exe_in  => exception_exe_at_exe,
+				exception_exe_out => exception_exe_at_mem,
+				exception_mem     => exception_mem_at_mem);
 	
 			
 	fifth_stage	:	write_back

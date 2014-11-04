@@ -25,7 +25,15 @@ entity mem is
             MemtoReg        :   in std_logic;                       --from MEM
             Zero            :   in std_logic;                       --from EXE
             NOP_to_WB       :   in std_logic;
-            Stall           :   in std_logic);
+            Stall           :   in std_logic;
+            -- exception bits
+            exception_if_in :   in  std_logic;
+            exception_if_out:   out std_logic;
+            exception_id_in :   in  std_logic;
+            exception_id_out:   out std_logic;
+            exception_exe_in  : in  std_logic;
+            exception_exe_out : out std_logic;
+            exception_mem     : out std_logic);
             
 end mem;
 
@@ -60,7 +68,16 @@ architecture Structure of mem is
             Zero_out        :   out std_logic;  
             -- register control signals
             enable          :   in std_logic;
-            clk             :   in std_logic);
+            clk             :   in std_logic;
+            
+            -- exceptions
+            exception_if_in   : in std_logic;
+            exception_if_out  : out std_logic;
+            exception_id_in   : in std_logic;
+            exception_id_out  : out std_logic;
+            exception_exe_in  : in std_logic;
+            exception_exe_out : out std_logic);
+
     end component;
 
     signal addr_branch_reg      :   std_logic_vector(31 downto 0);  
@@ -91,6 +108,11 @@ architecture Structure of mem is
     signal read_data_mem    :   std_logic_vector(31 downto 0);
     signal bypass_mem       :   std_logic_vector(31 downto 0);
     signal load_or_bypass   :   std_logic_vector(31 downto 0);
+    
+    signal exception_if_reg   : std_logic;
+    signal exception_id_reg   : std_logic;
+    signal exception_exe_reg  : std_logic;
+    signal exception_internal : std_logic;
     
     signal enable           : std_logic;
 begin
@@ -124,18 +146,44 @@ begin
              Zero_in        => Zero,
              Zero_out       => Zero_reg,
              enable         => enable,
-             clk            => clk);
+             clk            => clk,
+             -- exception
+             exception_if_in   => exception_if_in,
+             exception_if_out  => exception_if_reg,
+             exception_id_in   => exception_id_in,
+             exception_id_out  => exception_id_reg,
+             exception_exe_in  => exception_exe_in,
+             exception_exe_out => exception_exe_reg);
     
     
     addr_branch_out  <= addr_branch_reg;
     addr_regw_out    <= addr_regw_reg;
     bypass_mem       <= addr_reg;
     
+    -- Exception (to be fully implemented with virtual memory)
+    exception_internal <= '0';
+    
+    -- Output the exception (and put exceptions through)
+    exception_if_out <= exception_if_reg when NOP_to_WB = '0' else
+                        '0';
+    exception_id_out <= exception_id_reg when NOP_to_WB = '0' else
+                        '0';
+    exception_exe_out <= exception_exe_reg when NOP_to_WB = '0' else
+                         '0';
+    exception_mem <= exception_internal when NOP_to_WB = '0' else
+                     '0';
+
+    
     -- NOP
-    RegWrite_out    <= '0' when NOP_to_WB = '1' else
+    RegWrite_out    <= '0' when NOP_to_WB = '1' or exception_internal = '1' else
                         RegWrite_reg;
-    BranchTaken     <= Branch_reg and Zero_reg; -- 1 branch taken, 0 otherwise
-    PCSrc           <= Branch_reg and Zero_reg; 
+                        
+    -- 1 branch taken, 0 otherwise
+    BranchTaken     <= '0' when NOP_to_WB = '1' or exception_internal = '1' else
+                       Branch_reg and Zero_reg; 
+                       
+    PCSrc           <= '0' when NOP_to_WB = '1' or exception_internal = '1' else
+                       Branch_reg and Zero_reg; 
     
     data_memory : data_mem
     port map(addr           => addr_reg,

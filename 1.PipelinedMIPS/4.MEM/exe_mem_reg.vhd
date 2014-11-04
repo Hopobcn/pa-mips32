@@ -30,7 +30,15 @@ entity exe_mem_reg is
 			Zero_out			:	out 	std_logic;	
 			-- register control signals
 			enable			:	in std_logic;
-			clk				:	in std_logic);
+			clk				:	in std_logic;
+			-- exception identifier bits
+      exception_if_in   : in std_logic;
+      exception_if_out  : out std_logic;
+      exception_id_in   : in std_logic;
+      exception_id_out  : out std_logic;
+      exception_exe_in  : in std_logic;
+      exception_exe_out : out std_logic);
+      
 end exe_mem_reg;
 
 architecture Structure of exe_mem_reg is
@@ -52,6 +60,11 @@ begin
 				WordAddress_out<= WordAddress_in;
 				MemtoReg_out	<= MemtoReg_in;
 				Zero_out			<= Zero_in;			
+				-- forward of exception identifier bits
+				exception_if_out <= exception_if_in;
+				exception_id_out <= exception_id_in;
+				exception_exe_out <= exception_exe_in;
+
 			end if;
 		end if;
 	end process;	
