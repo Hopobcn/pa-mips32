@@ -20,12 +20,15 @@ architecture Structure of PipelinedMIPS32 is
 			boot				:	in std_logic;
 			Jump				:	in std_logic;								--from MEM
 			PCSrc				:	in std_logic;								--from MEM
+		  ExceptionJump : in std_logic;   --from Exception Ctrl
 			NOP_to_ID		:  in std_logic;								--from Hazard Ctrl
 			Stall				:	in std_logic;  							--from Hazard Ctrl
-			
 			-- exception bits
-      exception_if :   out std_logic);
-
+      exception_if :   out std_logic;
+      -- Exception-related registers
+      Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+      Exc_Cause_out    : out std_logic_vector(31 downto 0);
+      Exc_EPC_out      : out std_logic_vector(31 downto 0));
 			
 	end component;
 	
@@ -72,7 +75,21 @@ architecture Structure of PipelinedMIPS32 is
 			-- exception bits
       exception_if_in :   in  std_logic;
       exception_if_out:   out std_logic;
-      exception_id    :   out std_logic);
+      exception_id    :   out std_logic;
+      -- Exception-related registers
+      Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+      Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+      Exc_Cause_in     : in std_logic_vector(31 downto 0);
+      Exc_Cause_out    : out std_logic_vector(31 downto 0);
+      Exc_EPC_in       : in std_logic_vector(31 downto 0);
+      Exc_EPC_out      : out std_logic_vector(31 downto 0);
+      -- Write into the Exception Register File
+      Exc_BadVAddr_to_regfile  : in std_logic_vector(31 downto 0);
+      Exc_Cause_to_regfile     : in std_logic_vector(31 downto 0);
+      Exc_EPC_to_regfile       : in std_logic_vector(31 downto 0);
+      writeBadVAddr_to_regfile : in std_logic;
+      writeCause_to_regfile    : in std_logic;
+      writeEPC_to_regfile      : in std_logic);
  
 	end component;
 
@@ -127,7 +144,14 @@ architecture Structure of PipelinedMIPS32 is
       exception_if_out:   out std_logic;
       exception_id_in :   in  std_logic;
       exception_id_out:   out std_logic;
-      exception_exe   :   out std_logic);
+      exception_exe   :   out std_logic;
+      -- Exception-related registers
+      Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+      Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+      Exc_Cause_in     : in std_logic_vector(31 downto 0);
+      Exc_Cause_out    : out std_logic_vector(31 downto 0);
+      Exc_EPC_in       : in std_logic_vector(31 downto 0);
+      Exc_EPC_out      : out std_logic_vector(31 downto 0));
 
 	end component;
 			
@@ -164,7 +188,14 @@ architecture Structure of PipelinedMIPS32 is
       exception_id_out:   out std_logic;
       exception_exe_in  : in  std_logic;
       exception_exe_out : out std_logic;
-      exception_mem   : out std_logic);
+      exception_mem   : out std_logic;
+      -- Exception-related registers
+      Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+      Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+      Exc_Cause_in     : in std_logic_vector(31 downto 0);
+      Exc_Cause_out    : out std_logic_vector(31 downto 0);
+      Exc_EPC_in       : in std_logic_vector(31 downto 0);
+      Exc_EPC_out      : out std_logic_vector(31 downto 0));
 
 	end component;
 		
@@ -177,7 +208,22 @@ architecture Structure of PipelinedMIPS32 is
 			-- control signals
 			clk				:	in std_logic;
 			RegWrite_in		:	in std_logic;
-			RegWrite_out	:	out std_logic);
+			RegWrite_out	:	out std_logic;
+      -- Exception-related registers
+      Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);     --from previous stage (pipelined)
+      Exc_BadVAddr_out : out std_logic_vector(31 downto 0);    --to coprocessor 0 register file
+      Exc_Cause_in     : in std_logic_vector(31 downto 0);     --from previous stage (pipelined)
+      Exc_Cause_out    : out std_logic_vector(31 downto 0);    --to coprocessor 0 register file
+      Exc_EPC_in       : in std_logic_vector(31 downto 0);     --from previous stage (pipelined)
+      Exc_EPC_out      : out std_logic_vector(31 downto 0);    --to coprocessor 0 register file
+      -- Write enabling bits from exception control
+      writeEPC_in       : in std_logic;       --from Exception Control
+      writeEPC_out      : out std_logic;      --to coprocessor 0 register file
+      writeBadVAddr_in  : in std_logic;       --from Exception Control
+      writeBadVAddr_out : out std_logic;      --to coprocessor 0 register file
+	    writeCause_in     : in std_logic;       --from Exception Control
+ 	    writeCause_out    : out std_logic       --to coprocessor 0 register file
+ 	    );
 
 	end component;
 	
@@ -219,7 +265,20 @@ architecture Structure of PipelinedMIPS32 is
 			fwd_mem_regmem	:	out std_logic); 
 	end component;
 	
-	
+	component exception_ctrl is
+	port (
+	     -- Exception state at the MEMory stage
+	     exception_if   : in std_logic;
+	     exception_id   : in std_logic;
+	     exception_exe  : in std_logic;
+	     exception_mem  : in std_logic;
+	     -- Exception flag
+	     exception_flag : out std_logic;
+	     -- Signals for writeback
+	     wbexc_writeEPC      : out std_logic;
+	     wbexc_writeBadVAddr : out std_logic;
+	     wbexc_writeCause    : out std_logic); 
+  end component;	
 	
 	-- buses
 	signal addr_jump_2to3			:	std_logic_vector(31 downto 0);
@@ -314,7 +373,7 @@ architecture Structure of PipelinedMIPS32 is
 	signal NOP_HazardCtrlto3		: std_logic;
 	signal NOP_HazardCtrlto4		: std_logic;
 	
-	signal Exception_ExcepCtrltoHazardCtrl 		: std_logic;
+	signal Exception_ExcepCtrlOut 		: std_logic;
 	signal Interrupt_InterruptCtrltoHazaardCtrl : std_logic;
 	
 	--------------------------------
@@ -338,7 +397,40 @@ architecture Structure of PipelinedMIPS32 is
   
   -- MEM exception
   signal exception_mem_at_mem : std_logic;
-	
+  
+  -- BadVAddr register
+  signal Exc_BadVAddr_at_if   : std_logic_vector(31 downto 0);
+  signal Exc_BadVAddr_at_id   : std_logic_vector(31 downto 0);
+  signal Exc_BadVAddr_at_exe  : std_logic_vector(31 downto 0);
+  signal Exc_BadVAddr_at_mem  : std_logic_vector(31 downto 0);
+  signal Exc_BadVAddr_at_wb   : std_logic_vector(31 downto 0);
+  signal Exc_BadVAddr_to_id   : std_logic_vector(31 downto 0); -- write to register file
+  
+  -- Cause register
+  signal Exc_Cause_at_if      : std_logic_vector(31 downto 0);
+  signal Exc_Cause_at_id      : std_logic_vector(31 downto 0);
+  signal Exc_Cause_at_exe     : std_logic_vector(31 downto 0);
+  signal Exc_Cause_at_mem     : std_logic_vector(31 downto 0);
+  signal Exc_Cause_at_wb      : std_logic_vector(31 downto 0);
+  signal Exc_Cause_to_id      : std_logic_vector(31 downto 0); -- write to register file
+  
+  -- EPC register
+  signal Exc_EPC_at_if        : std_logic_vector(31 downto 0);
+  signal Exc_EPC_at_id        : std_logic_vector(31 downto 0);
+  signal Exc_EPC_at_exe       : std_logic_vector(31 downto 0);
+  signal Exc_EPC_at_mem       : std_logic_vector(31 downto 0);
+  signal Exc_EPC_at_wb        : std_logic_vector(31 downto 0);
+  signal Exc_EPC_to_id        : std_logic_vector(31 downto 0); -- write to register file
+  
+  -- The signals from exception_ctrl to writeback
+  signal writeEPC_to_wb      : std_logic;
+	signal writeBadVAddr_to_wb : std_logic;
+	signal writeCause_to_wb    : std_logic;
+	-- The signals pipelined into the IF (exception register file)
+	signal writeEPC_to_id      : std_logic;
+	signal writeBadVAddr_to_id : std_logic;
+	signal writeCause_to_id    : std_logic;
+  	
 begin
 
 	first_stage	:	instruction_fetch
@@ -350,11 +442,15 @@ begin
 				boot			=> boot,
 				Jump			=> Jump_3to1,
 				PCSrc			=> PCSrc_4to1,
+				ExceptionJump => Exception_ExcepCtrlOut,
 				NOP_to_ID	=> NOP_HazardCtrlto1,
 				Stall			=> Stall_HazardCtrlto1,
 				
 				-- exceptions
-				exception_if => exception_if_at_if);
+				exception_if => exception_if_at_if,
+				Exc_BadVAddr_out => Exc_BadVAddr_at_if,
+				Exc_Cause_out    => Exc_Cause_at_if,
+				Exc_EPC_out      => Exc_EPC_at_if);
 
 	second_stage	:	instruction_decode 
 	port map(instruction	=> instruction_1to2,
@@ -397,7 +493,21 @@ begin
 				-- exceptions
 				exception_if_in  => exception_if_at_if,
 				exception_if_out => exception_if_at_id,
-				exception_id     => exception_id_at_id);
+				exception_id     => exception_id_at_id,
+				-- exception buses
+				Exc_BadVAddr_in  => Exc_BadVAddr_at_if,
+				Exc_BadVAddr_out => Exc_BadVAddr_at_id,
+				Exc_Cause_in     => Exc_Cause_at_if,
+				Exc_Cause_out    => Exc_Cause_at_id,
+				Exc_EPC_in       => Exc_EPC_at_if,
+				Exc_EPC_out      => Exc_EPC_at_id,
+				-- coprocessor 0 exception-related
+				Exc_BadVAddr_to_regfile   => Exc_BadVAddr_at_wb,
+				Exc_Cause_to_regfile      => Exc_Cause_at_wb,
+				Exc_EPC_to_regfile        => Exc_EPC_at_wb,
+				writeBadVAddr_to_regfile  => writeBadVAddr_to_id,
+				writeCause_to_regfile     => writeCause_to_id,
+				writeEPC_to_regfile       => writeEPC_to_id);
 	
 	third_stage	:	execute
 	port map(pc_up				=> pc_up_2to3,
@@ -448,8 +558,14 @@ begin
 				exception_if_out => exception_if_at_exe,
 				exception_id_in  => exception_id_at_id,
 				exception_id_out => exception_id_at_exe,
-				exception_exe    => exception_exe_at_exe);
-
+				exception_exe    => exception_exe_at_exe,
+				-- exception buses
+				Exc_BadVAddr_in  => Exc_BadVAddr_at_id,
+				Exc_BadVAddr_out => Exc_BadVAddr_at_exe,
+				Exc_Cause_in     => Exc_Cause_at_id,
+				Exc_Cause_out    => Exc_Cause_at_exe,
+				Exc_EPC_in       => Exc_EPC_at_id,
+				Exc_EPC_out      => Exc_EPC_at_exe);
 				
 	fourth_stage	:	mem
 	port map(addr_branch_in		=> addr_branch_3to4,
@@ -482,8 +598,14 @@ begin
 				exception_id_out  => exception_id_at_mem,
 				exception_exe_in  => exception_exe_at_exe,
 				exception_exe_out => exception_exe_at_mem,
-				exception_mem     => exception_mem_at_mem);
-	
+				exception_mem     => exception_mem_at_mem,
+				-- exception buses
+				Exc_BadVAddr_in  => Exc_BadVAddr_at_exe,
+				Exc_BadVAddr_out => Exc_BadVAddr_at_mem,
+				Exc_Cause_in     => Exc_Cause_at_exe,
+				Exc_Cause_out    => Exc_Cause_at_mem,
+				Exc_EPC_in       => Exc_EPC_at_exe,
+				Exc_EPC_out      => Exc_EPC_at_mem);
 			
 	fifth_stage	:	write_back
 	port map(write_data_in	=> register_d_4to5,
@@ -492,10 +614,22 @@ begin
 				addr_regw_out	=> addr_regw_5to2,
 				clk				=> clk,
 				RegWrite_in		=> RegWrite_4to5,
-				RegWrite_out	=> RegWrite_5to2);
+				RegWrite_out	=> RegWrite_5to2,
+				-- exception buses
+				Exc_BadVAddr_in  => Exc_BadVAddr_at_mem,
+				Exc_BadVAddr_out => Exc_BadVAddr_to_id,
+				Exc_Cause_in     => Exc_Cause_at_mem,
+				Exc_Cause_out    => Exc_Cause_to_id,
+				Exc_EPC_in       => Exc_EPC_at_mem,
+				Exc_EPC_out      => Exc_EPC_to_id,
+				-- write enable for exception registers
+				writeEPC_in      => writeEPC_to_wb,
+				writeEPC_out     => writeEPC_to_id,
+				writeBadVAddr_in => writeBadVAddr_to_wb,
+				writeBadVAddr_out=> writeBadVAddr_to_id,
+				writeCause_in    => writeCause_to_wb,
+				writeCause_out   => writeCause_to_id);
 
-			
-	Exception_ExcepCtrltoHazardCtrl 			<= '0'; 		-- Harcoded to 0 until we implement Exception Control
 	Interrupt_InterruptCtrltoHazaardCtrl 	<= '0';
 	instCacheReady_1toCtrl 						<= '1'; 		--ATM is ready always, change this behaviour when implementing caches
 	dataCacheReady_4toCtrl						<= '1';
@@ -508,7 +642,7 @@ begin
 				exeMemRead		=> MemRead_3to4,
 				Branch		   => BranchTaken_4toCtrl,
 				Jump			   => Jump_3toCtrl,
-				Exception		=> Exception_ExcepCtrltoHazardCtrl,
+				Exception		=> Exception_ExcepCtrlOut,
 				Interrupt		=> Interrupt_InterruptCtrltoHazaardCtrl,
 				IC_Ready       => instCacheReady_1toCtrl,
 				DC_Ready       => dataCacheReady_4toCtrl,
@@ -536,5 +670,19 @@ begin
 				fwd_aluRt		=> fwd_aluRt_to2,
 				fwd_alu_regmem	=> fwd_alu_regmem_to2,
 				fwd_mem_regmem	=> fwd_mem_regmem_to3); 
+				
+	exception_control_logic : exception_ctrl
+	port map(-- Exception state at the MEMory stage
+	     exception_if   => exception_if_at_mem,
+	     exception_id   => exception_id_at_mem,
+	     exception_exe  => exception_exe_at_mem,
+	     exception_mem  => exception_mem_at_mem,
+	     -- Exception flag (to Control Hazard and PC register)
+	     exception_flag => Exception_ExcepCtrlOut,
+	     -- Signals for writeback
+	     wbexc_writeEPC      => writeEPC_to_wb,
+	     wbexc_writeBadVAddr => writeBadVAddr_to_wb,
+	     wbexc_writeCause    => writeCause_to_wb); 
+
 	
 end Structure;

@@ -9,7 +9,7 @@ entity hazard_ctrl is
 			exeMemRead		:	in std_logic;
 			Branch		   :	in	std_logic;                     -- from MEM stage (1=branch taken)
 			Jump			   :	in	std_logic;							 -- from EXE stage
-			Exception		:  in std_logic;							 -- from Exception Ctrl (WB stage) (all exceptions are processed at the end)
+			Exception		:  in std_logic;							 -- from Exception Ctrl (MEM stage) --wait until instruction is the oldest ``alive''
 			Interrupt		:  in std_logic;                     -- from Interrupt Ctrl (any point)
 			IC_Ready       :  in std_logic;                     -- from IF (means Instruction Cache Ready (1 when hit) if 0 stall)
 			DC_Ready       :  in std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
@@ -45,44 +45,32 @@ begin
 			NOP_to_EXE		<= '1';
 			NOP_to_MEM		<= '1';
 			NOP_to_WB		<= '1';
-		else 
-			if (Exception = '1') then
-				NOP_to_ID 		<= '1';
-				NOP_to_EXE		<= '1';
-				NOP_to_MEM		<= '1';
-				NOP_to_WB		<= '1';
-			else
-				if (not DC_Ready = '1') then
-					Stall_PC 		<= '1';
-					Stall_IF_ID 	<= '1';
-					Stall_ID_EXE	<= '1';
-					Stall_EXE_MEM	<= '1';
-					NOP_to_WB		<= '0';
-				else
-				   if (Branch = '1') then 
-						NOP_to_ID 		<= '1';
-						NOP_to_EXE		<= '1';
-						NOP_to_MEM		<= '1';
-					else
-						if (Jump = '1') then
-							NOP_to_ID 	<= '1';
-							NOP_to_EXE 	<= '1';
-						else
-							if ((idRegisterRs = exeRegisterRt or idRegisterRt = exeRegisterRt) and exeMemRead = '1') then
-								Stall_PC		<= '1';
-								Stall_IF_ID <= '1';
-								NOP_to_EXE 	<= '1';
-							else
-								if (not IC_Ready = '1') then
-									Stall_PC 	<= '1';
-									NOP_to_ID 	<= '1';
-		
-								end if;
-							end if;
-						end if;
-					end if;
-				end if;
-			end if;
+		elsif (Exception = '1') then
+		  NOP_to_ID 		<= '1';
+			NOP_to_EXE		<= '1';
+			NOP_to_MEM		<= '1';
+			--NOP_to_WB		<= '1'; --do not clear the memory stage
+			-- because the memory stage is the one with the exception
+	  elsif (not DC_Ready = '1') then
+			Stall_PC 		<= '1';
+			Stall_IF_ID 	<= '1';
+			Stall_ID_EXE	<= '1';
+			Stall_EXE_MEM	<= '1';
+			NOP_to_WB		<= '0';
+		elsif (Branch = '1') then 
+			NOP_to_ID 		<= '1';
+			NOP_to_EXE		<= '1';
+			NOP_to_MEM		<= '1';
+		elsif (Jump = '1') then
+			NOP_to_ID 	<= '1';
+			NOP_to_EXE 	<= '1';
+		elsif ((idRegisterRs = exeRegisterRt or idRegisterRt = exeRegisterRt) and exeMemRead = '1') then
+			Stall_PC		<= '1';
+			Stall_IF_ID <= '1';
+			NOP_to_EXE 	<= '1';
+		elsif (not IC_Ready = '1') then
+			Stall_PC 	<= '1';
+			NOP_to_ID 	<= '1';
 		end if;
   end process;
 

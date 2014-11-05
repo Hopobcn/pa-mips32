@@ -52,7 +52,14 @@ entity execute is
             exception_if_out:   out std_logic;
             exception_id_in :   in  std_logic;
             exception_id_out:   out std_logic;
-            exception_exe   :   out std_logic);
+            exception_exe   :   out std_logic;
+            -- Exception-related registers
+            Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+            Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+            Exc_Cause_in     : in std_logic_vector(31 downto 0);
+            Exc_Cause_out    : out std_logic_vector(31 downto 0);
+            Exc_EPC_in       : in std_logic_vector(31 downto 0);
+            Exc_EPC_out      : out std_logic_vector(31 downto 0));
 
             
 end execute;
@@ -110,7 +117,14 @@ architecture Structure of execute is
             exception_if_in   : in std_logic;
             exception_if_out  : out std_logic;
             exception_id_in   : in std_logic;
-            exception_id_out  : out std_logic);
+            exception_id_out  : out std_logic;
+            -- Exception-related registers
+            Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+            Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+            Exc_Cause_in     : in std_logic_vector(31 downto 0);
+            Exc_Cause_out    : out std_logic_vector(31 downto 0);
+            Exc_EPC_in       : in std_logic_vector(31 downto 0);
+            Exc_EPC_out      : out std_logic_vector(31 downto 0));
 
     end component;
 
@@ -138,6 +152,10 @@ architecture Structure of execute is
     signal exception_if_reg   : std_logic;
     signal exception_id_reg   : std_logic;
     signal exception_internal : std_logic;
+    -- Exception buses
+    signal Exc_BadVAddr_reg  : std_logic_vector(31 downto 0);
+    signal Exc_Cause_reg     : std_logic_vector(31 downto 0);
+    signal Exc_EPC_reg       : std_logic_vector(31 downto 0);
                     
     component alu_control is
     port (opcode        : in std_logic_vector(5 downto 0);
@@ -153,7 +171,7 @@ architecture Structure of execute is
           b             :   in std_logic_vector(31 downto 0);
           res           :   out std_logic_vector(31 downto 0);
           Zero          :   out std_logic;
-          --Overflow    :   out std_logic;
+          Overflow    :   out std_logic;
           --CarryOut    :   out std_logic;
           funct         :   in std_logic_vector(5 downto 0);
           ALUOp         :   in  std_logic_vector(3 downto 0));
@@ -224,11 +242,15 @@ begin
              exception_if_in  => exception_if_in,
              exception_if_out => exception_if_reg,
              exception_id_in  => exception_id_in,
-             exception_id_out => exception_id_reg);
+             exception_id_out => exception_id_reg,
+             -- Exception buses
+             Exc_BadVAddr_in   => Exc_BadVAddr_in,
+             Exc_BadVAddr_out  => Exc_BadVAddr_reg,
+             Exc_Cause_in      => Exc_Cause_in,
+             Exc_Cause_out     => Exc_Cause_reg,
+             Exc_EPC_in        => Exc_EPC_in,
+             Exc_EPC_out       => Exc_EPC_reg);
 
-    -- Exception (ALU-related at least, WIP)
-    exception_internal <= '0';
-    
     -- Output the exception (and put exceptions through)
     exception_if_out <= exception_if_reg when NOP_to_MEM = '0' else
                         '0';
@@ -236,6 +258,12 @@ begin
                         '0';
     exception_exe <= exception_internal when NOP_to_MEM = '0' else
                      '0';
+    -- Output the exception registers, change when needed
+    Exc_BadVaddr_out <= Exc_BadVAddr_reg;
+    Exc_EPC_out <= Exc_EPC_reg;
+    -- ToDo Appendix A-35 something better
+    Exc_Cause_out <= x"00000001" when exception_internal = '1' else
+                     Exc_Cause_reg;
 
 
    -- NOP IMPLEMENTATION
@@ -290,7 +318,7 @@ begin
              b      => shiftsrc_mux,
              res    => alu_result,
              Zero   =>  Zero,
-             --Overflow =>
+             Overflow => exception_internal,
              --CarryOut =>
              funct  => sign_ext_reg(5 downto 0),
              ALUOp  => ALUOp_control); 

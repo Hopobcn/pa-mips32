@@ -33,7 +33,14 @@ entity mem is
             exception_id_out:   out std_logic;
             exception_exe_in  : in  std_logic;
             exception_exe_out : out std_logic;
-            exception_mem     : out std_logic);
+            exception_mem     : out std_logic;
+            -- Exception-related registers
+            Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+            Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+            Exc_Cause_in     : in std_logic_vector(31 downto 0);
+            Exc_Cause_out    : out std_logic_vector(31 downto 0);
+            Exc_EPC_in       : in std_logic_vector(31 downto 0);
+            Exc_EPC_out      : out std_logic_vector(31 downto 0));
             
 end mem;
 
@@ -76,7 +83,14 @@ architecture Structure of mem is
             exception_id_in   : in std_logic;
             exception_id_out  : out std_logic;
             exception_exe_in  : in std_logic;
-            exception_exe_out : out std_logic);
+            exception_exe_out : out std_logic;
+            -- Exception-related registers
+            Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+            Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+            Exc_Cause_in     : in std_logic_vector(31 downto 0);
+            Exc_Cause_out    : out std_logic_vector(31 downto 0);
+            Exc_EPC_in       : in std_logic_vector(31 downto 0);
+            Exc_EPC_out      : out std_logic_vector(31 downto 0));
 
     end component;
 
@@ -113,6 +127,10 @@ architecture Structure of mem is
     signal exception_id_reg   : std_logic;
     signal exception_exe_reg  : std_logic;
     signal exception_internal : std_logic;
+    -- Exception buses
+    signal Exc_BadVAddr_reg  : std_logic_vector(31 downto 0);
+    signal Exc_Cause_reg     : std_logic_vector(31 downto 0);
+    signal Exc_EPC_reg       : std_logic_vector(31 downto 0);
     
     signal enable           : std_logic;
 begin
@@ -153,7 +171,14 @@ begin
              exception_id_in   => exception_id_in,
              exception_id_out  => exception_id_reg,
              exception_exe_in  => exception_exe_in,
-             exception_exe_out => exception_exe_reg);
+             exception_exe_out => exception_exe_reg,
+             -- Exception buses
+             Exc_BadVAddr_in   => Exc_BadVAddr_in,
+             Exc_BadVAddr_out  => Exc_BadVAddr_reg,
+             Exc_Cause_in      => Exc_Cause_in,
+             Exc_Cause_out     => Exc_Cause_reg,
+             Exc_EPC_in        => Exc_EPC_in,
+             Exc_EPC_out       => Exc_EPC_reg);
     
     
     addr_branch_out  <= addr_branch_reg;
@@ -172,7 +197,13 @@ begin
                          '0';
     exception_mem <= exception_internal when NOP_to_WB = '0' else
                      '0';
-
+    -- Output the exception registers, change when needed
+    Exc_BadVaddr_out <= addr_reg when exception_internal = '1' else
+                        Exc_BadVAddr_reg;
+    Exc_EPC_out <= Exc_EPC_reg;
+    -- ToDo Appendix A-35 something better
+    Exc_Cause_out <= x"00000001" when exception_internal = '1' else
+                     Exc_Cause_reg;
     
     -- NOP
     RegWrite_out    <= '0' when NOP_to_WB = '1' or exception_internal = '1' else

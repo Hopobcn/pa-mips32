@@ -12,7 +12,14 @@ entity if_id_reg is
 			clk				:	in std_logic;
 			-- exception identifier bits
       exception_if_in   :  in std_logic;
-      exception_if_out  : out std_logic);
+      exception_if_out  : out std_logic;
+      -- exception registers
+      Exc_EPC_in       : in std_logic_vector(31 downto 0);
+      Exc_EPC_out      : out std_logic_vector(31 downto 0);
+      Exc_Cause_in     : in std_logic_vector(31 downto 0);
+      Exc_Cause_out    : out std_logic_vector(31 downto 0);
+      Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+      Exc_BadVAddr_out : out std_logic_vector(31 downto 0));
       
 end if_id_reg;
 
@@ -28,7 +35,10 @@ begin
 				pc_up_out		 <= pc_up_in;	
 				-- forward of exception identifier bits
 				exception_if_out <= exception_if_in;
-				
+				-- forward of registers
+				Exc_EPC_out <= Exc_EPC_in;
+				Exc_Cause_out <= Exc_Cause_in;
+				Exc_BadVAddr_out <= Exc_BadVAddr_in;
 			end if;
 		end if;
 	end process;	

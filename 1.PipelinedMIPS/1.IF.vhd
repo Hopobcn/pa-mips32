@@ -13,10 +13,15 @@ entity instruction_fetch is
             boot            :   in std_logic;
             Jump            :   in std_logic;                       --from MEM
             PCSrc           :   in std_logic;                       --from MEM
-            NOP_to_ID       :  in std_logic;                        --from Hazard Ctrl
+            ExceptionJump   :   in std_logic;                       --from Exception Ctrl
+            NOP_to_ID       :   in std_logic;                       --from Hazard Ctrl
             Stall           :   in std_logic;                       --from Hazard Ctrl
             -- exception bits
-            exception_if    :   out std_logic);
+            exception_if    :   out std_logic;
+            -- Exception-related registers
+            Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+            Exc_Cause_out    : out std_logic_vector(31 downto 0);
+            Exc_EPC_out      : out std_logic_vector(31 downto 0));
             
             
 end instruction_fetch;
@@ -38,9 +43,7 @@ architecture Structure of instruction_fetch is
           boot          :   in std_logic);
     end component;
     
-    signal first_mux_res    : std_logic_vector(31 downto 0);
     signal pc_up_tmp        :   std_logic_vector(31 downto 0);
-    signal pc_up_tmp2       :   std_logic_vector(31 downto 0);
     signal pc_tmp           :   std_logic_vector(31 downto 0);
     signal instruction_read : std_logic_vector(31 downto 0);
     signal exception_internal : std_logic;
@@ -50,12 +53,11 @@ begin
     Jump_tmp        <= Jump when boot = '0' else
                        '0';
 
-    first_mux_res   <= addr_branch  when PCSrc = '1' else
-                       pc_up_tmp2;
-        
-    pc_up_tmp       <= first_mux_res when Jump_tmp = '0' else
-                       addr_jump;
-    
+    -- Branch would be older, so it has priority over Jump. Default is ``next instruction''
+    pc_up_tmp       <= addr_branch when PCSrc = '1' else 
+                       addr_jump when Jump_tmp = '1' else
+                       x"80000180" when ExceptionJump = '1' else
+                       pc_tmp + x"00000004";
     
     program_counter :   reg_pc
     port map(pc_up      =>  pc_up_tmp,
@@ -63,17 +65,14 @@ begin
                 Stall   => Stall,
                 clk     => clk,
                 boot    => boot);
-                
-        
-    pc_up_tmp2 <= pc_tmp + x"00000004";
-    
+            
     instruction_memory  :   inst_mem
     port map(addr        => pc_tmp,
              instruction => instruction_read,
              clk         => clk,
              boot        => boot);
     
-    pc_up <= pc_up_tmp2;
+    pc_up <= pc_up_tmp;
     
     -- Exception (to be fully implemented with virtual memory)
     exception_internal <= '0';
@@ -81,6 +80,13 @@ begin
     -- Output the exception (and put exceptions through)
     exception_if <= '0' when NOP_to_ID = '1' else
                     '0';
+    
+    Exc_BadVAddr_out <= pc_tmp;
+    Exc_EPC_out <= pc_tmp;
+    -- ToDo Appendix A-35 something better
+    Exc_Cause_out <= x"00000001" when exception_internal = '1' else
+                     x"00000000";
+
     
     --NOP
     instruction <= x"00000000" when NOP_to_ID = '1' or exception_internal = '1' else

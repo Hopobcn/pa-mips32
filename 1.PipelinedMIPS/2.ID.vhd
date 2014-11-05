@@ -43,7 +43,21 @@ entity instruction_decode is
             -- exception bits
             exception_if_in :   in  std_logic;
             exception_if_out:   out std_logic;
-            exception_id    :   out std_logic);
+            exception_id    :   out std_logic;
+            -- Exception-related registers
+            Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+            Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+            Exc_Cause_in     : in std_logic_vector(31 downto 0);
+            Exc_Cause_out    : out std_logic_vector(31 downto 0);
+            Exc_EPC_in       : in std_logic_vector(31 downto 0);
+            Exc_EPC_out      : out std_logic_vector(31 downto 0);
+            -- Write into the Exception Register File
+            Exc_BadVAddr_to_regfile  : in std_logic_vector(31 downto 0);
+            Exc_Cause_to_regfile     : in std_logic_vector(31 downto 0);
+            Exc_EPC_to_regfile       : in std_logic_vector(31 downto 0);
+            writeBadVAddr_to_regfile : in std_logic;
+            writeCause_to_regfile    : in std_logic;
+            writeEPC_to_regfile      : in std_logic);
             
 end instruction_decode;
 
@@ -61,7 +75,14 @@ architecture Structure of instruction_decode is
           
           -- exceptions
           exception_if_in   : in std_logic;
-          exception_if_out  : out std_logic);
+          exception_if_out  : out std_logic;
+          -- Exception-related registers
+          Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+          Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+          Exc_Cause_in     : in std_logic_vector(31 downto 0);
+          Exc_Cause_out    : out std_logic_vector(31 downto 0);
+          Exc_EPC_in       : in std_logic_vector(31 downto 0);
+          Exc_EPC_out      : out std_logic_vector(31 downto 0));
     end component;
     
     signal instruction_reg  :   std_logic_vector(31 downto 0);
@@ -112,6 +133,10 @@ architecture Structure of instruction_decode is
     
     signal exception_if_reg   : std_logic;
     signal exception_internal : std_logic;
+    -- Exception buses
+    signal Exc_BadVAddr_reg  : std_logic_vector(31 downto 0);
+    signal Exc_Cause_reg     : std_logic_vector(31 downto 0);
+    signal Exc_EPC_reg       : std_logic_vector(31 downto 0);
     
     signal enable           :   std_logic;
 begin
@@ -128,7 +153,14 @@ begin
              clk                => clk,
              -- exceptions
              exception_if_in  => exception_if_in,
-             exception_if_out => exception_if_reg);
+             exception_if_out => exception_if_reg,
+             -- Exception buses
+             Exc_BadVAddr_in   => Exc_BadVAddr_in,
+             Exc_BadVAddr_out  => Exc_BadVAddr_reg,
+             Exc_Cause_in      => Exc_Cause_in,
+             Exc_Cause_out     => Exc_Cause_reg,
+             Exc_EPC_in        => Exc_EPC_in,
+             Exc_EPC_out       => Exc_EPC_reg);
                 
         --jump addres is PC+4[31-28]+Shift_left_2(Instruction[25-0])
     addr_jump   <= pc_up_reg(31 downto 28) & instruction_reg(25 downto 0) & "00";
@@ -161,6 +193,12 @@ begin
                         '0';
     exception_id <= exception_internal when NOP_to_EXE = '0' else
                     '0';
+    -- Output the exception registers, change when needed
+    Exc_BadVaddr_out <= Exc_BadVAddr_reg;
+    Exc_EPC_out <= Exc_EPC_reg;
+    -- ToDo Appendix A-35 something better
+    Exc_Cause_out <= x"00000001" when exception_internal = '1' else
+                     Exc_Cause_reg;
     
     --big nop multiplexor
     RegWrite_out    <= RegWrite_tmp when NOP_to_EXE = '0' and exception_internal = '0' else

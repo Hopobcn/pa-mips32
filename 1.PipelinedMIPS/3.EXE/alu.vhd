@@ -53,6 +53,7 @@ architecture Structure of alu is
 	
 	signal Zero_core			: std_logic;
 	signal Overflow_core		: std_logic;
+  signal Overflow_tmp   : std_logic;
 	signal Overflow_multiplier : std_logic;
 begin
 	
@@ -118,7 +119,7 @@ begin
 											ALUOp = "1111") else 	--xor | xorisim:/pipelinedmips32test/processor/third_stage/integer_alu/Zero sim:/pipelinedmips32test/processor/third_stage/integer_alu/Zero_core sim:/pipelinedmips32test/processor/third_stage/integer_alu/ALUOp
 						'0';
 						--CHECK OPERATIONS THAT THROW OVERFLOWS
-	Overflow <= Overflow_core 			when (funct = "100000" or 		--add
+	Overflow_tmp <= Overflow_core 			when (funct = "100000" or 		--add
 														funct = "100010" or 		--sub
 														funct = "100100" or 		--and
 														funct = "100101" or 		--or
@@ -128,6 +129,20 @@ begin
 					Overflow_multiplier 	when (funct = "011000" or 		--mult
 														funct = "011010") else  --div
 					'0';
+					
+					
+					Overflow <= 
+					   -- It is an add of two positive, then the overflow bit indicates an actual overflow
+					   Overflow_tmp when ( funct = "100000" and a(31) = '0' and b(31) = '0' ) else
+					   -- It is an add of two negative numbers, then the overflow is negated
+             not Overflow_tmp when ( funct = "100000" and a(31) = '1' and b(31) = '0') else
+             -- It is a subtraction of positive-negative
+             Overflow_tmp when ( funct = "100010" and a(31) = '0' and b(31) = '1' ) else
+             -- It is a subtraction of negative-positive
+             not Overflow_tmp when ( funct = "100010" and a(31) = '1' and b(31) = '0' ) else
+             -- no overflow in all the other cases
+             '0';
+					            
 						
 				
 end Structure;
