@@ -10,14 +10,14 @@ entity instruction_decode is
             opcode          :   out std_logic_vector(5 downto 0);   --to EXE
             rs              :   out std_logic_vector(31 downto 0);  --to EXE
             rt              :   out std_logic_vector(31 downto 0);  --to EXE
-            rd              :   in  std_logic_vector(31 downto 0);  --from WB           
+            rd              :   in  std_logic_vector(31 downto 0);  --from WB
             sign_ext        :   out std_logic_vector(31 downto 0);  --to EXE
             zero_ext        :   out std_logic_vector(31 downto 0);  --to EXE
             addr_rs         :   out std_logic_vector(4 downto 0);   --to HAZARD CTRL
             addr_rt         :   out std_logic_vector(4 downto 0);   --to EXE
             addr_rd         :   out std_logic_vector(4 downto 0);   --to EXE
             write_data      :   out std_logic_vector(31 downto 0);  --to EXE,MEM
-            addr_regw       :   in  std_logic_vector(4 downto 0);       --from WB
+            addr_regw       :   in  std_logic_vector(4 downto 0);   --from WB
             fwd_path_alu    :   in  std_logic_vector(31 downto 0);  --from ALU [FWD]
             fwd_path_mem    :   in  std_logic_vector(31 downto 0);  --from MEM [FWD]
             -- control signals
@@ -40,6 +40,7 @@ entity instruction_decode is
             fwd_alu_regmem  :   in  std_logic_vector(1 downto 0);   --from FWD Ctrl 
             NOP_to_EXE      :  in  std_logic;                       --from Hazard Ctrl
             Stall           :   in   std_logic; 
+            
             -- exception bits
             exception_if_in :   in  std_logic;
             exception_if_out:   out std_logic;
@@ -57,7 +58,8 @@ entity instruction_decode is
             Exc_EPC_to_regfile       : in std_logic_vector(31 downto 0);
             writeBadVAddr_to_regfile : in std_logic;
             writeCause_to_regfile    : in std_logic;
-            writeEPC_to_regfile      : in std_logic);
+            writeEPC_to_regfile      : in std_logic
+            );
             
 end instruction_decode;
 
@@ -90,7 +92,9 @@ architecture Structure of instruction_decode is
     
     component control_inst_decode is
     port (opcode            :   in std_logic_vector(5 downto 0);
+          opcode_extra      :   in std_logic_vector(3 downto 0);
           RegWrite          :   out std_logic;
+			    c0RegWrite        :   out std_logic;
           Jump              :   out std_logic;
           Branch            :   out std_logic;
           MemRead           :   out std_logic;                              
@@ -113,6 +117,24 @@ architecture Structure of instruction_decode is
           rd                :   in  std_logic_vector(31 downto 0);
           RegWrite          :   in  std_logic);
     end component;
+    
+    component c0regfile is
+   	port (clk		:	in std_logic;
+			addr_read	   :	in std_logic_vector(4 downto 0);   --! Read address
+			reg_read		   :	out	std_logic_vector(31 downto 0); --! Register data for the read operation
+			addr_write   : in std_logic_vector(4 downto 0);  --! Write address
+			reg_write    : in std_logic_vector(31 downto 0);  --! Register data for the write operation
+			RegWrite     : in std_logic;                      --! Enable Write for the write port
+			BadVAddr_reg : in std_logic_vector(31 downto 0);  --! Direct input of the BadVAddr register (#8)
+			BadVAddr_w   : in std_logic;                      --! Enable Write flag for the BadVAddr register
+			Status_reg   : in std_logic_vector(31 downto 0);  --! Direct input of the Status register (#12)
+			Status_w     : in std_logic;                      --! Enable Write flag for the Status register
+			Cause_reg    : in std_logic_vector(31 downto 0);  --! Direct input for the Cause register (#13)
+			Cause_w      : in std_logic;                      --! Enable Write flag for the Cause register
+			EPC_reg      : in std_logic_vector(31 downto 0);  --! Direct input for the EPC  register (#14)
+			EPC_w        : in std_logic                       --! Enable Write flag for the EPC register
+		);
+		end component;
     
     component seu is
     port (input             :   in  std_logic_vector(15 downto 0);
@@ -137,7 +159,7 @@ architecture Structure of instruction_decode is
     signal Exc_BadVAddr_reg  : std_logic_vector(31 downto 0);
     signal Exc_Cause_reg     : std_logic_vector(31 downto 0);
     signal Exc_EPC_reg       : std_logic_vector(31 downto 0);
-    
+        
     signal enable           :   std_logic;
 begin
   
@@ -173,6 +195,7 @@ begin
     --logica de control enmascarada, aixi es mes facil gestionar-la
     control : control_inst_decode 
     port map(opcode     => instruction_reg(31 downto 26),
+            opcode_extra => instruction_reg(25 downto 22),
             RegWrite    => RegWrite_tmp,
             Jump        => Jump_tmp,
             Branch      => Branch_tmp,
@@ -218,8 +241,7 @@ begin
     Jump            <= Jump_tmp     when NOP_to_EXE = '0' and exception_internal = '0' else
                        '0'; 
     Branch          <= Branch_tmp   when NOP_to_EXE = '0' and exception_internal = '0' else
-                       '0';
-                        
+                       '0';              
                         
     register_file   :   regfile
     port map(clk        => clk,
@@ -242,6 +264,22 @@ begin
     write_data <= fwd_path_alu when fwd_alu_regmem = "11" else
                   fwd_path_mem when fwd_alu_regmem = "10" else
                   rt_regfile;
+                  
+    coprocessor0_register_file    :    c0regfile
+    port map(clk          => clk,
+             addr_read    => "00000",
+             --reg_read     => c0reg_out,
+             addr_write   => "00000",
+             reg_write    => x"00000000",
+             RegWrite     => '0',
+             BadVAddr_reg => Exc_BadVAddr_to_regfile,
+             BadVAddr_w   => writeBadVAddr_to_regfile,
+             Status_reg   => x"00000000",
+             Status_w     => '0',
+             Cause_reg    => Exc_Cause_to_regfile,
+             Cause_w      => writeCause_to_regfile,
+             EPC_reg      => Exc_EPC_to_regfile,
+             EPC_w        => writeEPC_to_regfile);
     
     sign_extend_unit    :   seu
     port map(input      => instruction_reg(15 downto 0),

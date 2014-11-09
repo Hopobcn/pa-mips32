@@ -4,8 +4,10 @@ use ieee.std_logic_1164.all;
 entity control_inst_decode is
 	port (-- buses
 			opcode : 	in std_logic_vector(5 downto 0);
+      opcode_extra : in std_logic_vector(3 downto 0); --! Required for the coprocessor 0 move instructions
 			-- control logic
 			RegWrite		: 	out std_logic;
+			c0RegWrite : out std_logic;
 			Jump			:	out std_logic;
 			Branch		:	out std_logic;
 			MemRead		:	out std_logic;								
@@ -66,7 +68,10 @@ begin
 					'1' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics) --writes in rt if fails
 				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
-					--Floating-Point Instructions					
+					-- Coprocessor 0 instructions
+					'1' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					'0' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
+					--Floating-Point Instructions
 					'0';
 					
 					
@@ -112,6 +117,9 @@ begin
 					'0' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
 				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
+					-- Coprocessor 0 instructions
+					'0' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					'0' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
 					--Floating-Point Instructions					
 					'0';
 	
@@ -157,6 +165,9 @@ begin
 					'0' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
 				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
+					-- Coprocessor 0 instructions
+					'0' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					'0' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
 					--Floating-Point Instructions					
 					'0';
 	
@@ -202,6 +213,9 @@ begin
 					'0' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
 				 --'0' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
+					-- Coprocessor 0 instructions
+					'0' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					'0' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
 					--Floating-Point Instructions					
 					'0';
 	
@@ -247,6 +261,9 @@ begin
 					'1' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
 				 --'1' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
+					-- Coprocessor 0 instructions
+					'0' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					'0' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
 					--Floating-Point Instructions					
 					'0';
 					
@@ -378,8 +395,18 @@ begin
 					'-' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
 				 --'-' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
+					-- Coprocessor 0 instructions
+					'1' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					'0' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
 					--Floating-Point Instructions					
 					'1';
+					
+	c0RegWrite <=
+	        -- Coprocessor 0 instructions
+					'0' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					'1' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
+					'0';
+
 					
 					--ARREGLAR LA ALU PER INSTRUCCIONS AMB INMEDIAT!
 	ALUOp		<=	"010" when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
@@ -424,6 +451,9 @@ begin
 					"000" when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
 				 --"000" when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
+					-- Coprocessor 0 instructions
+					"000" when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					"000" when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
 					--Floating-Point Instructions			
 					"XXX";
 					
@@ -471,6 +501,9 @@ begin
 					'1' when opcode = "111000" else -- sc (Store conditional - FOR MULTIPROCESSORS & Atomics)
 				 --'1' when opcode = "111101" else -- sdc1 (Store double-word coprocessor 1 - for floating point)
 					--Data Movement Instructions
+					-- Coprocessor 0 instructions
+					'-' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					'-' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
 					--Floating-Point Instructions					
 					'0';
 	

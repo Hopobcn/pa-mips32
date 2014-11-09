@@ -3,7 +3,9 @@ use ieee.std_logic_1164.all;
 
 entity PipelinedMIPS32 is
 	port(	clk	: in std_logic;
-			boot	: in std_logic);
+			boot	: in std_logic;
+			-- External interrupt
+			external_interrupt : in std_logic);
 			
 end PipelinedMIPS32;
 
@@ -235,6 +237,7 @@ architecture Structure of PipelinedMIPS32 is
 			Branch		   :	in	std_logic;                     -- from MEM stage (1=branch taken)
 			Jump			   :	in	std_logic;							 -- from EXE stage
 			Exception		:  in std_logic;							 -- from Exception Ctrl (WB stage) (all exceptions are processed at the end)
+			Interrupt_to_Exception_ctrl : out std_logic;
 			Interrupt		:  in std_logic;                     -- from Interrupt Ctrl (any point)
 			IC_Ready       :  in std_logic;                     -- from IF (means Instruction Cache Ready (1 when hit) if 0 stall)
 			DC_Ready       :  in std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
@@ -272,13 +275,30 @@ architecture Structure of PipelinedMIPS32 is
 	     exception_id   : in std_logic;
 	     exception_exe  : in std_logic;
 	     exception_mem  : in std_logic;
+	     -- For Interrupt triggered exception (sic) MIPS/Patterson fault, way of describing
+	     exception_interrupt : in std_logic;
 	     -- Exception flag
 	     exception_flag : out std_logic;
+	     -- Indicator to IF
+	     exception_jump : out std_logic;
 	     -- Signals for writeback
 	     wbexc_writeEPC      : out std_logic;
 	     wbexc_writeBadVAddr : out std_logic;
 	     wbexc_writeCause    : out std_logic); 
   end component;	
+  
+  component interrupt_ctrl is
+ 	port (clk : in std_logic;
+	  boot : in std_logic;
+	  -- The external bit from something unknown
+	  interrupt : in std_logic;
+	  
+	  -- Interruption-related bits
+	  int_clear  : in std_logic; --! Clear the interrupt flag
+	  int_flag   : out std_logic --! Sticky signal for a pending interrupt	  
+	  );
+	end component;
+
 	
 	-- buses
 	signal addr_jump_2to3			:	std_logic_vector(31 downto 0);
@@ -373,8 +393,10 @@ architecture Structure of PipelinedMIPS32 is
 	signal NOP_HazardCtrlto3		: std_logic;
 	signal NOP_HazardCtrlto4		: std_logic;
 	
+	-- Signals of {Exception, Interrupt} to Control
 	signal Exception_ExcepCtrlOut 		: std_logic;
 	signal Interrupt_InterruptCtrltoHazaardCtrl : std_logic;
+	signal Interrupt_ExceptionCtrlfromHazardCtrl : std_logic;
 	
 	--------------------------------
 	-- All the exceptions signals --
@@ -430,6 +452,12 @@ architecture Structure of PipelinedMIPS32 is
 	signal writeEPC_to_id      : std_logic;
 	signal writeBadVAddr_to_id : std_logic;
 	signal writeCause_to_id    : std_logic;
+	
+	signal Exception_IFJump : std_logic;
+	
+	------------- 
+	-- Interrupt clear (ToDo)
+  signal interruption_clear  : std_logic;
   	
 begin
 
@@ -442,7 +470,7 @@ begin
 				boot			=> boot,
 				Jump			=> Jump_3to1,
 				PCSrc			=> PCSrc_4to1,
-				ExceptionJump => Exception_ExcepCtrlOut,
+				ExceptionJump => Exception_IFJump,
 				NOP_to_ID	=> NOP_HazardCtrlto1,
 				Stall			=> Stall_HazardCtrlto1,
 				
@@ -630,11 +658,11 @@ begin
 				writeCause_in    => writeCause_to_wb,
 				writeCause_out   => writeCause_to_id);
 
-	Interrupt_InterruptCtrltoHazaardCtrl 	<= '0';
 	instCacheReady_1toCtrl 						<= '1'; 		--ATM is ready always, change this behaviour when implementing caches
 	dataCacheReady_4toCtrl						<= '1';
 	
 	Jump_3toCtrl <= Jump_3to1;
+	
 	hazard_contol_logic : hazard_ctrl
 	port map(idRegisterRs	=> addr_rs_2toCtrl,
 				idRegisterRt	=> addr_rt_2to3,
@@ -643,6 +671,7 @@ begin
 				Branch		   => BranchTaken_4toCtrl,
 				Jump			   => Jump_3toCtrl,
 				Exception		=> Exception_ExcepCtrlOut,
+				Interrupt_to_Exception_ctrl => Interrupt_ExceptionCtrlfromHazardCtrl,
 				Interrupt		=> Interrupt_InterruptCtrltoHazaardCtrl,
 				IC_Ready       => instCacheReady_1toCtrl,
 				DC_Ready       => dataCacheReady_4toCtrl,
@@ -677,12 +706,27 @@ begin
 	     exception_id   => exception_id_at_mem,
 	     exception_exe  => exception_exe_at_mem,
 	     exception_mem  => exception_mem_at_mem,
+	     -- Exception interrupt (sic) MIPS/Patterson way of speaking
+	     exception_interrupt => Interrupt_ExceptionCtrlfromHazardCtrl,
 	     -- Exception flag (to Control Hazard and PC register)
 	     exception_flag => Exception_ExcepCtrlOut,
+	     exception_jump => Exception_IFJump,
 	     -- Signals for writeback
 	     wbexc_writeEPC      => writeEPC_to_wb,
 	     wbexc_writeBadVAddr => writeBadVAddr_to_wb,
 	     wbexc_writeCause    => writeCause_to_wb); 
+	     
+	interrupt_control_logic : interrupt_ctrl
+	port map (clk => clk,
+	  boot => boot,
+	  -- The external bit from the hardware or *test
+	  interrupt => external_interrupt,
+	  
+	  -- Interruption-related bits
+	  int_clear  => '0', -- interruption_clear,
+	  int_flag   => Interrupt_InterruptCtrltoHazaardCtrl
+	  );
+
 
 	
 end Structure;

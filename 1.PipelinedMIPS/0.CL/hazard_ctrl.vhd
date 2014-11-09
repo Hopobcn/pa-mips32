@@ -10,6 +10,7 @@ entity hazard_ctrl is
 			Branch		   :	in	std_logic;                     -- from MEM stage (1=branch taken)
 			Jump			   :	in	std_logic;							 -- from EXE stage
 			Exception		:  in std_logic;							 -- from Exception Ctrl (MEM stage) --wait until instruction is the oldest ``alive''
+			Interrupt_to_Exception_ctrl : out std_logic;
 			Interrupt		:  in std_logic;                     -- from Interrupt Ctrl (any point)
 			IC_Ready       :  in std_logic;                     -- from IF (means Instruction Cache Ready (1 when hit) if 0 stall)
 			DC_Ready       :  in std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
@@ -40,12 +41,8 @@ begin
 		NOP_to_EXE		<= '0';
 		NOP_to_MEM		<= '0';
 		NOP_to_WB		<= '0';
-		if (Interrupt = '1') then
-			NOP_to_ID 		<= '1';
-			NOP_to_EXE		<= '1';
-			NOP_to_MEM		<= '1';
-			NOP_to_WB		<= '1';
-		elsif (Exception = '1') then
+		Interrupt_to_exception_ctrl <= '0';
+		if (Exception = '1') then
 		  NOP_to_ID 		<= '1';
 			NOP_to_EXE		<= '1';
 			NOP_to_MEM		<= '1';
@@ -57,6 +54,13 @@ begin
 			Stall_ID_EXE	<= '1';
 			Stall_EXE_MEM	<= '1';
 			NOP_to_WB		<= '0';
+		elsif (Interrupt = '1' and Jump = '0') then 
+		  -- ToDo add a "store check", because then the instruction cannot be executed again
+			NOP_to_ID 		<= '1';
+			NOP_to_EXE		<= '1';
+			NOP_to_MEM		<= '1';
+			NOP_to_WB		<= '1';
+			Interrupt_to_exception_ctrl <= '1';
 		elsif (Branch = '1') then 
 			NOP_to_ID 		<= '1';
 			NOP_to_EXE		<= '1';

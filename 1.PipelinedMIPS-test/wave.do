@@ -2,6 +2,7 @@ onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /pipelinedmips32test/clk
 add wave -noupdate /pipelinedmips32test/boot
+add wave -noupdate /pipelinedmips32test/external_interrupt
 add wave -noupdate -divider 0.CL
 add wave -noupdate -expand -group {0.Hazard Ctrl} -label idRegisterRs /pipelinedmips32test/processor/hazard_contol_logic/idRegisterRs
 add wave -noupdate -expand -group {0.Hazard Ctrl} -label idRegisterRt /pipelinedmips32test/processor/hazard_contol_logic/idRegisterRt
@@ -44,25 +45,24 @@ add wave -noupdate -group Exceptions -label {MEM: exception_if} /pipelinedmips32
 add wave -noupdate -group Exceptions -label {MEM: exception_id} /pipelinedmips32test/processor/fourth_stage/exception_id_out
 add wave -noupdate -group Exceptions -label {MEM: exception_exe} /pipelinedmips32test/processor/fourth_stage/exception_exe_out
 add wave -noupdate -group Exceptions -label {MEM: exception_mem} /pipelinedmips32test/processor/fourth_stage/exception_mem
-add wave -noupdate -group Exceptions -label {WB: exception_if} /pipelinedmips32test/processor/fifth_stage/exception_if_out
-add wave -noupdate -group Exceptions -label {WB: exception_id} /pipelinedmips32test/processor/fifth_stage/exception_id_out
-add wave -noupdate -group Exceptions -label {WB: exception_exe} /pipelinedmips32test/processor/fifth_stage/exception_exe_out
-add wave -noupdate -group Exceptions -label {WB: exception_mem} /pipelinedmips32test/processor/fifth_stage/exception_mem_out
+add wave -noupdate -expand -group {0.Exception Ctrl} -label exception_flag /pipelinedmips32test/processor/exception_control_logic/exception_flag
+add wave -noupdate -expand -group {0.Exception Ctrl} -label {Writeback -> Write EPC} /pipelinedmips32test/processor/exception_control_logic/wbexc_writeEPC
+add wave -noupdate -expand -group {0.Exception Ctrl} -label {Writeback -> Write BadVAddr} /pipelinedmips32test/processor/exception_control_logic/wbexc_writeBadVAddr
+add wave -noupdate -expand -group {0.Exception Ctrl} -label {Writeback -> Write Cause} /pipelinedmips32test/processor/exception_control_logic/wbexc_writeCause
+add wave -noupdate -expand -group {0.Interrupt Ctrl} -label {int_flag_tmp (internal)} /pipelinedmips32test/processor/interrupt_control_logic/int_flag_tmp
+add wave -noupdate -expand -group {0.Interrupt Ctrl} -label int_clear /pipelinedmips32test/processor/interrupt_control_logic/int_clear
+add wave -noupdate -expand -group {0.Interrupt Ctrl} -label int_flag /pipelinedmips32test/processor/interrupt_control_logic/int_flag
 add wave -noupdate -divider 1.IF
 add wave -noupdate -label Jump /pipelinedmips32test/processor/first_stage/Jump
 add wave -noupdate -label boot /pipelinedmips32test/processor/first_stage/boot
 add wave -noupdate -label {Jump_tmp (0 when boot)} /pipelinedmips32test/processor/first_stage/Jump_tmp
 add wave -noupdate -group MuxPcUpOrBranch -label {addr_branch (1 Mux0)} -radix hexadecimal /pipelinedmips32test/processor/first_stage/addr_branch
-add wave -noupdate -group MuxPcUpOrBranch -label {Pc_Up (0 Mux0)} -radix hexadecimal /pipelinedmips32test/processor/first_stage/pc_up_tmp2
 add wave -noupdate -group MuxPcUpOrBranch -label {PCSrc (Control Mux0)} /pipelinedmips32test/processor/first_stage/PCSrc
 add wave -noupdate -group MuxPcUpOrBranch -label {addr_branch (1 Mux0)} -radix hexadecimal /pipelinedmips32test/processor/first_stage/addr_branch
-add wave -noupdate -group MuxPcUpOrBranch -label {Pc_Up (0 Mux0)} -radix hexadecimal /pipelinedmips32test/processor/first_stage/pc_up_tmp2
 add wave -noupdate -group MuxPcUpOrBranch -label {PCSrc (Control Mux0)} /pipelinedmips32test/processor/first_stage/PCSrc
 add wave -noupdate -group MuxJumpOrElse -label {addr_jump (1 Mux1)} -radix hexadecimal /pipelinedmips32test/processor/first_stage/addr_jump
-add wave -noupdate -group MuxJumpOrElse -label {Mux0_out (0 Mux1)} -radix hexadecimal /pipelinedmips32test/processor/first_stage/first_mux_res
 add wave -noupdate -group MuxJumpOrElse -label {Jump_tmp (Control Mux1)} /pipelinedmips32test/processor/first_stage/Jump_tmp
 add wave -noupdate -group MuxJumpOrElse -label {addr_jump (1 Mux1)} -radix hexadecimal /pipelinedmips32test/processor/first_stage/addr_jump
-add wave -noupdate -group MuxJumpOrElse -label {Mux0_out (0 Mux1)} -radix hexadecimal /pipelinedmips32test/processor/first_stage/first_mux_res
 add wave -noupdate -group MuxJumpOrElse -label {Jump_tmp (Control Mux1)} /pipelinedmips32test/processor/first_stage/Jump_tmp
 add wave -noupdate -label {Mux0_out (Entrada PC_reg)} -radix hexadecimal -childformat {{/pipelinedmips32test/processor/first_stage/pc_up_tmp(31) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(30) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(29) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(28) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(27) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(26) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(25) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(24) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(23) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(22) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(21) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(20) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(19) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(18) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(17) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(16) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(15) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(14) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(13) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(12) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(11) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(10) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(9) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(8) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(7) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(6) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(5) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(4) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(3) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(2) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(1) -radix hexadecimal} {/pipelinedmips32test/processor/first_stage/pc_up_tmp(0) -radix hexadecimal}} -subitemconfig {/pipelinedmips32test/processor/first_stage/pc_up_tmp(31) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(30) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(29) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(28) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(27) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(26) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(25) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(24) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(23) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(22) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(21) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(20) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(19) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(18) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(17) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(16) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(15) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(14) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(13) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(12) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(11) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(10) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(9) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(8) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(7) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(6) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(5) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(4) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(3) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(2) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(1) {-height 17 -radix hexadecimal} /pipelinedmips32test/processor/first_stage/pc_up_tmp(0) {-height 17 -radix hexadecimal}} /pipelinedmips32test/processor/first_stage/pc_up_tmp
 add wave -noupdate -group PC -label PC_input -radix hexadecimal /pipelinedmips32test/processor/first_stage/pc_up_tmp
@@ -271,7 +271,7 @@ add wave -noupdate -expand -group MEM_WB -label {RegWrite (out)} /pipelinedmips3
 add wave -noupdate -expand -group MEM_WB -label {MemtoReg (out)} /pipelinedmips32test/processor/fifth_stage/MemtoReg_reg
 add wave -noupdate -expand -group MEM_WB -label clk /pipelinedmips32test/processor/fifth_stage/clk
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {0 ps} 0}
+WaveRestoreCursors {{Cursor 1} {550 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 337
 configure wave -valuecolwidth 100
@@ -287,5 +287,5 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {2196 ps}
+WaveRestoreZoom {0 ps} {1174 ps}
 bookmark add wave bookmark0 {{0 ps} {866 ps}} 6
