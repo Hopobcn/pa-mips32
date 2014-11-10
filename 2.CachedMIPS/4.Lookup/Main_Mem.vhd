@@ -13,7 +13,7 @@ entity main_mem is
           Pet          : in std_logic;
           ReadOrWrite  : in std_logic;
           Ready        : out std_logic);
-end data;
+end main_mem;
 
 architecture Structure of main_mem is
     type ARRAY_MEM is array (2**8-1 downto 0) of std_logic_vector(7 downto 0);
@@ -22,7 +22,7 @@ begin
     
     read_main_memory : process(Pet)
     begin
-        if (Pet == '1' and ReadOrWrite == '0') then
+        if (Pet = '1' and ReadOrWrite = '0') then
             read_data(7 downto 0)    <= main_mem(to_integer(unsigned(addr      )));
             read_data(15 downto 8)   <= main_mem(to_integer(unsigned(addr+x"01")));
             read_data(23 downto 16)  <= main_mem(to_integer(unsigned(addr+x"02")));
@@ -33,13 +33,13 @@ begin
 
     write_main_memory : process(Pet)
     begin
-        if (Pet == '1' and ReadOrWrite == '1') then
+        if (Pet = '1' and ReadOrWrite = '1') then
             main_mem(to_integer(unsigned(addr      ))) <= write_data(7 downto 0);
             main_mem(to_integer(unsigned(addr+x"01"))) <= write_data(15 downto 8);
             main_mem(to_integer(unsigned(addr+x"02"))) <= write_data(23 downto 16);
             main_mem(to_integer(unsigned(addr+x"03"))) <= write_data(31 downto 24); 
         end if;
         Ready <= '1';
-    end process read_write_tags;
+    end process write_main_memory;
 
 end Structure;

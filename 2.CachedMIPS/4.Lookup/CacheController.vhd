@@ -13,6 +13,7 @@ entity cache_controller is
           WriteTags     : out std_logic;
           WriteState    : out std_logic;
           WriteCache    : out std_logic;
+          State         : in std_logic_vector(1 downto 0);
           nextState     : out std_logic_vector(1 downto 0);
           -- periferics
           muxIndex      : out std_logic;
@@ -35,11 +36,16 @@ entity cache_controller is
 end cache_controller;
 
 architecture Structure of cache_controller is
-    type proc_state_type is (READY,BREAD,BINV,BRWITM);
+    type proc_state_type is (PROC_IDLE,READ_MISS,WRITE_MISS);
     signal procCurrState, procNextState : proc_state_type;
 
-    type obs_state_type is (RO,O);
+    type obs_state_type is (OBS_IDLE,OBS_READ);
     signal obsCurrState, obsNextState : obs_state_type;
+
+    constant I : std_logic_vector := x"00";
+    constant E : std_logic_vector := x"01";
+    constant S : std_logic_vector := x"10";
+    constant M : std_logic_vector := x"11";
 
     signal WriteTags_proc  : std_logic := '1';
     signal WriteState_proc : std_logic := '1';
@@ -55,70 +61,87 @@ begin
     processor_state : process(clk,reset)
     begin
         if (reset == '1') then
-            procCurrState <= READY;
+            procCurrState <= PROC_IDLE;
         elsif (rising_clock(clk)) then
             procCurrState <= procNextState;
         end if;
     end process processor_state;
 
 
-    proc_next_state : process(procCurrState,PrRd,PrWr,Hit,busReady,reset)
+    proc_next_state : process(procCurrState,PrRd,PrWr,Hit,busReady)
     begin
         case procCurrState is
-        when READY =>
+        when PROC_IDLE =>
             if (PrRd == '1') then
                 if (Hit == '1') then
-                    procNextState <= READY; -- Read HIT  : 1cycle
+                    procNextState <= PROC_IDLE; -- Read HIT  : 1cycle
                 else
-                    procNextState <= BREAD; -- Read MISS : Broadcast Read
+                    procNextState <= READ_MISS; -- Read MISS : Broadcast Read
                 end if;
             elsif (PrWr == '1') then
                 if (Hit == '1') then
-                    procNextState <= BINV; -- Write HIT : Broadcast Invalidate
+                    procNextState <= PROC_IDLE; -- Write HIT : (M)Broadcast Invalidate OR (E,S)nothing
                 else
-                    procNextState <= BRWITM; -- Write MISS: Broadcast RWITM
+                    procNextState <= WRITE_MISS; -- Write MISS: Broadcast RWITM
                 end if;
             end if;
-        when BREAD =>
+        when READ_MISS =>
             if (busReady == '1') then
-                procNextState <= READY;
+                procNextState <= PROC_IDLE;
             else
-                procNextState <= BREAD;
+                procNextState <= READ_MISS;
             end if;
-        when BINV =>
-            procNextState <= READY;
-        when BRWITM =>
-            if (busReady <= '1') then
-                procNextState <= READY;
-            else 
-                procNextState <= BRWITM;
+        when WRITE_MISS =>
+            if (busReady == '1') then
+                procNextState <= PROC_IDLE;
+            else
+                procNextState <= WRITE_MISS;
             end if;
         end case;
     end process next_state_logic;
 
-    proc_output_logic : process(procCurrState,PrRd,PrWr,Hit,memReady,reset)
+    proc_output_logic : process(procCurrState,PrRd,PrWr,Hit,busReady)
     begin
         case procCurrState is
-        when READY =>
-            Ready <= '0';
+        when PROC_IDLE =>
+            muxIndex <= '0';
+            Ready    <= '0';
             if (PrRd == '1') then
                 if (Hit == '1') then
-                    muxDataR    <= '0';
-                    Ready       <= '1';
+                    muxDataR <= '0'; -- Read from cache
+                    Ready    <= '1'; -- Ready
                 else
-                    BusRd <= '1';
+                    busRd    <= '1'; -- Start a BusRd petition
                 end if;
             elsif (PrWr == '1') then
                 if (Hit == '1') then
-                    busMOD     <= '1'; -- invalidate other caches by putting MOD=1 & addr in bus
-                    muxDataW   <= '0';
-                    Ready     <= '1';
-                else 
-                    BusRdX <= '1';
+                    if (State == M or State == E) then
+                        muxDataW <= '0'; -- Write proc->cache
+                        Ready    <= '1';
+                    else -- State == S => Broadcast Invalidate
+                        busMOD <= '1'; -- if othrers processors see MOD & addr&Hit S->I
+                    end if;
+                else
+                    BusRdX <= '1'; -- Write Miss: Broadcast RWITM
                 end if;
             end if;
-        when  =>
- 
+        when READ_MISS =>
+            if (busReady == '1') then
+                WriteTags  <= '1';
+                WriteState <= '1';
+                if (obsS == '1')
+                    nextState <= S;
+                else
+                    nextState <= E;
+                end if;
+            end if;
+        when WRITE_MISS =>
+            if (busReady == '1') then
+                WriteTags  <= '1';
+                WriteState <= '1';
+                WriteCache <= '1';
+                nextState  <= M;
+            end if;
         end case;
     end process output_logic_state;
 
@@ -127,38 +150,51 @@ begin
     observer_state : process(clk,reset)
     begin
         if (reset == '1') then
-            obsCurrState <= R0;
+            obsCurrState <= OBS_IDLE;
         elsif (rising_clock(clk)) then
             obsCurrState <= obsNextState;
         end if;
     end process observer_state;
 
-    obs_next_state : process(obsCurrState,obsBusRd,obsBusRdX,obsS,obsMOD,Hit,memReady)
+    obs_next_state : process(obsCurrState,obsBusRd,obsBusRdX,obsS,obsMOD,Hit,busReady)
     begin
         case obsCurrState is
-        when R0 =>
-            if (Hit == '0') then
-                obsNextState <= R0;
-            elsif (Hit == '1' and obsBusRd == '1') then
-                obsNextState <= O1;
-            elsif (Hit == '1' and obsBusRdX == '1') then
-                obsNextState <= O2;
-            elsif (Hit == '1' and obsBusWr == '1') then
-                obsNextState <= O3;
+        when OBS_IDLE =>
+            if (obsBusRd == '1' and Hit == '1' and State == M) then
+                obsNextState <= OBS_READ;
+            else
+                obsNextState <= OBS_IDLE;
             end if;
-        when O1 =>
         end case;
     end process obs_next_state;
 
     obs_output_logic : process(obsCurrState,obsBusRd,obsBusRdX,obsS,obsMOD,Hit,MemRead)
     begin
         case obsCurrState is
-        when R0 =>
-            WriteState_obs <= '0';
-            nextState_obs  <= x"00";
-            if () then
-        when O =>
-
+        when OBS_IDLE =>
+            if (obsBusRd == '1') then
+                if (Hit == '1') then
+                    if (State == M) then
+                        -- Put data in bus + Update Main Memory
+                        muxDataR <= '0';
+                        BusWr    <= '1';
+                    else
+                        muxDataR <= '0';
+                    end if;
+                else
+                    -- Observation miss, do nothing
+                end if;
+            elsif (obsBusRdx == '1') then
+                if (Hit == '1') then
+                    nextState <= I;
+                end if;
+            end if;
+        when OBS_READ =>
+            if (busReady == '1') then
+                Ready <= '0';
+            else
+                Ready <= '0';
+            end if;
         end case;
     end process obs_output_logic;
             

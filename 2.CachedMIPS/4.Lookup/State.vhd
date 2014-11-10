@@ -7,8 +7,8 @@ use ieee.std_logic_unsigned.all;
 entity state is
     port (-- data buses
           index         : in std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
-          nextState     : in std_logic_vector(25 downto 0);
-          state         : out std_logic_vector(25 downto 0);
+          nextState     : in std_logic_vector(1 downto 0);
+          state         : out std_logic_vector(1 downto 0);
           -- control signals
           WriteEnable   : in std_logic);
 end state;
@@ -28,6 +28,6 @@ begin
         if (WriteEnable = '1') then
             mem_state(to_integer(unsigned(index))) <= nextState;
         end if;
-    end process read_write_tags;
+    end process write_state;
 
 end Structure;

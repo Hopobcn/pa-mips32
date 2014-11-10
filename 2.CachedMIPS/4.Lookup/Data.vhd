@@ -21,26 +21,26 @@ architecture Structure of data is
     signal container_128 : std_logic_vector(127 downto 0);
 begin
     
-    read_data : process(index)
+    data_read : process(index)
     begin
         container_128 <= mem_data(to_integer(unsigned(index)));
 
-        if (block_offset == "00") then
+        if (block_offset = "00") then
             read_data <= container_128(31 downto 0);
-        elsif (block_offset == "01") then
+        elsif (block_offset = "01") then
             read_data <= container_128(63 downto 32);
-        elsif (block_offset == "10") then
+        elsif (block_offset = "10") then
             read_data <= container_128(95 downto 64);
         else
             read_data <= container_128(127 downto 96);
         end if;
-    end process read_data;
+    end process data_read;
 
-    write_data : process(index)
+    data_write : process(index)
     begin
         if (writeEnable = '1') then
             mem_data(to_integer(unsigned(index))) <= write_data;
         end if;
-    end process read_write_tags;
+    end process data_write;
 
 end Structure;

@@ -7,6 +7,7 @@ entity cache_fields is
     port (-- data buses
           index         : in std_logic_vector(4 downto 0);
           tag           : in std_logic_vector(25 downto 0);
+          State         : out std_logic_vector(1 downto 0);
           nextState     : in std_logic_vector(1 downto 0);
           -- control signals
           WriteTags     : in std_logic;
@@ -15,6 +16,7 @@ entity cache_fields is
 end cache_fields;
 
 architecture Structure of cache_fields is
+    constant I : std_logic_vector := x"00";
 begin 
 
     component tags is
@@ -29,10 +31,11 @@ begin
     component state is
     port (-- data buses
           index         : in std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
-          nextState     : in std_logic_vector(25 downto 0);
-          state         : out std_logic_vector(25 downto 0);
+          nextState     : in std_logic_vector(1 downto 0);
+          state         : out std_logic_vector(1 downto 0);
           -- control signals
           WriteEnable   : in std_logic);
+    end component;
 
     signal tagRead      : std_logic_vector(25 downto 0);
     signal currentState : std_logic_vector(1 downto 0);
@@ -51,9 +54,11 @@ begin
              state       => currentState,
              WriteEnable => WriteState);
 
+    State <= currentState;
+
     tag_comparator : process(tag, tagRead)
     begin
-        if (tag == tagRead) then
+        if (tag = tagRead) then
             tag_compare <= '1';
         else
             tag_compare <= '0';
@@ -62,7 +67,7 @@ begin
 
     is_hit : process(tag_compare, currentState)
     begin
-        if (currentState == "00") then
+        if (currentState = I) then
             Hit <= '0'; --if Invalid always miss
         else
             Hit <= tag_compare;
