@@ -13,11 +13,11 @@ entity instruction_decode is
             rd              :   in  std_logic_vector(31 downto 0);  --from WB
             sign_ext        :   out std_logic_vector(31 downto 0);  --to EXE
             zero_ext        :   out std_logic_vector(31 downto 0);  --to EXE
-            addr_rs         :   out std_logic_vector(4 downto 0);   --to HAZARD CTRL
-            addr_rt         :   out std_logic_vector(4 downto 0);   --to EXE
-            addr_rd         :   out std_logic_vector(4 downto 0);   --to EXE
+            addr_rs         :   out std_logic_vector(5 downto 0);   --to HAZARD CTRL
+            addr_rt         :   out std_logic_vector(5 downto 0);   --to EXE
+            addr_rd         :   out std_logic_vector(5 downto 0);   --to EXE
             write_data      :   out std_logic_vector(31 downto 0);  --to EXE,MEM
-            addr_regw       :   in  std_logic_vector(4 downto 0);   --from WB
+            addr_regw       :   in  std_logic_vector(5 downto 0);   --from WB
             fwd_path_alu    :   in  std_logic_vector(31 downto 0);  --from ALU [FWD]
             fwd_path_mem    :   in  std_logic_vector(31 downto 0);  --from MEM [FWD]
             -- control signals
@@ -95,6 +95,7 @@ architecture Structure of instruction_decode is
           opcode_extra      :   in std_logic_vector(3 downto 0);
           RegWrite          :   out std_logic;
 			    c0RegWrite        :   out std_logic;
+          c0RegRead         :   out std_logic;
           Jump              :   out std_logic;
           Branch            :   out std_logic;
           MemRead           :   out std_logic;                              
@@ -159,12 +160,26 @@ architecture Structure of instruction_decode is
     signal Exc_BadVAddr_reg  : std_logic_vector(31 downto 0);
     signal Exc_Cause_reg     : std_logic_vector(31 downto 0);
     signal Exc_EPC_reg       : std_logic_vector(31 downto 0);
+    
+    -- Coprocessor 0 operations
+    signal c0RegRead_tmp    : std_logic;
+    signal c0RegWrite_tmp   : std_logic;
+    signal c0reg_out        : std_logic_vector(31 downto 0);
+    
+    -- signal to the regular register file for non-c0 write operations
+    signal addr_rd_tmp  : std_logic_vector(4 downto 0);
+    -- signal for the c0 register file
+    signal addr_c0_write_tmp : std_logic_vector(4 downto 0);
+
+    -- Enable for the write operations on c0 register file
+    signal c0RegWrite_in_tmp : std_logic;
+
         
     signal enable           :   std_logic;
 begin
   
     enable <= not Stall;
-  
+    
     -- IF/ID Register 
     IF_ID_register : if_id_reg
     port map(instruction_in     => instruction,
@@ -183,20 +198,28 @@ begin
              Exc_Cause_out     => Exc_Cause_reg,
              Exc_EPC_in        => Exc_EPC_in,
              Exc_EPC_out       => Exc_EPC_reg);
-                
-        --jump addres is PC+4[31-28]+Shift_left_2(Instruction[25-0])
+
+    --jump addres is PC+4[31-28]+Shift_left_2(Instruction[25-0])
     addr_jump   <= pc_up_reg(31 downto 28) & instruction_reg(25 downto 0) & "00";
     pc_up_out   <= pc_up_reg;
     opcode      <= instruction_reg(31 downto 26);
-    addr_rs     <= instruction_reg(25 downto 21);
-    addr_rt     <= instruction_reg(20 downto 16);
-    addr_rd     <=  instruction_reg(15 downto 11);
+    addr_rs     <= '0' & instruction_reg(25 downto 21);
+    
+    addr_rt     <= '1' & instruction_reg(15 downto 11) when c0RegRead_tmp = '1' else
+                   '0' & instruction_reg(20 downto 16) when c0RegWrite_tmp = '1' else
+                   '0' & instruction_reg(20 downto 16);
+    
+    addr_rd     <= '0' & instruction_reg(20 downto 16) when c0RegRead_tmp = '1' else
+                   '1' & instruction_reg(15 downto 11) when c0RegWrite_tmp = '1' else
+                   '0' & instruction_reg(15 downto 11);
     
     --logica de control enmascarada, aixi es mes facil gestionar-la
     control : control_inst_decode 
     port map(opcode     => instruction_reg(31 downto 26),
             opcode_extra => instruction_reg(25 downto 22),
             RegWrite    => RegWrite_tmp,
+            c0RegWrite  => c0RegWrite_tmp,
+            c0RegRead   => c0RegRead_tmp,
             Jump        => Jump_tmp,
             Branch      => Branch_tmp,
             MemRead     => MemRead_tmp,
@@ -245,13 +268,20 @@ begin
                         
     register_file   :   regfile
     port map(clk        => clk,
-             addr_rs    =>  instruction_reg(25 downto 21),
+             addr_rs    => instruction_reg(25 downto 21),
              addr_rt    => instruction_reg(20 downto 16),
-             addr_rd    => addr_regw,
+             addr_rd    => addr_rd_tmp,
              rs         => rs_regfile,
              rt         => rt_regfile,
              rd         => rd,
              RegWrite   => RegWrite_in);
+             
+    addr_rd_tmp <= addr_regw(4 downto 0) when addr_regw(5) = '0' else
+                   "00000";
+    
+    addr_c0_write_tmp <= addr_regw(4 downto 0) when addr_regw(5) = '1' else
+                         "00000";
+    c0RegWrite_in_tmp <= RegWrite_in and addr_regw(5);
                 
     rs  <= fwd_path_alu     when fwd_aluRs = "11" else
            fwd_path_mem     when fwd_aluRs = "10" else
@@ -259,6 +289,7 @@ begin
             
     rt  <= fwd_path_alu     when fwd_aluRt = "11" else
            fwd_path_mem     when fwd_aluRt = "10" else
+           c0reg_out        when c0RegRead_tmp = '1' else
            rt_regfile;         --fwd_aluRt = "00"
             
     write_data <= fwd_path_alu when fwd_alu_regmem = "11" else
@@ -267,11 +298,11 @@ begin
                   
     coprocessor0_register_file    :    c0regfile
     port map(clk          => clk,
-             addr_read    => "00000",
-             --reg_read     => c0reg_out,
+             addr_read    => instruction_reg(15 downto 11),
+             reg_read     => c0reg_out,
              addr_write   => "00000",
              reg_write    => x"00000000",
-             RegWrite     => '0',
+             RegWrite     => c0RegWrite_in_tmp,
              BadVAddr_reg => Exc_BadVAddr_to_regfile,
              BadVAddr_w   => writeBadVAddr_to_regfile,
              Status_reg   => x"00000000",

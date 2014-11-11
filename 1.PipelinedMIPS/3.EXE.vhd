@@ -10,16 +10,16 @@ entity execute is
             rt              :   in std_logic_vector(31 downto 0);   --from ID
             sign_ext        :   in std_logic_vector(31 downto 0);   --from ID
             zero_ext        :   in std_logic_vector(31 downto 0);   --from ID
-            addr_rt_in      :   in std_logic_vector(4 downto 0);        --from ID
-            addr_rt_out     :   out std_logic_vector(4 downto 0);   --to Hazard Ctrl
-            addr_rd         :   in std_logic_vector(4 downto 0);        --from ID
+            addr_rt_in      :   in std_logic_vector(5 downto 0);        --from ID
+            addr_rt_out     :   out std_logic_vector(5 downto 0);   --to Hazard Ctrl
+            addr_rd         :   in std_logic_vector(5 downto 0);        --from ID
             addr_jump_in    :   in  std_logic_vector(31 downto 0);  --from ID
             addr_jump_out   :   out std_logic_vector(31 downto 0);  --to MEM,IF
             addr_branch     :   out std_logic_vector(31 downto 0);  --to MEM,then IF
             alu_res         :   out std_logic_vector(31 downto 0);  --to MEM
             write_data_in   :   in  std_logic_vector(31 downto 0);  --from ID
             write_data_out  :   out std_logic_vector(31 downto 0);  --to MEM
-            addr_regw       :   out std_logic_vector(4 downto 0);   --to MEM,WB, then IF
+            addr_regw       :   out std_logic_vector(5 downto 0);   --to MEM,WB, then IF
             fwd_path_alu    :   out std_logic_vector(31 downto 0);  --to ID         [FWD]
             fwd_path_mem    :   in   std_logic_vector(31 downto 0); --from MEM  [FWD]
             -- control signals
@@ -80,10 +80,10 @@ architecture Structure of execute is
             sign_ext_out    :   out std_logic_vector(31 downto 0);
             zero_ext_in     :   in  std_logic_vector(31 downto 0);  
             zero_ext_out    :   out std_logic_vector(31 downto 0);
-            addr_rt_in      :   in  std_logic_vector(4 downto 0);       
-            addr_rt_out     :   out std_logic_vector(4 downto 0);   
-            addr_rd_in      :   in  std_logic_vector(4 downto 0);       
-            addr_rd_out     :   out std_logic_vector(4 downto 0);   
+            addr_rt_in      :   in  std_logic_vector(5 downto 0);       
+            addr_rt_out     :   out std_logic_vector(5 downto 0);   
+            addr_rd_in      :   in  std_logic_vector(5 downto 0);       
+            addr_rd_out     :   out std_logic_vector(5 downto 0);   
             addr_jump_in    :   in  std_logic_vector(31 downto 0);  
             addr_jump_out   :   out std_logic_vector(31 downto 0);  
             -- control signals
@@ -134,8 +134,8 @@ architecture Structure of execute is
     signal rt_reg           :   std_logic_vector(31 downto 0);
     signal sign_ext_reg     :   std_logic_vector(31 downto 0);
     signal zero_ext_reg     :   std_logic_vector(31 downto 0);  
-    signal addr_rt_reg      :   std_logic_vector(4 downto 0);       
-    signal addr_rd_reg      :   std_logic_vector(4 downto 0);   
+    signal addr_rt_reg      :   std_logic_vector(5 downto 0);       
+    signal addr_rd_reg      :   std_logic_vector(5 downto 0);   
     signal addr_jump_reg    :   std_logic_vector(31 downto 0);  
     signal RegWrite_reg     :   std_logic;  
     signal Jump_reg         :   std_logic;  

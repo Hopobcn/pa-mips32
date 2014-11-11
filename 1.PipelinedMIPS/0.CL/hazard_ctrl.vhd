@@ -3,9 +3,9 @@ use ieee.std_logic_1164.all;
 
 
 entity hazard_ctrl is
-	port (idRegisterRs	: 	in std_logic_vector(4 downto 0);  --consumidor
-			idRegisterRt	:	in	std_logic_vector(4 downto 0);  --consumidor
-			exeRegisterRt	:	in	std_logic_vector(4 downto 0);  --productor (load)
+	port (idRegisterRs	: 	in std_logic_vector(5 downto 0);  --consumidor
+			idRegisterRt	:	in	std_logic_vector(5 downto 0);  --consumidor
+			exeRegisterRt	:	in	std_logic_vector(5 downto 0);  --productor (load)
 			exeMemRead		:	in std_logic;
 			Branch		   :	in	std_logic;                     -- from MEM stage (1=branch taken)
 			Jump			   :	in	std_logic;							 -- from EXE stage

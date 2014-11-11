@@ -22,7 +22,7 @@ architecture Structure of inst_mem is
 	procedure Load_File_DataMem(signal memory : inout INST_MEM) is
 		file 		romfile	:text open read_mode is "contingut.memoria.hexa.rom";
 		variable	lbuf		:line;
-		variable i			:integer := 0; -- x"C000" adreça inicial
+		variable i			:integer := 0; -- x"C000" adreca inicial
 		variable	byte0		:std_logic_vector(7 downto 0);
 		variable	byte1		:std_logic_vector(7 downto 0);
 		variable	byte2		:std_logic_vector(7 downto 0);

@@ -8,8 +8,8 @@ entity mem is
             addr            :   in std_logic_vector(31 downto 0);   --from EXE --named alu_res in EXE
             write_data_mem  :   in std_logic_vector(31 downto 0);   --from EXE
             write_data_rb   :   out std_logic_vector(31 downto 0);  -- to WB
-            addr_regw_in    :   in  std_logic_vector(4 downto 0);   --from EXE
-            addr_regw_out   :   out std_logic_vector(4 downto 0);   --to WB, then IF
+            addr_regw_in    :   in  std_logic_vector(5 downto 0);   --from EXE
+            addr_regw_out   :   out std_logic_vector(5 downto 0);   --to WB, then IF
             fwd_path_mem    :   out std_logic_vector(31 downto 0);  --to ID [FWD]
             -- control signals
             clk             :   in std_logic;
@@ -54,8 +54,8 @@ architecture Structure of mem is
             addr_out        :   out std_logic_vector(31 downto 0);
             write_data_in   :   in  std_logic_vector(31 downto 0);
             write_data_out  :   out std_logic_vector(31 downto 0);  
-            addr_regw_in    :   in  std_logic_vector(4 downto 0);       
-            addr_regw_out   :   out std_logic_vector(4 downto 0);
+            addr_regw_in    :   in  std_logic_vector(5 downto 0);       
+            addr_regw_out   :   out std_logic_vector(5 downto 0);
             -- control signals
             RegWrite_in     :   in  std_logic;                              
             RegWrite_out    :   out std_logic;      
@@ -97,7 +97,7 @@ architecture Structure of mem is
     signal addr_branch_reg      :   std_logic_vector(31 downto 0);  
     signal addr_reg             :   std_logic_vector(31 downto 0);  
     signal write_data_mem_reg   :   std_logic_vector(31 downto 0);
-    signal addr_regw_reg        :   std_logic_vector(4 downto 0);   
+    signal addr_regw_reg        :   std_logic_vector(5 downto 0);   
     signal RegWrite_reg         :   std_logic;                          
     signal Jump_reg             :   std_logic;      
     signal Branch_reg           :   std_logic;      

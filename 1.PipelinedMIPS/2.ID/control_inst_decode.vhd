@@ -8,6 +8,7 @@ entity control_inst_decode is
 			-- control logic
 			RegWrite		: 	out std_logic;
 			c0RegWrite : out std_logic;
+			c0RegRead  : out std_logic;
 			Jump			:	out std_logic;
 			Branch		:	out std_logic;
 			MemRead		:	out std_logic;								
@@ -70,7 +71,7 @@ begin
 					--Data Movement Instructions
 					-- Coprocessor 0 instructions
 					'1' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
-					'0' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
+					'1' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
 					--Floating-Point Instructions
 					'0';
 					
@@ -406,7 +407,12 @@ begin
 					'0' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
 					'1' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
 					'0';
-
+					
+  c0RegRead <=
+	        -- Coprocessor 0 instructions
+					'1' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)
+					'0' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)
+					'0';  
 					
 					--ARREGLAR LA ALU PER INSTRUCCIONS AMB INMEDIAT!
 	ALUOp		<=	"010" when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)

@@ -46,11 +46,11 @@ architecture Structure of PipelinedMIPS32 is
 			rd					:	in	std_logic_vector(31 downto 0);	--from WB			
 			sign_ext 		:	out std_logic_vector(31 downto 0);	--to EXE
 			zero_ext			:	out std_logic_vector(31 downto 0);	--to EXE
-			addr_rs			:	out std_logic_vector(4 downto 0);	--to HAZARD CTRL
-			addr_rt			:	out std_logic_vector(4 downto 0);	--to EXE
-			addr_rd			:	out std_logic_vector(4 downto 0);	--to EXE
+			addr_rs			:	out std_logic_vector(5 downto 0);	--to HAZARD CTRL
+			addr_rt			:	out std_logic_vector(5 downto 0);	--to EXE
+			addr_rd			:	out std_logic_vector(5 downto 0);	--to EXE
 			write_data		: 	out std_logic_vector(31 downto 0);  --to EXE,MEM
-			addr_regw		:	in	std_logic_vector(4 downto 0);		--from WB
+			addr_regw		:	in	std_logic_vector(5 downto 0);		--from WB
 			fwd_path_alu	:	in	std_logic_vector(31 downto 0);	--from ALU [FWD]
 			fwd_path_mem	:	in	std_logic_vector(31 downto 0);	--from MEM [FWD]
 			-- control signals
@@ -103,16 +103,16 @@ architecture Structure of PipelinedMIPS32 is
 			rt					:	in std_logic_vector(31 downto 0);	--from ID
 			sign_ext 		:	in std_logic_vector(31 downto 0);	--from ID
 			zero_ext			:	in std_logic_vector(31 downto 0);	--from ID
-			addr_rt_in		:	in std_logic_vector(4 downto 0);		--from ID
-			addr_rt_out		:	out std_logic_vector(4 downto 0);	--to Hazard Ctrl
-			addr_rd			:	in std_logic_vector(4 downto 0);		--from ID
+			addr_rt_in		:	in std_logic_vector(5 downto 0);		--from ID
+			addr_rt_out		:	out std_logic_vector(5 downto 0);	--to Hazard Ctrl
+			addr_rd			:	in std_logic_vector(5 downto 0);		--from ID
 			addr_jump_in	:	in	std_logic_vector(31 downto 0);	--from ID
 			addr_jump_out	:	out std_logic_vector(31 downto 0);	--to MEM,IF
 			addr_branch		:	out std_logic_vector(31 downto 0);	--to MEM,then IF
 			alu_res			:	out std_logic_vector(31 downto 0);	--to MEM
 			write_data_in	:	in  std_logic_vector(31 downto 0);	--from ID
 			write_data_out	:	out std_logic_vector(31 downto 0);	--to MEM
-			addr_regw		:	out std_logic_vector(4 downto 0);	--to MEM,WB, then IF
+			addr_regw		:	out std_logic_vector(5 downto 0);	--to MEM,WB, then IF
 			fwd_path_alu	:	out std_logic_vector(31 downto 0);	--to ID 		[FWD]
 			fwd_path_mem	:	in	 std_logic_vector(31 downto 0);	--from MEM 	[FWD]
 			-- control signals
@@ -164,8 +164,8 @@ architecture Structure of PipelinedMIPS32 is
 			addr				:	in std_logic_vector(31 downto 0);	--from EXE --named alu_res in EXE
 			write_data_mem	:	in std_logic_vector(31 downto 0);	--from EXE
 			write_data_rb  :  out std_logic_vector(31 downto 0);  -- to WB
-			addr_regw_in	: 	in	std_logic_vector(4 downto 0);		--from EXE
-			addr_regw_out	:	out std_logic_vector(4 downto 0);	--to WB, then IF
+			addr_regw_in	: 	in	std_logic_vector(5 downto 0);		--from EXE
+			addr_regw_out	:	out std_logic_vector(5 downto 0);	--to WB, then IF
 			fwd_path_mem	:	out std_logic_vector(31 downto 0);	--to ID [FWD]
 			-- control signals
 			clk				:	in std_logic;
@@ -205,8 +205,8 @@ architecture Structure of PipelinedMIPS32 is
 	port (-- buses
 			write_data_in	:	in std_logic_vector(31 downto 0); 	--from MEM
 			write_data_out	:	out std_logic_vector(31 downto 0);	--to IF
-			addr_regw_in	:	in	std_logic_vector(4 downto 0);	   --from MEM
-			addr_regw_out	:	out std_logic_vector(4 downto 0);	--to IF
+			addr_regw_in	:	in	std_logic_vector(5 downto 0);	   --from MEM
+			addr_regw_out	:	out std_logic_vector(5 downto 0);	--to IF
 			-- control signals
 			clk				:	in std_logic;
 			RegWrite_in		:	in std_logic;
@@ -230,9 +230,9 @@ architecture Structure of PipelinedMIPS32 is
 	end component;
 	
 	component hazard_ctrl is
-	port (idRegisterRs	: 	in std_logic_vector(4 downto 0);  --consumidor
-			idRegisterRt	:	in	std_logic_vector(4 downto 0);  --consumidor
-			exeRegisterRt	:	in	std_logic_vector(4 downto 0);  --productor (load)
+	port (idRegisterRs	: 	in std_logic_vector(5 downto 0);  --consumidor
+			idRegisterRt	:	in	std_logic_vector(5 downto 0);  --consumidor
+			exeRegisterRt	:	in	std_logic_vector(5 downto 0);  --productor (load)
 			exeMemRead		:	in std_logic;
 			Branch		   :	in	std_logic;                     -- from MEM stage (1=branch taken)
 			Jump			   :	in	std_logic;							 -- from EXE stage
@@ -253,11 +253,11 @@ architecture Structure of PipelinedMIPS32 is
 	end component;
 	
 	component forwarding_ctrl is
-	port (idRegisterRs	: 	in std_logic_vector(4 downto 0);  --consumidor
-			idRegisterRt 	:	in	std_logic_vector(4 downto 0);  --consumidor
-			exeRegisterRd	:	in	std_logic_vector(4 downto 0);  --productor
-			exeRegisterRt	:	in	std_logic_vector(4 downto 0);
-			memRegisterRd	: 	in std_logic_vector(4 downto 0);  --productor
+	port (idRegisterRs	: 	in std_logic_vector(5 downto 0);  --consumidor
+			idRegisterRt 	:	in	std_logic_vector(5 downto 0);  --consumidor
+			exeRegisterRd	:	in	std_logic_vector(5 downto 0);  --productor
+			exeRegisterRt	:	in	std_logic_vector(5 downto 0);
+			memRegisterRd	: 	in std_logic_vector(5 downto 0);  --productor
 			exeRegWrite		:	in std_logic;
 			memRegWrite		:	in	std_logic;
 			idMemWrite		:	in std_logic;
@@ -326,13 +326,13 @@ architecture Structure of PipelinedMIPS32 is
 	signal write_data_2to3			:	std_logic_vector(31 downto 0);
 	signal write_data_3to4			:	std_logic_vector(31 downto 0);
 	
-	signal addr_rs_2toCtrl			:	std_logic_vector(4 downto 0);
-	signal addr_rt_2to3				:	std_logic_vector(4 downto 0);
-	signal addr_rt_3toHazardCtrl	:	std_logic_vector(4 downto 0);
-	signal addr_rd_2to3				:	std_logic_vector(4 downto 0);
-	signal addr_regw_3to4			: 	std_logic_vector(4 downto 0);
-	signal addr_regw_4to5			: 	std_logic_vector(4 downto 0);
-	signal addr_regw_5to2			: 	std_logic_vector(4 downto 0);
+	signal addr_rs_2toCtrl			:	std_logic_vector(5 downto 0);
+	signal addr_rt_2to3				:	std_logic_vector(5 downto 0);
+	signal addr_rt_3toHazardCtrl	:	std_logic_vector(5 downto 0);
+	signal addr_rd_2to3				:	std_logic_vector(5 downto 0);
+	signal addr_regw_3to4			: 	std_logic_vector(5 downto 0);
+	signal addr_regw_4to5			: 	std_logic_vector(5 downto 0);
+	signal addr_regw_5to2			: 	std_logic_vector(5 downto 0);
 	
 	signal fwd_path_alu_3to2		: 	std_logic_vector(31 downto 0);
 	signal fwd_path_mem_4to2and3	:	std_logic_vector(31 downto 0);
