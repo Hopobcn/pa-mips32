@@ -6,12 +6,12 @@ use ieee.std_logic_unsigned.all;
 
 entity data is
     port (-- data buses
-          index         : in std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
-          block_offset  : in std_logic_vector(1 downto 0); -- offset inside a container (1 container == 4 words)
-          write_data    : in std_logic_vector(31 downto 0);
+          index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
+          block_offset  : in  std_logic_vector(1 downto 0); -- offset inside a container (1 container == 4 words)
+          write_data    : in  std_logic_vector(31 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
           -- control signals
-          WriteEnable   : in std_logic);
+          WriteEnable   : in  std_logic);
 end data;
 
 architecture Structure of data is
