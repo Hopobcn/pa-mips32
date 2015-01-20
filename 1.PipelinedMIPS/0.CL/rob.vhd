@@ -18,6 +18,14 @@ entity rob_ctrl is
       value_flag : in std_logic;
       value_addr : in std_logic_vector(2 downto 0);
       value_val  : in std_logic_vector(31 downto 0);
+      
+      -- To-Register file signals
+      rf_write   : out std_logic;
+      rf_addr    : out std_logic_vector(4 downto 0);
+      rf_val     : out std_logic_vector(31 downto 0);
+      
+      -- New entries (from decode stage)
+      newentry_flag : in std_logic; -- UB if using this while full
 
       ready : out std_logic;  -- If head == tail and !empty, then we are full
       tail  : out std_logic_vector(2 downto 0)
@@ -58,6 +66,33 @@ begin
               end if;
             end if;
         end if;
+    end process;
+    
+    -- Commit stores and prepare new entries
+    store_io : process(clk, boot)
+    begin
+      if (rising_edge(clk) AND (boot = '0')) then
+        -- Here, the commit-to-register-file part
+        if (data(to_integer(unsigned(i_head)))(38) = '1') then
+          -- proceed to commit a value to the register file
+          rf_write <= '1';
+          rf_addr <= data(to_integer(unsigned(i_head)))(36 downto 32);
+          rf_val <= data(to_integer(unsigned(i_head)))(31 downto 0);
+          
+          i_head <= std_logic_vector(unsigned(i_head) + 1);
+          if (i_head = i_tail) then
+            empty <= '1';
+          end if;
+        else
+          rf_write <= '0';
+        end if;
+        
+        -- Here, the add-a-member part
+        if (newentry_flag = '1') then
+          i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
+          empty <= '0';
+        end if;
+      end if;
     end process;
 
     ready <= '0' when i_head /= i_tail else
