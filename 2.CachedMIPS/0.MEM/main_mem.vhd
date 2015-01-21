@@ -8,7 +8,7 @@ entity main_mem is
     port (-- data buses
           addr         : in  std_logic_vector(31 downto 0); 
           write_data   : in  std_logic_vector(31 downto 0);
-          read_data    : out std_logic_vector(31 downto 0);
+          read_data    : out std_logic_vector(127 downto 0);
           -- control signals
 			 Rd           : in  std_logic;
 			 Wr           : in  std_logic;
@@ -62,10 +62,25 @@ begin
 		  when THREE =>
 		      Ready <= '0';
 				if (Rd = '1') then
-                read_data(7 downto 0)    <= main_mem(to_integer(unsigned(addr      )));
-                read_data(15 downto 8)   <= main_mem(to_integer(unsigned(addr+x"01")));
-                read_data(23 downto 16)  <= main_mem(to_integer(unsigned(addr+x"02")));
-                read_data(31 downto 24)  <= main_mem(to_integer(unsigned(addr+x"03")));
+                read_data(  7 downto   0)  <= main_mem(to_integer(unsigned(addr      )));
+                read_data( 15 downto   8)  <= main_mem(to_integer(unsigned(addr+x"01")));
+                read_data( 23 downto  16)  <= main_mem(to_integer(unsigned(addr+x"02")));
+                read_data( 31 downto  24)  <= main_mem(to_integer(unsigned(addr+x"03")));
+					 
+                read_data( 39 downto  32)  <= main_mem(to_integer(unsigned(addr+x"04")));
+                read_data( 47 downto  40)  <= main_mem(to_integer(unsigned(addr+x"05")));
+                read_data( 55 downto  48)  <= main_mem(to_integer(unsigned(addr+x"06")));
+                read_data( 63 downto  56)  <= main_mem(to_integer(unsigned(addr+x"07")));
+					 
+                read_data( 71 downto  64)  <= main_mem(to_integer(unsigned(addr+x"08")));
+                read_data( 79 downto  72)  <= main_mem(to_integer(unsigned(addr+x"09")));
+                read_data( 87 downto  80)  <= main_mem(to_integer(unsigned(addr+x"0A")));
+                read_data( 95 downto  88)  <= main_mem(to_integer(unsigned(addr+x"0B")));
+					 
+                read_data(103 downto  96)  <= main_mem(to_integer(unsigned(addr+x"0C")));
+                read_data(111 downto 104)  <= main_mem(to_integer(unsigned(addr+x"0D")));
+                read_data(119 downto 112)  <= main_mem(to_integer(unsigned(addr+x"0E")));
+                read_data(127 downto 120)  <= main_mem(to_integer(unsigned(addr+x"0F")));
             end if;
 		      if (Wr = '1') then
                 main_mem(to_integer(unsigned(addr      ))) <= write_data(7 downto 0);

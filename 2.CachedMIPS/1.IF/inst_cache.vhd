@@ -6,7 +6,7 @@ use ieee.std_logic_unsigned.all;
 entity inst_cache is
     port (addr        :  in  std_logic_vector(31 downto 0);
           instruction :  out std_logic_vector(31 downto 0);
-          busDataMem  :  in  std_logic_vector(31 downto 0);
+          busDataMem  :  in  std_logic_vector(127 downto 0);
           -- control signal
           BusRd       :  out std_logic;
           BusWr       :  out std_logic;
@@ -20,7 +20,7 @@ architecture Structure of inst_cache is
     
     component icache_fields is
     port (-- data buses
-          write_data    : in  std_logic_vector(31 downto 0);
+          write_data    : in  std_logic_vector(127 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
           tag           : in  std_logic_vector(24 downto 0);
           index         : in  std_logic_vector(4 downto 0);
@@ -64,9 +64,9 @@ architecture Structure of inst_cache is
      signal muxDataR         : std_logic;
      signal muxDataW         : std_logic;
      
-     signal writeProc        : std_logic_vector(31 downto 0) := x"00000000";
+     signal writeProc        : std_logic_vector(127 downto 0) := x"00000000000000000000000000000000";
      signal readCache        : std_logic_vector(31 downto 0);
-     signal writeCache       : std_logic_vector(31 downto 0);
+     signal writeCache       : std_logic_vector(127 downto 0);
 begin
 
     FIELDS : icache_fields
@@ -102,5 +102,5 @@ begin
                    busDataMem;
                               
      instruction <= readCache when muxDataR = '0' else
-                    busDataMem;
+                    busDataMem(31 downto 0);
 end Structure;

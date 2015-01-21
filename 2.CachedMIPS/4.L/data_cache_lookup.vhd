@@ -29,7 +29,8 @@ architecture Structure of data_cache_lookup is
           -- control signals
           WriteTags     : in  std_logic;
           WriteState    : in  std_logic;
-          Hit           : out std_logic);
+          Hit           : out std_logic;
+          State         : out std_logic);
     end component;
      
     component dcache_controller is
@@ -39,6 +40,7 @@ architecture Structure of data_cache_lookup is
           Ready         : out std_logic;
           -- Interface with cache_fields
           Hit           : in  std_logic;
+          State         : in  std_logic;
           WriteTags     : out std_logic;
           WriteState    : out std_logic;
           WriteCache    : out std_logic;
@@ -58,7 +60,8 @@ architecture Structure of data_cache_lookup is
     signal WriteState_wire  : std_logic;
     signal nextState_wire   : std_logic;
     signal Hit_wire         : std_logic;
-     
+    signal State_wire       : std_logic;
+
 begin
 
     FIELDS : dcache_fields
@@ -67,13 +70,15 @@ begin
              nextState      => nextState_wire,
              WriteTags      => WriteTags_wire,
              WriteState     => WriteState_wire,
-             Hit            => Hit_wire);
+             Hit            => Hit_wire,
+				 State          => State_wire);
      
      CONTROLLER : dcache_controller
      port map(PrRd          => '1',
               PrWr          => '0',
               Ready         => Ready,
               Hit           => Hit_wire,
+              State         => State_wire,
               WriteTags     => WriteTags_wire,
               WriteState    => WriteState_wire,
               WriteCache    => WriteCache,

@@ -9,8 +9,8 @@ entity lookup_cache_reg is
           write_data_mem_out   : out std_logic_vector(31 downto 0);  
           addr_regw_in         : in  std_logic_vector(5 downto 0);   --from LOOKUP
           addr_regw_out        : out std_logic_vector(5 downto 0);   --to WB,ID
-          busDataMem_in        : in  std_logic_vector(31 downto 0);  --from Main Memory
-          busDataMem_out       : out std_logic_vector(31 downto 0);  --from Main Memory
+          busDataMem_in        : in  std_logic_vector(127 downto 0);  --from Main Memory
+          busDataMem_out       : out std_logic_vector(127 downto 0);  --from Main Memory
           -- control signals
           RegWrite_in          : in  std_logic;                      --from LOOKUP
           RegWrite_out         : out std_logic;                      --to WB, ID

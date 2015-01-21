@@ -11,7 +11,8 @@ entity dcache_fields is
           -- control signals
           WriteTags     : in  std_logic;
           WriteState    : in  std_logic;
-          Hit           : out std_logic);
+          Hit           : out std_logic;
+          State         : out std_logic);
 end dcache_fields;
 
 architecture Structure of dcache_fields is
@@ -47,12 +48,14 @@ begin
              tagRead       => tagRead,
              WriteEnable   => WriteTags);
 
-    STATE : dstate
+    STATES : dstate
     port map(index         => index,
              nextState     => nextState,
              state         => currentState,
              WriteEnable   => WriteState);
-                 
+
+    State <= currentState;
+	 
     tag_comparator : process(tag, tagRead)
     begin
         if (tag = tagRead) then

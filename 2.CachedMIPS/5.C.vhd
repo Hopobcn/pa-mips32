@@ -10,7 +10,7 @@ entity cache is
           addr_regw_out        : out std_logic_vector(5 downto 0);   --to WB,ID
 			 write_data_reg       : out std_logic_vector(31 downto 0);  --to WB
           fwd_path_cache       : out std_logic_vector(31 downto 0);  --to ID [FWD]		 
-          busDataMem           : in  std_logic_vector(31 downto 0);  --from Main Memory
+          busDataMem           : in  std_logic_vector(127 downto 0);  --from Main Memory
           -- control signals
           clk                  : in  std_logic;
           RegWrite_in          : in  std_logic;                      --from LOOKUP
@@ -24,7 +24,6 @@ entity cache is
           muxDataW             : in  std_logic;                      --to CACHE 
 			 -- interface with Hazard Control
           NOP_to_WB            : in  std_logic;                      --from Hazard Control
-          Stall                : in  std_logic;                      --from Hazard Control
 			 -- exception bits
           exception_if_in      : in  std_logic;
           exception_if_out     : out std_logic;
@@ -55,8 +54,8 @@ architecture Structure of cache is
           write_data_mem_out   : out std_logic_vector(31 downto 0);  
           addr_regw_in         : in  std_logic_vector(5 downto 0);   --from LOOKUP
           addr_regw_out        : out std_logic_vector(5 downto 0);   --to WB,ID
-          busDataMem_in        : in  std_logic_vector(31 downto 0);  --from Main Memory
-          busDataMem_out       : out std_logic_vector(31 downto 0);  --from Main Memory
+          busDataMem_in        : in  std_logic_vector(127 downto 0);  --from Main Memory
+          busDataMem_out       : out std_logic_vector(127 downto 0);  --from Main Memory
           -- control signals
           RegWrite_in          : in  std_logic;                      --from LOOKUP
           RegWrite_out         : out std_logic;                      --to WB, ID
@@ -96,7 +95,7 @@ architecture Structure of cache is
 
 	 component data_cache_data is
     port (addr          : in     std_logic_vector(31 downto 0);
-          busDataMem    : in     std_logic_vector(31 downto 0);
+          busDataMem    : in     std_logic_vector(127 downto 0);
           write_data    : in     std_logic_vector(31 downto 0);
           read_data     : out    std_logic_vector(31 downto 0);
           -- control signals
@@ -109,7 +108,7 @@ architecture Structure of cache is
 
     signal addr_reg          : std_logic_vector(31 downto 0); 
     signal write_data_mem_reg: std_logic_vector(31 downto 0); 
-	 signal busDataMem_reg    : std_logic_vector(31 downto 0); 
+	 signal busDataMem_reg    : std_logic_vector(127 downto 0); 
 	 signal load_data         : std_logic_vector(31 downto 0);
     signal addr_regw_reg     : std_logic_vector(5 downto 0);
     signal RegWrite_reg      : std_logic;
@@ -133,7 +132,7 @@ architecture Structure of cache is
     signal enable            : std_logic;
 begin
  
-    enable <= not Stall;
+    enable <= '1'; -- Aquesta etapa mai fa Stall, com a molt posem NOPS
 
     -- EXE/MEM Register 
     LOOKUP_CACHE_register : lookup_cache_reg

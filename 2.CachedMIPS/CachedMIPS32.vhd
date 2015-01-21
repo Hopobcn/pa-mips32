@@ -17,7 +17,7 @@ architecture Structure of CachedMIPS32 is
           pc              :   out std_logic_vector(31 downto 0);  --to Main Memory BUS
           pc_up           :   out std_logic_vector(31 downto 0);  --to stage ID
           instruction     :   out std_logic_vector(31 downto 0);  --to stage ID
-          busDataMem      :   in  std_logic_vector(31 downto 0);  --to Main Memory
+          busDataMem      :   in  std_logic_vector(127 downto 0);  --to Main Memory
           -- control signals
           clk             :   in  std_logic;
           boot            :   in  std_logic;
@@ -228,7 +228,7 @@ architecture Structure of CachedMIPS32 is
           addr_regw_out        : out std_logic_vector(5 downto 0);   --to WB,ID
           write_data_reg       : out std_logic_vector(31 downto 0);  --to WB
           fwd_path_cache       : out std_logic_vector(31 downto 0);  --to ID [FWD]       
-          busDataMem           : in  std_logic_vector(31 downto 0);  --from Main Memory
+          busDataMem           : in  std_logic_vector(127 downto 0);  --from Main Memory
           -- control signals
           clk                  : in  std_logic;
           RegWrite_in          : in  std_logic;                      --from LOOKUP
@@ -242,7 +242,6 @@ architecture Structure of CachedMIPS32 is
           muxDataW             : in  std_logic;                      --to CACHE 
           -- interface with Hazard Control
           NOP_to_WB            : in  std_logic;                      --from Hazard Control
-          Stall                : in  std_logic;                      --from Hazard Control
           -- exception bits
           exception_if_in      : in  std_logic;
           exception_if_out     : out std_logic;
@@ -294,7 +293,7 @@ architecture Structure of CachedMIPS32 is
     port (-- data buses
           addr         : in  std_logic_vector(31 downto 0); 
           write_data   : in  std_logic_vector(31 downto 0);
-          read_data    : out std_logic_vector(31 downto 0);
+          read_data    : out std_logic_vector(127 downto 0);
           -- control signals
           Rd           : in  std_logic;
           Wr           : in  std_logic;
@@ -462,7 +461,6 @@ architecture Structure of CachedMIPS32 is
     signal Stall_HazardCtrlto2      :   std_logic;
     signal Stall_HazardCtrlto3      :   std_logic;
     signal Stall_HazardCtrlto4      :   std_logic;
-    signal Stall_HazardCtrlto5      :   std_logic;
     
     signal fwd_aluRs_to2            :   std_logic_vector(1 downto 0);
     signal fwd_aluRt_to2            :   std_logic_vector(1 downto 0);
@@ -478,7 +476,7 @@ architecture Structure of CachedMIPS32 is
 
     signal Exception_ExcepCtrlOut   :   std_logic;
     signal Interrupt_InterruptCtrltoHazaardCtrl : std_logic;
-    signal Interrupt_ExceptionCtrlfromHazaardCtrl : std_logic;
+    signal Interrupt_ExceptionCtrlfromHazardCtrl : std_logic;
 
     signal WriteCache_4to5          :   std_logic;
     signal muxDataR_4to5            :   std_logic;
@@ -486,7 +484,7 @@ architecture Structure of CachedMIPS32 is
     --------------------------------
 	 ---     Memory Interface      --
     --------------------------------
-    signal busRdDataMem             :   std_logic_vector(31 downto 0);
+    signal busRdDataMem             :   std_logic_vector(127 downto 0);
     signal busWrDataMem             :   std_logic_vector(31 downto 0);
     signal busAddr                  :   std_logic_vector(31 downto 0);
     signal BusRd_1toDRAM            :   std_logic;
@@ -572,6 +570,7 @@ begin
     first_stage :   instruction_fetch
     port map(addr_jump          => addr_jump_3to1,
              addr_branch        => addr_branch_4to1,
+             pc                 => pc_1toDRAM,
              pc_up              => pc_up_1to2,
              instruction        => instruction_1to2,
              busDataMem         => busRdDataMem,
@@ -781,7 +780,6 @@ begin
              muxDataR           => muxDataR_4to5,
              muxDataW           => muxDataW_4to5,
              NOP_to_WB          => NOP_HazardCtrlto5,
-             Stall              => Stall_HazardCtrlto5,
 			    -- exception bits
              exception_if_in    => exception_if_at_lookup,
              exception_if_out   => exception_if_at_cache,
@@ -824,6 +822,7 @@ begin
              writeCause_out     => writeCause_to_id);
 
     -- ARBITRER SUPER BASTO (Ignorem la IC, prioritat a la DC)
+    busWrDataMem <= x"00000000";
     busAddr <= alu_res_4to5 when (BusRd_4toDRAM = '1' or BusWr_4toDRAM = '1') else
                pc_1toDRAM; 
     BusRd   <= BusRd_4toDRAM when (BusRd_4toDRAM = '1' or BusWr_4toDRAM = '1') else
@@ -856,7 +855,7 @@ begin
              Jump               => Jump_3toCtrl,
              Exception          => Exception_ExcepCtrlOut,
              Interrupt          => Interrupt_InterruptCtrltoHazaardCtrl,
-				 Interrupt_to_Exception_ctrl => Interrupt_InterruptCtrltoHazaardCtrl,
+				 Interrupt_to_Exception_ctrl => Interrupt_ExceptionCtrlfromHazardCtrl,
              IC_Ready           => instCacheReady_1toCtrl,
              DC_Ready           => dataCacheReady_4toCtrl,
              Stall_PC           => Stall_HazardCtrlto1,
@@ -894,7 +893,7 @@ begin
              exception_exe      => exception_exe_at_cache,
              exception_lookup   => exception_lookup_at_cache,
              exception_cache    => exception_cache_at_cache,
-             exception_interrupt=> Interrupt_ExceptionCtrlfromHazaardCtrl,
+             exception_interrupt=> Interrupt_ExceptionCtrlfromHazardCtrl,
              exception_flag     => Exception_ExcepCtrlOut,
              exception_jump     => Exception_IFJump,
              wbexc_writeEPC      => writeEPC_to_wb,

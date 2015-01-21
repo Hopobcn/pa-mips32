@@ -16,7 +16,7 @@ architecture Structure of reg_pc is
 begin
     pc <= pc_tmp;
     
-    instruction_register : process(clk)
+    instruction_register : process(clk,pc_tmp)
     begin
         if (rising_edge(clk)) then
             if (boot = '1') then

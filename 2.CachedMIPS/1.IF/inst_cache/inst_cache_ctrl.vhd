@@ -85,7 +85,14 @@ begin
 
     proc_output_logic : process(procCurrState,PrRd,PrWr,Hit,BusReady)
     begin
-         -- Comentades les senyals que no cal inicialitzar en cada Estat
+        Ready      <= '1';
+        BusRd      <= '0';
+        BusWr      <= '0';
+        WriteTags  <= '0';
+        WriteState <= '0';
+        WriteCache <= '0';
+        muxDataR   <= '0';
+        -- Comentades les senyals que no cal inicialitzar en cada Estat
         case procCurrState is
         when PROC_IDLE =>
             if (BusReady = '1') then

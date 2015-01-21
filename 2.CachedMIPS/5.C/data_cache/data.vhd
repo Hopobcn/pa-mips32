@@ -39,7 +39,7 @@ begin
     data_write : process(index)
     begin
         if (writeEnable = '1') then
-            mem_data(to_integer(unsigned(index))) <= write_data;
+            mem_data(to_integer(unsigned(index)))(31 downto 0) <= write_data;
         end if;
     end process data_write;
 

@@ -9,7 +9,7 @@ entity instruction_fetch is
           pc              :   out std_logic_vector(31 downto 0);  --to Main Memory BUS
           pc_up           :   out std_logic_vector(31 downto 0);  --to stage ID
           instruction     :   out std_logic_vector(31 downto 0);  --to stage ID
-          busDataMem      :   in  std_logic_vector(31 downto 0);  --to Main Memory
+          busDataMem      :   in  std_logic_vector(127 downto 0);  --to Main Memory
           -- control signals
           clk             :   in  std_logic;
           boot            :   in  std_logic;
@@ -45,7 +45,7 @@ architecture Structure of instruction_fetch is
     component inst_cache is
     port (addr       : in  std_logic_vector(31 downto 0);
           instruction: out std_logic_vector(31 downto 0);
-          busDataMem : in  std_logic_vector(31 downto 0);
+          busDataMem : in  std_logic_vector(127 downto 0);
           -- control signal
           BusRd      : out std_logic;
           BusWr      : out std_logic;

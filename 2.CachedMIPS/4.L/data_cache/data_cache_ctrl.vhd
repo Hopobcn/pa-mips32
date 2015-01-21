@@ -10,6 +10,7 @@ entity dcache_controller is
           Ready         : out std_logic;
           -- Interface with cache_fields
           Hit           : in  std_logic;
+          State         : in  std_logic;
           WriteTags     : out std_logic;
           WriteState    : out std_logic;
           WriteCache    : out std_logic;
@@ -85,6 +86,12 @@ begin
 
     proc_output_logic : process(procCurrState,PrRd,PrWr,Hit,BusReady)
     begin
+        Ready      <= '1';
+        BusRd      <= '0';
+        BusWr      <= '0';
+        WriteTags  <= '0';
+        WriteState <= '0';
+        WriteCache <= '0';
          -- Comentades les senyals que no cal inicialitzar en cada Estat
         case procCurrState is
         when PROC_IDLE =>

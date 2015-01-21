@@ -5,15 +5,15 @@ use ieee.std_logic_unsigned.all;
 
 entity data_cache_data is
     port (addr          : in  std_logic_vector(31 downto 0);
-          busDataMem    : in  std_logic_vector(31 downto 0);
+          busDataMem    : in  std_logic_vector(127 downto 0);
           write_data    : in  std_logic_vector(31 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
           -- control signals
 			 ByteAddress   : in  std_logic;                      
           WordAddress   : in  std_logic; 
 			 muxDataR      : in  std_logic;                 
-          muxDataW      : in     std_logic;
-          WriteEnable   : in    std_logic);
+          muxDataW      : in  std_logic;
+          WriteEnable   : in  std_logic);
 end data_cache_data;
 
 architecture Structure of data_cache_data is
@@ -42,13 +42,13 @@ begin
              WriteEnable  => WriteEnable);
 			 
     writeCache <= write_data when (muxDataW = '0') else
-                  busDataMem;
+                  busDataMem(31 downto 0); --TODO: cal distingir entre un write del processador i un fill de la cache desde mem
             
     mux_word_half_byte : process(readCache,busDataMem,ByteAddress,WordAddress)
     begin
 	     if (muxDataR = '0') then
             if (ByteAddress = '1') then
-                read_data <= x"0000" & readCache(7 downto 0); 
+                read_data <= x"000000" & readCache(7 downto 0); 
             elsif (ByteAddress = '0' and WordAddress = '1') then
                 read_data <= x"0000" & readCache(15 downto 0);
             else
@@ -56,11 +56,11 @@ begin
             end if;
         else
             if (ByteAddress = '1') then
-                read_data <= x"0000" & busDataMem(7 downto 0); 
+                read_data <= x"000000" & busDataMem(7 downto 0); 
             elsif (ByteAddress = '0' and WordAddress = '1') then
                 read_data <= x"0000" & busDataMem(15 downto 0);
             else
-                read_data <= busDataMem;		  
+                read_data <= busDataMem(31 downto 0);		  
             end if;
         end if;
     end process mux_word_half_byte;				
