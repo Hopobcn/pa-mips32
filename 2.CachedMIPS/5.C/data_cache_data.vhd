@@ -12,8 +12,8 @@ entity data_cache_data is
 			 ByteAddress   : in  std_logic;                      
           WordAddress   : in  std_logic; 
 			 muxDataR      : in  std_logic;                 
-          muxDataW      : in  std_logic;
-          WriteEnable   : in  std_logic);
+          muxDataW      : in     std_logic;
+          WriteEnable   : in    std_logic);
 end data_cache_data;
 
 architecture Structure of data_cache_data is

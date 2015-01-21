@@ -7,7 +7,8 @@ entity exception_ctrl is
           exception_if        : in std_logic;
           exception_id        : in std_logic;
           exception_exe       : in std_logic;
-          exception_mem       : in std_logic;
+          exception_lookup    : in std_logic;
+          exception_cache     : in std_logic;
           -- If an interrupt-exception is "available"
           exception_interrupt : in std_logic;
 
@@ -25,7 +26,7 @@ architecture Structure of exception_ctrl is
   signal exception_tmp : std_logic;
 begin
     -- The internal exception indicator
-    exception_tmp <= '1' when (exception_if='1' or exception_id='1' or exception_exe='1' or exception_mem='1') else
+    exception_tmp <= '1' when (exception_if='1' or exception_id='1' or exception_exe='1' or exception_lookup='1' or exception_cache = '1') else
                      '0';
                     
     exception_flag <= exception_tmp;
@@ -38,7 +39,7 @@ begin
     -- MIPS deviation: we consider that the hardware interrupt is checked through another mechanism
 
     -- The memory-access stages may include BadVAddr
-    wbexc_writeBadVAddr <= '1' when (exception_id='1' or exception_mem='1') else
+    wbexc_writeBadVAddr <= '1' when (exception_id='1' or exception_lookup='1' or exception_cache = '1') else
                            '0';
                          
 end Structure;

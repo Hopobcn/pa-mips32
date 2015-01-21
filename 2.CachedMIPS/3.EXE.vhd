@@ -272,7 +272,7 @@ begin
     -- pulling to zero the bits that can modify the state of the processor seems enough (not all needed)
     addr_jump_out   <= addr_jump_reg;
     write_data_out  <= fwd_path_cache      when fwd_cache_regmem = '1' else
-                        fwd_path_lookup     when fwd_lookup_regmem = '1' else
+                       fwd_path_lookup     when fwd_lookup_regmem = '1' else
                        write_data_in;
 
     RegWrite_out    <= '0' when NOP_to_L = '1' or exception_internal = '1' else

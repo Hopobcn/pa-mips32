@@ -6,8 +6,8 @@ entity interrupt_ctrl is
     port (interrupt  : in  std_logic;
           int_clear  : in  std_logic;
           int_flag   : out std_logic;
-          clk        : in std_logic;
-          boot       : in std_logic); 
+          clk        : in  std_logic;
+          boot       : in  std_logic); 
 end interrupt_ctrl;
 
 architecture Structure of interrupt_ctrl is

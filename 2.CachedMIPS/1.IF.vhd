@@ -6,6 +6,7 @@ entity instruction_fetch is
     port (-- buses
           addr_jump       :   in  std_logic_vector(31 downto 0);  --from EXE
           addr_branch     :   in  std_logic_vector(31 downto 0);  --from LOOKUP
+          pc              :   out std_logic_vector(31 downto 0);  --to Main Memory BUS
           pc_up           :   out std_logic_vector(31 downto 0);  --to stage ID
           instruction     :   out std_logic_vector(31 downto 0);  --to stage ID
           busDataMem      :   in  std_logic_vector(31 downto 0);  --to Main Memory
@@ -86,6 +87,7 @@ begin
               BusReady   => BusReady,
               Ready      => IC_Ready);
     
+    pc    <= pc_tmp;
     pc_up <= pc_up_tmp;
     
     -- Exception (to be fully implemented with virtual memory)

@@ -41,14 +41,8 @@ entity cache is
           Exc_Cause_in         : in  std_logic_vector(31 downto 0);    --from previous stage (pipelined)
           Exc_Cause_out        : out std_logic_vector(31 downto 0);    --to coprocessor 0 register file
           Exc_EPC_in           : in  std_logic_vector(31 downto 0);    --from previous stage (pipelined)
-          Exc_EPC_out          : out std_logic_vector(31 downto 0);    --to coprocessor 0 register file
-          -- Write enabling bits from exception control
-          writeEPC_in          : in  std_logic;                        --from Exception Control
-          writeEPC_out         : out std_logic;                        --to coprocessor 0 register file
-          writeBadVAddr_in     : in  std_logic;                        --from Exception Control
-          writeBadVAddr_out    : out std_logic;                        --to coprocessor 0 register file
-          writeCause_in        : in  std_logic;                        --from Exception Control
-          writeCause_out       : out std_logic);                       --to coprocessor 0 register file
+          Exc_EPC_out          : out std_logic_vector(31 downto 0));   --to coprocessor 0 register file);          
+
 end cache;
 
 architecture Structure of cache is
@@ -101,16 +95,16 @@ architecture Structure of cache is
     end component;
 
 	 component data_cache_data is
-    port (addr          : in  std_logic_vector(31 downto 0);
-          busDataMem    : in  std_logic_vector(31 downto 0);
-          write_data    : in  std_logic_vector(31 downto 0);
-          read_data     : out std_logic_vector(31 downto 0);
+    port (addr          : in     std_logic_vector(31 downto 0);
+          busDataMem    : in     std_logic_vector(31 downto 0);
+          write_data    : in     std_logic_vector(31 downto 0);
+          read_data     : out    std_logic_vector(31 downto 0);
           -- control signals
-			 ByteAddress   : in  std_logic;                      
-          WordAddress   : in  std_logic; 
-			 muxDataR      : in  std_logic;                 
-          muxDataW      : in  std_logic;
-          WriteEnable   : in  std_logic);
+			 ByteAddress   : in     std_logic;                      
+          WordAddress   : in     std_logic; 
+			 muxDataR      : in     std_logic;                 
+          muxDataW      : in     std_logic;
+          WriteEnable   : in     std_logic);
     end component;
 
     signal addr_reg          : std_logic_vector(31 downto 0); 
