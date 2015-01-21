@@ -10,7 +10,7 @@ entity instruction_decode is
           opcode          :   out std_logic_vector(5 downto 0);   --to EXE
           rs              :   out std_logic_vector(31 downto 0);  --to EXE
           rt              :   out std_logic_vector(31 downto 0);  --to EXE
-          rd              :   in  std_logic_vector(31 downto 0);  --from WB           
+          rd              :   in  std_logic_vector(31 downto 0);  --from ROB
           sign_ext        :   out std_logic_vector(31 downto 0);  --to EXE
           zero_ext        :   out std_logic_vector(31 downto 0);  --to EXE
           addr_rs         :   out std_logic_vector(5 downto 0);   --to HAZARD CTRL
@@ -21,6 +21,11 @@ entity instruction_decode is
           fwd_path_alu    :   in  std_logic_vector(31 downto 0);  --from ALU    [FWD]
           fwd_path_lookup :   in  std_logic_vector(31 downto 0);  --from LOOKUP [FWD]
           fwd_path_cache  :   in  std_logic_vector(31 downto 0);  --from CACHE  [FWD]
+          -- the long pipe, a bit special
+          lp_rs           :   out std_logic_vector(31 downto 0);
+          lp_rt           :   out std_logic_vector(31 downto 0);
+          lp_addr_rd      :   out std_logic_vector(4 downto 0);
+          lp_doinst       :   out std_logic;
           -- control signals
           clk             :   in  std_logic;
           RegWrite_out    :   out std_logic;                      --to EXE,LOOKUP,CACHE,WB and then ID
@@ -91,6 +96,7 @@ architecture Structure of instruction_decode is
     component control_inst_decode is
     port (opcode            :   in  std_logic_vector(5 downto 0);
           opcode_extra      :   in  std_logic_vector(3 downto 0);
+          LongPipe          :   out std_logic;
           RegWrite          :   out std_logic;
           c0RegWrite        :   out std_logic;
           c0RegRead         :   out std_logic;
@@ -148,6 +154,8 @@ architecture Structure of instruction_decode is
     signal Jump_tmp         :   std_logic;
     signal Branch_tmp       :   std_logic;
     
+    signal LongPipe_tmp     :   std_logic;
+    
     signal rs_regfile       :   std_logic_vector(31 downto 0);
     signal rt_regfile       :   std_logic_vector(31 downto 0);
     
@@ -175,7 +183,7 @@ architecture Structure of instruction_decode is
 begin
   
     enable <= not Stall;
-  
+        
     -- IF/ID Register 
     IF_ID_register : if_id_reg
     port map(instruction_in     => instruction,
@@ -211,6 +219,7 @@ begin
     control : control_inst_decode 
     port map(opcode     => instruction_reg(31 downto 26),
             opcode_extra=> instruction_reg(25 downto 22), 
+            LongPipe    => LongPipe_tmp,
             RegWrite    => RegWrite_tmp,
             c0RegWrite  => c0RegWrite_tmp,
             c0RegRead   => c0RegRead_tmp,
@@ -308,6 +317,19 @@ begin
                   fwd_path_cache  when fwd_alu_regmem = "01" else
                   rt_regfile;
     
+    -- Long Pipe things for valid behaviour
+    lp_doinst <= LongPipe_tmp;
+    lp_addr_rd <= instruction_reg(15 downto 11);
+    lp_rs <= fwd_path_alu     when fwd_aluRs = "11" else
+           fwd_path_lookup  when fwd_aluRs = "10" else
+           fwd_path_cache   when fwd_aluRs = "01" else
+           rs_regfile;         --fwd_aluRs = "00";
+           
+    lp_rt <= fwd_path_alu     when fwd_aluRt = "11" else
+           fwd_path_lookup  when fwd_aluRt = "10" else
+           fwd_path_cache   when fwd_aluRt = "01" else
+           rt_regfile;         --fwd_aluRt = "00"
+
     sign_extend_unit    :   seu
     port map(input      => instruction_reg(15 downto 0),
              output     => sign_ext);

@@ -59,6 +59,11 @@ architecture Structure of CachedMIPS32 is
           fwd_path_alu    :   in  std_logic_vector(31 downto 0);  --from ALU    [FWD]
           fwd_path_lookup :   in  std_logic_vector(31 downto 0);  --from LOOKUP [FWD]
           fwd_path_cache  :   in  std_logic_vector(31 downto 0);  --from CACHE  [FWD]
+          -- the long pipe, a bit special
+          lp_rs           :   out std_logic_vector(31 downto 0);
+          lp_rt           :   out std_logic_vector(31 downto 0);
+          lp_addr_rd      :   out std_logic_vector(4 downto 0);
+          lp_doinst       :   out std_logic;
           -- control signals
           clk             :   in  std_logic;
           RegWrite_out    :   out std_logic;                      --to EXE,LOOKUP,CACHE,WB and then ID
@@ -289,6 +294,20 @@ architecture Structure of CachedMIPS32 is
 
     end component;
     
+    component long_pipe is
+      port (-- buses
+            rs              :   in  std_logic_vector(31 downto 0);  --from ID
+            rt              :   in  std_logic_vector(31 downto 0);  --from ID
+            addr_rd         :   in  std_logic_vector(4 downto 0);   --from ID
+            write_data_out  :   out std_logic_vector(31 downto 0);  --to 8.WB
+            addr_regw       :   out std_logic_vector(4 downto 0);   --to 8.WB
+            -- control signals
+            clk             :   in std_logic;
+            Stall           :   in std_logic;
+            doinstruction   :   in  std_logic;
+            write_output    :   out std_logic);
+    end component;
+    
     component main_mem is
     port (-- data buses
           addr         : in  std_logic_vector(31 downto 0); 
@@ -481,6 +500,20 @@ architecture Structure of CachedMIPS32 is
     signal WriteCache_4to5          :   std_logic;
     signal muxDataR_4to5            :   std_logic;
     signal muxDataW_4to5            :   std_logic;
+    
+    --------------------------------
+    ---    Long Pipe Signals     ---
+    --------------------------------
+    
+    signal lp_rs       : std_logic_vector(31 downto 0);
+    signal lp_rt       : std_logic_vector(31 downto 0);
+    signal lp_addr_rd  : std_logic_vector(4 downto 0);
+    signal lp_addr_regw: std_logic_vector(4 downto 0);
+    signal lp_doinst   : std_logic;
+    signal lp_write_data_out : std_logic_vector(31 downto 0);
+    signal lp_write_output   : std_logic;
+    signal lp_Stall    : std_logic;
+    
     --------------------------------
 	 ---     Memory Interface      --
     --------------------------------
@@ -610,6 +643,12 @@ begin
              fwd_path_alu       => fwd_path_alu_3to2,
              fwd_path_lookup    => fwd_path_lookup_4to2,
              fwd_path_cache     => fwd_path_cache_5to2and3and4,
+             -- the long pipe, a bit special
+             lp_rs              => lp_rs,
+             lp_rt              => lp_rt,
+             lp_addr_rd         => lp_addr_rd,
+             lp_doinst          => lp_doinst,
+             -- --
              clk                => clk,
              RegWrite_out       => RegWrite_2to3,
              Jump               => Jump_2to3,
@@ -820,6 +859,18 @@ begin
              writeBadVAddr_out  => writeBadVAddr_to_id,
              writeCause_in      => writeCause_to_wb,
              writeCause_out     => writeCause_to_id);
+
+    long_pipe_stage : long_pipe
+    port map(rs             => lp_rs,
+             rt             => lp_rt,
+             addr_rd        => lp_addr_rd,
+             write_data_out => lp_write_data_out,
+             addr_regw      => lp_addr_regw,
+             -- control signals
+             clk            => clk,
+             Stall          => lp_Stall,
+             doinstruction  => lp_doinst,
+             write_output   => lp_write_output);
 
     -- ARBITRER SUPER BASTO (Ignorem la IC, prioritat a la DC)
     busWrDataMem <= x"00000000";

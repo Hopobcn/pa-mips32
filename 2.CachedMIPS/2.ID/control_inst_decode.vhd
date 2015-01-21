@@ -6,6 +6,7 @@ entity control_inst_decode is
           opcode      :   in  std_logic_vector(5 downto 0);
           opcode_extra:   in  std_logic_vector(3 downto 0);
           -- control logic
+          LongPipe    :   out std_logic;
           RegWrite    :   out std_logic;
           c0RegWrite  :   out std_logic;
           c0RegRead   :   out std_logic;
@@ -25,7 +26,11 @@ end control_inst_decode;
 architecture Structure of control_inst_decode is
 
 begin
-    -- For me 'X' means I don't know and 'Z' means I don't mind whatever value 
+    -- For me 'X' means I don't know and 'Z' means I don't mind whatever value (@pfarre)
+    -- Maybe some things have changed, and this has become a little bit more vhdl-ic (@abarcelo)
+    
+    LongPipe <= '1' when opcode = "010001" else -- Floating-point subtract single has become our special instruction
+                '0';
 
     RegWrite <= '1' when opcode = "000000" else -- R-type inst (add,addu,and,div,divu,mult,multu,nor,or,..)
                     --Arithmetic Instructions                      (sll,sllv,sra,srav,srl,srlv,sub,subu,xor,slt,sltu,jalr,jr)
