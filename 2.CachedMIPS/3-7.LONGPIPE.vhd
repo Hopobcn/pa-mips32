@@ -15,9 +15,9 @@ entity longinstruction is
             doinstruction   :   in  std_logic;
             write_output    :   out std_logic);
 
-end execute;
+end longinstruction;
 
-architecture Structure of execute is
+architecture Structure of longinstruction is
 
     component LI_stage is
     port (-- buses
@@ -51,6 +51,7 @@ architecture Structure of execute is
     signal doinst_reg34  : std_logic;
     signal doinst_reg45  : std_logic;
 
+begin
     stage1 : LI_stage
     port map(-- buses
              rs_in          => rs,
@@ -64,7 +65,6 @@ architecture Structure of execute is
              Stall          => Stall,
              doinst_in      => doinstruction,
              doinst_out     => doinst_reg12);
-    end component;
 
     stage2 : LI_stage
     port map(-- buses
@@ -79,7 +79,6 @@ architecture Structure of execute is
              Stall          => Stall,
              doinst_in      => doinst_reg12,
              doinst_out     => doinst_reg23);
-    end component;
     
     stage3 : LI_stage
     port map(-- buses
@@ -94,7 +93,6 @@ architecture Structure of execute is
              Stall          => Stall,
              doinst_in      => doinst_reg23,
              doinst_out     => doinst_reg34);
-    end component;
     
     stage4 : LI_stage
     port map(-- buses
@@ -109,7 +107,6 @@ architecture Structure of execute is
              Stall          => Stall,
              doinst_in      => doinst_reg34,
              doinst_out     => doinst_reg45);
-    end component;
 
     stage5 : LI_stage
     port map(-- buses
@@ -124,6 +121,5 @@ architecture Structure of execute is
              Stall          => Stall,
              doinst_in      => doinst_reg45,
              doinst_out     => write_output);
-    end component;
 
 end Structure;
