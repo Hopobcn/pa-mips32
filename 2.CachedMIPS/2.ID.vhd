@@ -13,11 +13,11 @@ entity instruction_decode is
           rd              :   in  std_logic_vector(31 downto 0);  --from WB           
           sign_ext        :   out std_logic_vector(31 downto 0);  --to EXE
           zero_ext        :   out std_logic_vector(31 downto 0);  --to EXE
-          addr_rs         :   out std_logic_vector(4 downto 0);   --to HAZARD CTRL
-          addr_rt         :   out std_logic_vector(4 downto 0);   --to EXE
-          addr_rd         :   out std_logic_vector(4 downto 0);   --to EXE
+          addr_rs         :   out std_logic_vector(5 downto 0);   --to HAZARD CTRL
+          addr_rt         :   out std_logic_vector(5 downto 0);   --to EXE
+          addr_rd         :   out std_logic_vector(5 downto 0);   --to EXE
           write_data      :   out std_logic_vector(31 downto 0);  --to EXE,LOOKUP,CACHE
-          addr_regw       :   in  std_logic_vector(4 downto 0);   --from WB
+          addr_regw       :   in  std_logic_vector(5 downto 0);   --from WB
           fwd_path_alu    :   in  std_logic_vector(31 downto 0);  --from ALU    [FWD]
           fwd_path_lookup :   in  std_logic_vector(31 downto 0);  --from LOOKUP [FWD]
           fwd_path_cache  :   in  std_logic_vector(31 downto 0);  --from CACHE  [FWD]
@@ -66,13 +66,13 @@ end instruction_decode;
 architecture Structure of instruction_decode is
 
     component if_id_reg is
-    port (instruction_in    : in  std_logic_vector(31 downto 0);
+    port (instruction_in   : in  std_logic_vector(31 downto 0);
           instruction_out  : out std_logic_vector(31 downto 0);
-          pc_up_in           : in  std_logic_vector(31 downto 0);    
-          pc_up_out         : out std_logic_vector(31 downto 0); 
+          pc_up_in         : in  std_logic_vector(31 downto 0);    
+          pc_up_out        : out std_logic_vector(31 downto 0); 
           -- register control signals
-          enable            : in  std_logic;
-          clk                   : in  std_logic;
+          enable           : in  std_logic;
+          clk              : in  std_logic;
           -- exception identifier bits
           exception_if_in  : in  std_logic;
           exception_if_out : out std_logic;
@@ -89,8 +89,11 @@ architecture Structure of instruction_decode is
     signal pc_up_reg        :   std_logic_vector(31 downto 0);
     
     component control_inst_decode is
-    port (opcode            :   in std_logic_vector(5 downto 0);
+    port (opcode            :   in  std_logic_vector(5 downto 0);
+          opcode_extra      :   in  std_logic_vector(3 downto 0);
           RegWrite          :   out std_logic;
+          c0RegWrite        :   out std_logic;
+          c0RegRead         :   out std_logic;
           Jump              :   out std_logic;
           Branch            :   out std_logic;
           MemRead           :   out std_logic;                              
@@ -104,14 +107,31 @@ architecture Structure of instruction_decode is
     end component;
     
     component regfile is
-    port (clk               :   in std_logic;
-          addr_rs           :   in std_logic_vector(4 downto 0);
+    port (clk               :   in  std_logic;
+          addr_rs           :   in  std_logic_vector(4 downto 0);
           addr_rt           :   in  std_logic_vector(4 downto 0);
           addr_rd           :   in  std_logic_vector(4 downto 0);
           rs                :   out std_logic_vector(31 downto 0);
           rt                :   out std_logic_vector(31 downto 0);
           rd                :   in  std_logic_vector(31 downto 0);
           RegWrite          :   in  std_logic);
+    end component;
+
+    component c0regfile is
+    port (clk		          :	  in  std_logic;
+          addr_read         :	  in  std_logic_vector(4 downto 0);   --! Read address
+          reg_read          :	  out	std_logic_vector(31 downto 0); --! Register data for the read operation
+          addr_write        :   in  std_logic_vector(4 downto 0);  --! Write address
+          reg_write         :   in  std_logic_vector(31 downto 0);  --! Register data for the write operation
+          RegWrite          :   in  std_logic;                      --! Enable Write for the write port
+          BadVAddr_reg      :   in  std_logic_vector(31 downto 0);  --! Direct input of the BadVAddr register (#8)
+          BadVAddr_w        :   in  std_logic;                      --! Enable Write flag for the BadVAddr register
+          Status_reg        :   in  std_logic_vector(31 downto 0);  --! Direct input of the Status register (#12)
+          Status_w          :   in  std_logic;                      --! Enable Write flag for the Status register
+          Cause_reg         :   in  std_logic_vector(31 downto 0);  --! Direct input for the Cause register (#13)
+          Cause_w           :   in  std_logic;                      --! Enable Write flag for the Cause register
+          EPC_reg           :   in  std_logic_vector(31 downto 0);  --! Direct input for the EPC  register (#14)
+          EPC_w             :   in  std_logic);                     --! Enable Write flag for the EPC register
     end component;
     
     component seu is
@@ -138,6 +158,19 @@ architecture Structure of instruction_decode is
     signal Exc_Cause_reg     : std_logic_vector(31 downto 0);
     signal Exc_EPC_reg       : std_logic_vector(31 downto 0);
     
+    -- Coprocessor 0 operations
+    signal c0RegRead_tmp    :  std_logic;
+	 signal c0RegWrite_tmp   :  std_logic;
+	 signal c0reg_out        :  std_logic_vector(31 downto 0);
+
+    -- Signal to the regular register file for non-c0 write operations
+    signal addr_rd_tmp      :  std_logic_vector(4 downto 0);
+	 -- Signal for the c0 register file
+	 signal addr_c0_write_tmp:  std_logic_vector(4 downto 0);
+
+	 -- Enable for the write operations on c0 register file
+    signal c0RegWrite_in_tmp:  std_logic;
+
     signal enable           :   std_logic;
 begin
   
@@ -166,14 +199,21 @@ begin
     addr_jump   <= pc_up_reg(31 downto 28) & instruction_reg(25 downto 0) & "00";
     pc_up_out   <= pc_up_reg;
     opcode      <= instruction_reg(31 downto 26);
-    addr_rs     <= instruction_reg(25 downto 21);
-    addr_rt     <= instruction_reg(20 downto 16);
-    addr_rd     <=  instruction_reg(15 downto 11);
+    addr_rs     <= '0' & instruction_reg(25 downto 21);
+    addr_rt     <= '1' & instruction_reg(20 downto 16) when c0RegRead_tmp = '1' else
+                   '0' & instruction_reg(20 downto 16) when c0RegWrite_tmp = '1' else
+                   '0' & instruction_reg(20 downto 16);
+    addr_rd     <= '0' & instruction_reg(15 downto 11) when c0RegRead_tmp = '1' else
+                   '1' & instruction_reg(15 downto 11) when c0RegWrite_tmp = '1' else
+                   '0' & instruction_reg(15 downto 11);
     
     --logica de control enmascarada, aixi es mes facil gestionar-la
     control : control_inst_decode 
     port map(opcode     => instruction_reg(31 downto 26),
+            opcode_extra=> instruction_reg(25 downto 22), 
             RegWrite    => RegWrite_tmp,
+            c0RegWrite  => c0RegWrite_tmp,
+            c0RegRead   => c0RegRead_tmp,
             Jump        => Jump_tmp,
             Branch      => Branch_tmp,
             MemRead     => MemRead_tmp,
@@ -223,17 +263,39 @@ begin
                         
     register_file   :   regfile
     port map(clk        => clk,
-             addr_rs    =>  instruction_reg(25 downto 21),
+             addr_rs    => instruction_reg(25 downto 21),
              addr_rt    => instruction_reg(20 downto 16),
-             addr_rd    => addr_regw,
+             addr_rd    => addr_rd_tmp,
              rs         => rs_regfile,
              rt         => rt_regfile,
              rd         => rd,
              RegWrite   => RegWrite_in);
-                
+
+     addr_rd_tmp <= addr_regw(4 downto 0) when addr_regw(5) = '0' else
+                    "00000";
+     addr_c0_write_tmp <= addr_regw(4 downto 0) when  addr_regw(5) = '1' else
+                          "00000";
+     c0RegWrite_in_tmp <= RegWrite_in and addr_regw(5);
+
+     coprocessor0_register_file : c0regfile
+     port map(clk          => clk,
+              addr_read    => instruction_reg(15 downto 11),
+              reg_read     => c0reg_out,
+              addr_write   => "00000",
+              reg_write    => x"00000000",
+              RegWrite     => '0',
+              BadVAddr_reg => Exc_BadVAddr_to_regfile,
+              BadVAddr_w   => writeBadVAddr_to_regfile,
+              Status_reg   => x"00000000",
+              Status_w     => c0RegWrite_in_tmp,
+              Cause_reg    => Exc_Cause_to_regfile,
+              Cause_w      => writeCause_to_regfile,
+              EPC_reg      => Exc_EPC_to_regfile,
+              EPC_w        => writeEPC_to_regfile);
+
     rs  <= fwd_path_alu     when fwd_aluRs = "11" else
            fwd_path_lookup  when fwd_aluRs = "10" else
-              fwd_path_cache   when fwd_aluRs = "01" else
+           fwd_path_cache   when fwd_aluRs = "01" else
            rs_regfile;         --fwd_aluRs = "00"
             
     rt  <= fwd_path_alu     when fwd_aluRt = "11" else

@@ -10,8 +10,8 @@ entity lookup is
 			 addr_out           : out std_logic_vector(31 downto 0);  --to CACHE
           write_data_mem_in  : in  std_logic_vector(31 downto 0);  --from EXE
 			 write_data_mem_out : out std_logic_vector(31 downto 0);  --to CACHE
-          addr_regw_in       : in  std_logic_vector(4 downto 0);   --from EXE
-          addr_regw_out      : out std_logic_vector(4 downto 0);   --to CACHE, WB, then IF
+          addr_regw_in       : in  std_logic_vector(5 downto 0);   --from EXE
+          addr_regw_out      : out std_logic_vector(5 downto 0);   --to CACHE, WB, then IF
           fwd_path_lookup    : out std_logic_vector(31 downto 0);  --to ID [FWD]
           -- control signals
           clk                : in  std_logic;
@@ -67,8 +67,8 @@ architecture Structure of lookup is
           addr_out         : out std_logic_vector(31 downto 0);
           write_data_in    : in  std_logic_vector(31 downto 0);
           write_data_out   : out std_logic_vector(31 downto 0);  
-          addr_regw_in     : in  std_logic_vector(4 downto 0);       
-          addr_regw_out    : out std_logic_vector(4 downto 0);
+          addr_regw_in     : in  std_logic_vector(5 downto 0);       
+          addr_regw_out    : out std_logic_vector(5 downto 0);
           -- control signals
           RegWrite_in      : in  std_logic;                              
           RegWrite_out     : out std_logic;      
@@ -109,7 +109,7 @@ architecture Structure of lookup is
     signal addr_branch_reg      :   std_logic_vector(31 downto 0);  
     signal addr_reg             :   std_logic_vector(31 downto 0);  
     signal write_data_mem_reg   :   std_logic_vector(31 downto 0);
-    signal addr_regw_reg        :   std_logic_vector(4 downto 0);   
+    signal addr_regw_reg        :   std_logic_vector(5 downto 0);   
     signal RegWrite_reg         :   std_logic;     
     signal Branch_reg           :   std_logic;      
     signal MemRead_reg          :   std_logic;  

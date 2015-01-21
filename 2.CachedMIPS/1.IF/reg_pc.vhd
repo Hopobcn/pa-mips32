@@ -20,7 +20,7 @@ begin
     begin
         if (rising_edge(clk)) then
             if (boot = '1') then
-                pc_tmp <= x"00000000";
+                pc_tmp <= x"00000000"; --TODO: hauria de ser x"C000" ?
             elsif (Stall = '0') then
                 pc_tmp <= pc_up;
             else

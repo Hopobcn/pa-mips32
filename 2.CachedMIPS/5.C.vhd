@@ -6,8 +6,8 @@ entity cache is
     port (-- buses
 			 addr                 : in  std_logic_vector(31 downto 0);  --from LOOKUP
           write_data_mem       : in  std_logic_vector(31 downto 0);  --from LOOKUP
-          addr_regw_in         : in  std_logic_vector(4 downto 0);   --from LOOKUP
-          addr_regw_out        : out std_logic_vector(4 downto 0);   --to WB,ID
+          addr_regw_in         : in  std_logic_vector(5 downto 0);   --from LOOKUP
+          addr_regw_out        : out std_logic_vector(5 downto 0);   --to WB,ID
 			 write_data_reg       : out std_logic_vector(31 downto 0);  --to WB
           fwd_path_cache       : out std_logic_vector(31 downto 0);  --to ID [FWD]		 
           busDataMem           : in  std_logic_vector(31 downto 0);  --from Main Memory
@@ -59,8 +59,8 @@ architecture Structure of cache is
 			 addr_out             : out std_logic_vector(31 downto 0);  
           write_data_mem_in    : in  std_logic_vector(31 downto 0);  --from LOOKUP
           write_data_mem_out   : out std_logic_vector(31 downto 0);  
-          addr_regw_in         : in  std_logic_vector(4 downto 0);   --from LOOKUP
-          addr_regw_out        : out std_logic_vector(4 downto 0);   --to WB,ID
+          addr_regw_in         : in  std_logic_vector(5 downto 0);   --from LOOKUP
+          addr_regw_out        : out std_logic_vector(5 downto 0);   --to WB,ID
           busDataMem_in        : in  std_logic_vector(31 downto 0);  --from Main Memory
           busDataMem_out       : out std_logic_vector(31 downto 0);  --from Main Memory
           -- control signals
@@ -117,7 +117,7 @@ architecture Structure of cache is
     signal write_data_mem_reg: std_logic_vector(31 downto 0); 
 	 signal busDataMem_reg    : std_logic_vector(31 downto 0); 
 	 signal load_data         : std_logic_vector(31 downto 0);
-    --signal addr_regw_reg     : std_logic_vector(4 downto 0);
+    signal addr_regw_reg     : std_logic_vector(5 downto 0);
     signal ByteAddress_reg   : std_logic;                 
     signal WordAddress_reg   : std_logic;    
     signal MemtoReg_reg      : std_logic; 	 
@@ -147,7 +147,7 @@ begin
              write_data_mem_in    <= write_data_mem,
              write_data_mem_out   <= write_data_mem_reg,
              addr_regw_in         <= addr_regw_in,
-             addr_regw_out        <= addr_regw_out,
+             addr_regw_out        <= addr_regw_reg,
 				 busDataMem_in        <= busDataMem,
 				 busDataMem_out       <= busDataMem_reg,
              RegWrite_in          <= RegWrite_in,

@@ -5,8 +5,8 @@ entity write_back is
     port (-- buses
           write_data_in    : in  std_logic_vector(31 downto 0);  --from LOOKUP
           write_data_out   : out std_logic_vector(31 downto 0);  --to WB,ID
-          addr_regw_in     : in  std_logic_vector(4 downto 0);   --from LOOKUP
-          addr_regw_out    : out std_logic_vector(4 downto 0);   --to WB,ID
+          addr_regw_in     : in  std_logic_vector(5 downto 0);   --from LOOKUP
+          addr_regw_out    : out std_logic_vector(5 downto 0);   --to WB,ID
           -- control signals
           clk              : in std_logic;
           RegWrite_in      : in std_logic;
@@ -34,8 +34,8 @@ architecture Structure of write_back is
     port (-- buses  
             write_data_in   :   in  std_logic_vector(31 downto 0);  
             write_data_out  :   out std_logic_vector(31 downto 0);
-            addr_regw_in    :   in  std_logic_vector(4 downto 0);   
-            addr_regw_out   :   out std_logic_vector(4 downto 0);   
+            addr_regw_in    :   in  std_logic_vector(5 downto 0);   
+            addr_regw_out   :   out std_logic_vector(5 downto 0);   
             -- control signals
             RegWrite_in     :   in  std_logic;
             RegWrite_out    :   out std_logic;
@@ -61,7 +61,7 @@ architecture Structure of write_back is
     end component;
 
     signal write_data_reg   :   std_logic_vector(31 downto 0);
-    signal addr_regw_reg    :   std_logic_vector(4 downto 0);       
+    signal addr_regw_reg    :   std_logic_vector(5 downto 0);       
     signal RegWrite_reg     :   std_logic;
     signal MemtoReg_reg     :   std_logic;
     

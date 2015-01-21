@@ -15,10 +15,10 @@ entity id_exe_reg is
           sign_ext_out     : out std_logic_vector(31 downto 0);
           zero_ext_in      : in  std_logic_vector(31 downto 0);  
           zero_ext_out     : out std_logic_vector(31 downto 0);
-          addr_rt_in       : in  std_logic_vector(4 downto 0);       
-          addr_rt_out      : out std_logic_vector(4 downto 0);   
-          addr_rd_in       : in  std_logic_vector(4 downto 0);       
-          addr_rd_out      : out std_logic_vector(4 downto 0);   
+          addr_rt_in       : in  std_logic_vector(5 downto 0);       
+          addr_rt_out      : out std_logic_vector(5 downto 0);   
+          addr_rd_in       : in  std_logic_vector(5 downto 0);       
+          addr_rd_out      : out std_logic_vector(5 downto 0);   
           addr_jump_in     : in  std_logic_vector(31 downto 0);  
           addr_jump_out    : out std_logic_vector(31 downto 0);  
           -- control signals

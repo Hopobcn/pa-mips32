@@ -9,8 +9,8 @@ entity exe_lookup_reg is
           addr_out         : out std_logic_vector(31 downto 0);
           write_data_in    : in  std_logic_vector(31 downto 0);
           write_data_out   : out std_logic_vector(31 downto 0);  
-          addr_regw_in     : in  std_logic_vector(4 downto 0);       
-          addr_regw_out    : out std_logic_vector(4 downto 0);
+          addr_regw_in     : in  std_logic_vector(5 downto 0);       
+          addr_regw_out    : out std_logic_vector(5 downto 0);
           -- control signals
           RegWrite_in      : in  std_logic;                              
           RegWrite_out     : out std_logic;      

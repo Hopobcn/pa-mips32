@@ -3,14 +3,15 @@ use ieee.std_logic_1164.all;
 
 
 entity hazard_ctrl is
-    port (idRegisterRs    : in  std_logic_vector(4 downto 0);  --consumidor
-          idRegisterRt    : in  std_logic_vector(4 downto 0);  --consumidor
-          exeRegisterRt   : in  std_logic_vector(4 downto 0);  --productor (load)
+    port (idRegisterRs    : in  std_logic_vector(5 downto 0);  --consumidor
+          idRegisterRt    : in  std_logic_vector(5 downto 0);  --consumidor
+          exeRegisterRt   : in  std_logic_vector(5 downto 0);  --productor (load)
           exeMemRead      : in  std_logic;
           Branch          : in  std_logic;                     -- from LOOKUP stage (1=branch taken)
           Jump            : in  std_logic;                     -- from EXE stage
           Exception       : in  std_logic;                     -- from Exception Ctrl (LOOKUP stage) --wait until instruction is the oldest ``alive''
           Interrupt       : in  std_logic;                     -- from Interrupt Ctrl (any point)
+			 Interrupt_to_Exception_ctrl : out std_logic;
           IC_Ready        : in  std_logic;                     -- from IF (means Instruction Cache Ready (1 when hit) if 0 stall)
           DC_Ready        : in  std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
           -- control signals
@@ -42,19 +43,21 @@ begin
         NOP_to_L        <= '0';
 		  NOP_to_C        <= '0';
         NOP_to_WB       <= '0';
-        if (Interrupt = '1') then
-            NOP_to_ID       <= '1';
-            NOP_to_EXE      <= '1';
-            NOP_to_L        <= '1';
-		      NOP_to_C        <= '1';
-            NOP_to_WB       <= '1';
-        elsif (Exception = '1') then
+        Interrupt_to_Exception_ctrl <= '0';
+        if (Exception = '1') then
             NOP_to_ID       <= '1';
             NOP_to_EXE      <= '1';
             NOP_to_L        <= '1';
 		      NOP_to_C        <= '1';
             --NOP_to_WB     <= '1'; --do not clear the memory stage
             -- because the memory stage is the one with the exception
+        elsif (Interrupt = '1' and Jump = '0') then
+            -- TODO add a "store check", because then the instruction cannot be executed again
+            NOP_to_ID       <= '1';
+            NOP_to_EXE      <= '1';
+            NOP_to_L        <= '1';
+		      NOP_to_C        <= '1';
+            NOP_to_WB       <= '1';
         elsif (not DC_Ready = '1') then
             Stall_PC        <= '1';
             Stall_IF_ID     <= '1';
