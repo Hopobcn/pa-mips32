@@ -11,12 +11,14 @@ entity inst_cache is
           BusRd       :  out std_logic;
           BusWr       :  out std_logic;
           BusReady    :  in  std_logic;
-          Ready       :  out std_logic);
+          Ready       :  out std_logic;
+          clk         :  in  std_logic;
+          reset       :  in  std_logic);
 end inst_cache;
 
 architecture Structure of inst_cache is
     
-    component cache_fields is
+    component icache_fields is
     port (-- data buses
           write_data    : in  std_logic_vector(31 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
@@ -31,7 +33,7 @@ architecture Structure of inst_cache is
           Hit           : out std_logic);
     end component;
      
-     component cache_controller is
+    component icache_controller is
     port (-- Interface with the Processor
           PrRd          : in  std_logic;
           PrWr          : in  std_logic;
@@ -48,7 +50,9 @@ architecture Structure of inst_cache is
           -- Interface with memory
           BusRd         : out std_logic;
           BusWr         : out std_logic;
-          BusReady      : in  std_logic);
+          BusReady      : in  std_logic;
+          clk           : in  std_logic;
+          reset         : in  std_logic);
     end component;
      
      signal WriteTags_wire   : std_logic;
@@ -60,12 +64,12 @@ architecture Structure of inst_cache is
      signal muxDataR         : std_logic;
      signal muxDataW         : std_logic;
      
-     signal writeProc        : std_logic_vector(31 downto 0) := x"0000";
+     signal writeProc        : std_logic_vector(31 downto 0) := x"00000000";
      signal readCache        : std_logic_vector(31 downto 0);
      signal writeCache       : std_logic_vector(31 downto 0);
 begin
 
-    FIELDS : cache_fields
+    FIELDS : icache_fields
     port map(write_data     => writeCache,
              read_data      => readCache,
              tag            => addr(31 downto 7),
@@ -77,7 +81,7 @@ begin
              WriteCache     => WriteCache_wire,
              Hit            => Hit_wire);
      
-     CONTROLLER : inst_cache_ctrl
+     CONTROLLER : icache_controller
      port map(PrRd          => '1',
               PrWr          => '0', --INST CACHE always makes read request !
               Ready         => Ready,
@@ -90,7 +94,9 @@ begin
               muxDataW      => muxDataW,
               BusRd         => BusRd,
               BusWr         => BusWr,
-              BusReady      => BusReady);
+              BusReady      => BusReady,
+              clk           => clk,
+              reset         => reset);
      
      writeCache <= writeProc when muxDataW = '0' else
                    busDataMem;

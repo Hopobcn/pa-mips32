@@ -15,6 +15,7 @@ entity lookup is
           fwd_path_lookup    : out std_logic_vector(31 downto 0);  --to ID [FWD]
           -- control signals
           clk                : in  std_logic;
+          boot               : in  std_logic;
           RegWrite_in        : in  std_logic;                      --from EXE
           RegWrite_out       : out std_logic;                      --to CACHE,WB, then ID
           Branch             : in  std_logic;                      --from EXE
@@ -132,8 +133,10 @@ architecture Structure of lookup is
           -- Interface with memory
           BusRd       :  out std_logic;
           BusWr       :  out std_logic;
-          BusReady    :  in  std_logic);
-    end data_cache_lookup;	  
+          BusReady    :  in  std_logic;
+          clk         :  in  std_logic;
+          reset       :  in  std_logic);
+    end component;	  
 		  
     signal exception_if_reg   : std_logic;
     signal exception_id_reg   : std_logic;
@@ -167,11 +170,11 @@ begin
              MemRead_out    => MemRead_reg,
              MemWrite_in    => MemWrite,
              MemWrite_out   => MemWrite_reg,
-             ByteAddress_in => ByteAddress,
+             ByteAddress_in => ByteAddress_in,
              ByteAddress_out=> ByteAddress_reg,
-             WordAddress_in => WordAddress,
+             WordAddress_in => WordAddress_in,
              WordAddress_out=> WordAddress_reg,
-             MemtoReg_in    => MemtoReg,
+             MemtoReg_in    => MemtoReg_in,
              MemtoReg_out   => MemtoReg_reg,
              Zero_in        => Zero,
              Zero_out       => Zero_reg,
@@ -207,7 +210,9 @@ begin
              muxDataW   => muxDataW,
              BusRd      => BusRd,
              BusWr      => BusWr,
-             BusReady   => BusReady);
+             BusReady   => BusReady,
+             clk        => clk,
+             reset      => boot );
 			 
 	 -- NOP
     RegWrite_out    <= '0' when NOP_to_C = '1' or exception_internal = '1' else
@@ -224,7 +229,7 @@ begin
     WordAddress_out <= WordAddress_reg;
     MemtoReg_out    <=  MemtoReg_reg;
 	 
-    WriteCache      <= '0' when NOP_to_C = '1' or exeption_internal = '1' else
+    WriteCache      <= '0' when NOP_to_C = '1' or exception_internal = '1' else
 	                     WriteCache_reg;
 
 	 

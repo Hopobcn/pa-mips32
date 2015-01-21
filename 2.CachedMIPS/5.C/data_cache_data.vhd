@@ -18,7 +18,7 @@ end data_cache_data;
 
 architecture Structure of data_cache_data is
     
-    component data is
+    component ddata is
     port (-- data buses
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
           block_offset  : in  std_logic_vector(1 downto 0); -- offset inside a container (1 container == 4 words)
@@ -34,14 +34,14 @@ architecture Structure of data_cache_data is
 	 signal readByte         : std_logic_vector(31 downto 0);
 begin
 
-    DATA : data
-    port map(index        <= addr(6 downto 2)),
-             block_offset <= addr(1 downto 0),; 
-             write_data   <= writeCache,
-             read_data    <= readCache,
-             WriteEnable  <= WriteEnable)
+    DATA : ddata
+    port map(index        => addr(6 downto 2),
+             block_offset => addr(1 downto 0),
+             write_data   => writeCache,
+             read_data    => readCache,
+             WriteEnable  => WriteEnable);
 			 
-    writeCache <= write_data when muxDataW = '0' else
+    writeCache <= write_data when (muxDataW = '0') else
                   busDataMem;
             
     mux_word_half_byte : process(readCache,busDataMem,ByteAddress,WordAddress)
@@ -62,6 +62,7 @@ begin
             else
                 read_data <= busDataMem;		  
             end if;
+        end if;
     end process mux_word_half_byte;				
 						
 end Structure;

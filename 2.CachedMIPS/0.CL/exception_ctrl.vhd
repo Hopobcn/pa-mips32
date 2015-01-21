@@ -30,10 +30,10 @@ begin
                      '0';
                     
     exception_flag <= exception_tmp;
-    exception_jump <= exception_tmp or exeption_interrupt;
+    exception_jump <= exception_tmp or exception_interrupt;
 	 
     -- The PC is are always used
-    wbexc_writeEPC <= exception_tmp or exeption_interrupt;
+    wbexc_writeEPC <= exception_tmp or exception_interrupt;
 	 -- The Cause is used on exception-exception, harcoded 01 on Interrupts
     wbexc_writeCause <= exception_tmp;
     -- MIPS deviation: we consider that the hardware interrupt is checked through another mechanism

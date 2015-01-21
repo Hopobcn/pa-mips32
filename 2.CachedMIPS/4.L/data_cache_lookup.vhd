@@ -14,12 +14,14 @@ entity data_cache_lookup is
           -- Interface with memory
           BusRd       :  out std_logic;
           BusWr       :  out std_logic;
-          BusReady    :  in  std_logic);
+          BusReady    :  in  std_logic;
+          clk         :  in  std_logic;
+          reset       :  in  std_logic);
 end data_cache_lookup;
 
 architecture Structure of data_cache_lookup is
     
-    component cache_fields is
+    component dcache_fields is
     port (-- data buses
 	       tag           : in  std_logic_vector(24 downto 0);
           index         : in  std_logic_vector(4 downto 0);
@@ -30,7 +32,7 @@ architecture Structure of data_cache_lookup is
           Hit           : out std_logic);
     end component;
      
-    component cache_controller is
+    component dcache_controller is
     port (-- Interface with the Processor
           PrRd          : in  std_logic;
           PrWr          : in  std_logic;
@@ -47,7 +49,9 @@ architecture Structure of data_cache_lookup is
           -- Interface with memory
           BusRd         : out std_logic;
           BusWr         : out std_logic;
-          BusReady      : in  std_logic);
+          BusReady      : in  std_logic;
+          clk           : in  std_logic;
+          reset         : in  std_logic);
     end component;
      
     signal WriteTags_wire   : std_logic;
@@ -57,7 +61,7 @@ architecture Structure of data_cache_lookup is
      
 begin
 
-    FIELDS : cache_fields
+    FIELDS : dcache_fields
     port map(tag            => addr(31 downto 7),
              index          => addr(6 downto 2),
              nextState      => nextState_wire,
@@ -65,7 +69,7 @@ begin
              WriteState     => WriteState_wire,
              Hit            => Hit_wire);
      
-     CONTROLLER : inst_cache_ctrl
+     CONTROLLER : dcache_controller
      port map(PrRd          => '1',
               PrWr          => '0',
               Ready         => Ready,
@@ -78,7 +82,9 @@ begin
               muxDataW      => muxDataW,
               BusRd         => BusRd,
               BusWr         => BusWr,
-              BusReady      => BusReady);
+              BusReady      => BusReady,
+              clk           => clk,
+              reset         => reset);
      
                        
 end Structure;

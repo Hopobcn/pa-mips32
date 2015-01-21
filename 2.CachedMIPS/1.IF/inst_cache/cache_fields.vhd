@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
-entity cache_fields is
+entity icache_fields is
     port (-- data buses
           write_data    : in  std_logic_vector(31 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
@@ -16,13 +16,13 @@ entity cache_fields is
           WriteState    : in  std_logic;
           WriteCache    : in  std_logic;
           Hit           : out std_logic);
-end cache_fields;
+end icache_fields;
 
-architecture Structure of cache_fields is
+architecture Structure of icache_fields is
     constant I    : std_logic := '0';
     constant MISS : std_logic := '0';
 
-    component tags is
+    component itags is
     port (-- data buses
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
           tagWrite      : in  std_logic_vector(24 downto 0);
@@ -31,7 +31,7 @@ architecture Structure of cache_fields is
           WriteEnable   : in  std_logic);
     end component;
 
-    component state is
+    component istate is
     port (-- data buses
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
           nextState     : in  std_logic;
@@ -40,7 +40,7 @@ architecture Structure of cache_fields is
           WriteEnable   : in  std_logic);
     end component;
 
-    component data is
+    component idata is
     port (-- data buses
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
           block_offset  : in  std_logic_vector(1 downto 0); -- offset inside a container (1 container == 4 words)
@@ -55,19 +55,19 @@ architecture Structure of cache_fields is
     signal tag_compare  : std_logic;
 begin
 
-    TAGS : tags
+    TAGS : itags
     port map(index         => index,
              tagWrite      => tag,
              tagRead       => tagRead,
              WriteEnable   => WriteTags);
 
-    STATE : state
+    STATE : istate
     port map(index         => index,
              nextState     => nextState,
              state         => currentState,
              WriteEnable   => WriteState);
 
-     DATA : data
+     DATA : idata
      port map(index        => index,
               block_offset => block_offset,
               write_data   => write_data,

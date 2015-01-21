@@ -43,17 +43,17 @@ architecture Structure of instruction_fetch is
     end component;
     
     component inst_cache is
-     port (addr       : in  std_logic_vector(31 downto 0);
-           instruction: out std_logic_vector(31 downto 0);
-           busDataMem : in  std_logic_vector(31 downto 0);
-           -- control signal
-           BusRd      : out std_logic;
-           BusWr      : out std_logic;
-           BusReady   : in  std_logic;
-           Ready      : out std_logic;
-           clk        : in  std_logic;
-           boot       : in  std_logic);
-    end inst_cache;
+    port (addr       : in  std_logic_vector(31 downto 0);
+          instruction: out std_logic_vector(31 downto 0);
+          busDataMem : in  std_logic_vector(31 downto 0);
+          -- control signal
+          BusRd      : out std_logic;
+          BusWr      : out std_logic;
+          BusReady   : in  std_logic;
+          Ready      : out std_logic;
+          clk        : in  std_logic;
+          reset      : in  std_logic);
+    end component;
 
     signal pc_up_tmp        :   std_logic_vector(31 downto 0);
     signal pc_tmp           :   std_logic_vector(31 downto 0);
@@ -85,7 +85,9 @@ begin
               BusRd      => BusRd,
               BusWr      => BusWr,
               BusReady   => BusReady,
-              Ready      => IC_Ready);
+              Ready      => IC_Ready,
+              clk        => clk,
+              reset      => boot);
     
     pc    <= pc_tmp;
     pc_up <= pc_up_tmp;

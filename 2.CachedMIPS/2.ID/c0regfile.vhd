@@ -36,7 +36,7 @@ begin
                 reg(to_integer(unsigned(addr_write))) <= reg_write;
             end if;
 
-            if (BadVAddr_w = 1') then
+            if (BadVAddr_w = '1') then
                 reg(8) <= BadVAddr_reg; 
             end if;
 

@@ -100,6 +100,7 @@ architecture Structure of CachedMIPS32 is
  
     end component;
 
+    component execute is
     port (-- buses
           pc_up               :   in  std_logic_vector(31 downto 0);  --from ID
           opcode              :   in  std_logic_vector(5 downto 0);   --from ID
@@ -175,6 +176,7 @@ architecture Structure of CachedMIPS32 is
           fwd_path_lookup    : out std_logic_vector(31 downto 0);  --to ID [FWD]
           -- control signals
           clk                : in  std_logic;
+          boot               : in  std_logic;
           RegWrite_in        : in  std_logic;                      --from EXE
           RegWrite_out       : out std_logic;                      --to CACHE,WB, then ID
           Branch             : in  std_logic;                      --from EXE
@@ -257,14 +259,7 @@ architecture Structure of CachedMIPS32 is
           Exc_Cause_in         : in  std_logic_vector(31 downto 0);    --from previous stage (pipelined)
           Exc_Cause_out        : out std_logic_vector(31 downto 0);    --to coprocessor 0 register file
           Exc_EPC_in           : in  std_logic_vector(31 downto 0);    --from previous stage (pipelined)
-          Exc_EPC_out          : out std_logic_vector(31 downto 0);    --to coprocessor 0 register file
-          -- Write enabling bits from exception control
-          writeEPC_in          : in  std_logic;                        --from Exception Control
-          writeEPC_out         : out std_logic;                        --to coprocessor 0 register file
-          writeBadVAddr_in     : in  std_logic;                        --from Exception Control
-          writeBadVAddr_out    : out std_logic;                        --to coprocessor 0 register file
-          writeCause_in        : in  std_logic;                        --from Exception Control
-          writeCause_out       : out std_logic);                       --to coprocessor 0 register file
+          Exc_EPC_out          : out std_logic_vector(31 downto 0));    --to coprocessor 0 register file
 
     end component;
 
@@ -406,14 +401,14 @@ architecture Structure of CachedMIPS32 is
     signal write_data_3to4          :   std_logic_vector(31 downto 0);
     signal write_data_4to5          :   std_logic_vector(31 downto 0);
     
-    signal addr_rs_2toCtrl          :   std_logic_vector(4 downto 0);
-    signal addr_rt_2to3             :   std_logic_vector(4 downto 0);
-    signal addr_rt_3toHazardCtrl    :   std_logic_vector(4 downto 0);
-    signal addr_rd_2to3             :   std_logic_vector(4 downto 0);
-    signal addr_regw_3to4           :   std_logic_vector(4 downto 0);
-    signal addr_regw_4to5           :   std_logic_vector(4 downto 0);
-    signal addr_regw_5to6           :   std_logic_vector(4 downto 0);
-    signal addr_regw_6to2           :   std_logic_vector(4 downto 0);
+    signal addr_rs_2toCtrl          :   std_logic_vector(5 downto 0);
+    signal addr_rt_2to3             :   std_logic_vector(5 downto 0);
+    signal addr_rt_3toHazardCtrl    :   std_logic_vector(5 downto 0);
+    signal addr_rd_2to3             :   std_logic_vector(5 downto 0);
+    signal addr_regw_3to4           :   std_logic_vector(5 downto 0);
+    signal addr_regw_4to5           :   std_logic_vector(5 downto 0);
+    signal addr_regw_5to6           :   std_logic_vector(5 downto 0);
+    signal addr_regw_6to2           :   std_logic_vector(5 downto 0);
     
     signal fwd_path_alu_3to2           :   std_logic_vector(31 downto 0);
     signal fwd_path_lookup_4to2        :   std_logic_vector(31 downto 0);
@@ -492,6 +487,7 @@ architecture Structure of CachedMIPS32 is
 	 ---     Memory Interface      --
     --------------------------------
     signal busRdDataMem             :   std_logic_vector(31 downto 0);
+    signal busWrDataMem             :   std_logic_vector(31 downto 0);
     signal busAddr                  :   std_logic_vector(31 downto 0);
     signal BusRd_1toDRAM            :   std_logic;
     signal BusRd_4toDRAM            :   std_logic;
@@ -604,7 +600,7 @@ begin
              opcode             => opcode_2to3,
              rs                 => register_s_2to3,
              rt                 => register_t_2to3,
-             rd                 => register_d_5to2,
+             rd                 => register_d_6to2,
              sign_ext           => sign_ext_2to3,
              zero_ext           => zero_ext_2to3,
              addr_rs            => addr_rs_2toCtrl,
@@ -727,6 +723,7 @@ begin
              addr_regw_out      => addr_regw_4to5,
              fwd_path_lookup    => fwd_path_lookup_4to2,
              clk                => clk,
+             boot               => boot,
              RegWrite_in        => RegWrite_3to4,
              RegWrite_out       => RegWrite_4to5,
              Branch             => Branch_3to4,
@@ -768,7 +765,7 @@ begin
 
     fifth_stage : cache
     port map(addr               => alu_res_4to5,
-             write_data_mem     => write_data_4to5 --TODO this is ok?
+             write_data_mem     => write_data_4to5, 
              addr_regw_in       => addr_regw_4to5,
              addr_regw_out      => addr_regw_5to6,
 			    write_data_reg     => register_d_5to6,
@@ -840,11 +837,11 @@ begin
 	 
     DRAM : main_mem
 	 port map(addr               => busAddr,
-             write_data         => '0'.
+             write_data         => busWrDataMem, -- OBS: We never write Global mem, IC don't write and DC don't do refill operations
              read_data          => busRdDataMem,
-             Rd                 => BusRd
-             Wr                 => BusWr
-             Ready              => BusReady
+             Rd                 => BusRd,
+             Wr                 => BusWr,
+             Ready              => BusReady,
              reset              => boot,
              clk                => clk);
 	
@@ -897,7 +894,7 @@ begin
              exception_exe      => exception_exe_at_cache,
              exception_lookup   => exception_lookup_at_cache,
              exception_cache    => exception_cache_at_cache,
-             exception_interrupt=> Interrupt_ExceptionCtrlfromHazaardCtrl
+             exception_interrupt=> Interrupt_ExceptionCtrlfromHazaardCtrl,
              exception_flag     => Exception_ExcepCtrlOut,
              exception_jump     => Exception_IFJump,
              wbexc_writeEPC      => writeEPC_to_wb,

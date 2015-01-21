@@ -27,14 +27,14 @@ begin
 
     mem_state : process(clk,reset)
     begin
-        if (reset == '1') then
+        if (reset = '1') then
             memCurrState <= ONE;
-        elsif (rising_clock(clk)) then
+        elsif (rising_edge(clk)) then
             memCurrState <= memNextState;
         end if;
     end process mem_state;
 
-    mem_next_state : process(memCurrState,PrRd,PrWr,Hit,BusReady)
+    mem_next_state : process(memCurrState,Rd,Wr)
     begin
         case memCurrState is
         when ONE =>
@@ -54,7 +54,7 @@ begin
 	 mem_output_logic : process(memCurrState,Rd,Wr)
     begin
          -- Comentades les senyals que no cal inicialitzar en cada Estat
-        case procCurrState is
+        case memCurrState is
         when ONE =>
             Ready <= '1';
 		  when TWO =>

@@ -112,6 +112,7 @@ architecture Structure of cache is
 	 signal busDataMem_reg    : std_logic_vector(31 downto 0); 
 	 signal load_data         : std_logic_vector(31 downto 0);
     signal addr_regw_reg     : std_logic_vector(5 downto 0);
+    signal RegWrite_reg      : std_logic;
     signal ByteAddress_reg   : std_logic;                 
     signal WordAddress_reg   : std_logic;    
     signal MemtoReg_reg      : std_logic; 	 
@@ -136,53 +137,54 @@ begin
 
     -- EXE/MEM Register 
     LOOKUP_CACHE_register : lookup_cache_reg
-    port map(addr_in              <= addr,
-			    addr_out             <= addr_reg,
-             write_data_mem_in    <= write_data_mem,
-             write_data_mem_out   <= write_data_mem_reg,
-             addr_regw_in         <= addr_regw_in,
-             addr_regw_out        <= addr_regw_reg,
-				 busDataMem_in        <= busDataMem,
-				 busDataMem_out       <= busDataMem_reg,
-             RegWrite_in          <= RegWrite_in,
-             RegWrite_out         <= RegWrite_out,
-			    ByteAddress_in       <= ByteAddress,
-			    ByteAddress_out      <= ByteAddress_reg,
-             WordAddress_in       <= WordAddress,
-             WordAddress_out      <= WordAddress_reg,
-			    MemtoReg_in          <= MemtoReg,
-			    MemtoReg_out         <= MemtoReg_reg,
-			    WriteCache_in        <= WriteCache,
-			    WriteCache_out       <= WriteCache_reg,
-             muxDataR_in          <= muxDataR,
-             muxDataR_out         <= muxDataR_reg,
-             muxDataW_in          <= muxDataW,
-             muxDataW_out         <= muxDataW_reg,
-             enable               <= enable,
-             clk                  <= clk,
+    port map(addr_in              => addr,
+			    addr_out             => addr_reg,
+             write_data_mem_in    => write_data_mem,
+             write_data_mem_out   => write_data_mem_reg,
+             addr_regw_in         => addr_regw_in,
+             addr_regw_out        => addr_regw_reg,
+				 busDataMem_in        => busDataMem,
+				 busDataMem_out       => busDataMem_reg,
+             RegWrite_in          => RegWrite_in,
+             RegWrite_out         => RegWrite_reg,
+			    ByteAddress_in       => ByteAddress,
+			    ByteAddress_out      => ByteAddress_reg,
+             WordAddress_in       => WordAddress,
+             WordAddress_out      => WordAddress_reg,
+			    MemtoReg_in          => MemtoReg,
+			    MemtoReg_out         => MemtoReg_reg,
+			    WriteCache_in        => WriteCache,
+			    WriteCache_out       => WriteCache_reg,
+             muxDataR_in          => muxDataR,
+             muxDataR_out         => muxDataR_reg,
+             muxDataW_in          => muxDataW,
+             muxDataW_out         => muxDataW_reg,
+             enable               => enable,
+             clk                  => clk,
 			    -- exception bits
-             exception_if_in      <= exception_if_in,
-             exception_if_out     <= exception_if_reg,
-             exception_id_in      <= exception_id_in,
-             exception_id_out     <= exception_id_reg,
-             exception_exe_in     <= exception_exe_in,
-             exception_exe_out    <= exception_exe_reg,
-             exception_lookup_in  <= exception_lookup_in,
-			    exception_lookup_out <= exception_lookup_reg,
+             exception_if_in      => exception_if_in,
+             exception_if_out     => exception_if_reg,
+             exception_id_in      => exception_id_in,
+             exception_id_out     => exception_id_reg,
+             exception_exe_in     => exception_exe_in,
+             exception_exe_out    => exception_exe_reg,
+             exception_lookup_in  => exception_lookup_in,
+			    exception_lookup_out => exception_lookup_reg,
              -- Exception-related registers
-             Exc_BadVAddr_in      <= Exc_BadVAddr_in,
-             Exc_BadVAddr_out     <= Exc_BadVAddr_reg,
-             Exc_Cause_in         <= Exc_Cause_in,
-             Exc_Cause_out        <= Exc_Cause_reg,
-             Exc_EPC_in           <= Exc_EPC_in,
-             Exc_EPC_out          <= Exc_EPC_reg);
+             Exc_BadVAddr_in      => Exc_BadVAddr_in,
+             Exc_BadVAddr_out     => Exc_BadVAddr_reg,
+             Exc_Cause_in         => Exc_Cause_in,
+             Exc_Cause_out        => Exc_Cause_reg,
+             Exc_EPC_in           => Exc_EPC_in,
+             Exc_EPC_out          => Exc_EPC_reg);
 			 
 	 addr_regw_out <= addr_regw_reg;
 	 
 	 write_data_reg <= addr_reg    when MemtoReg_reg = '0' else
 	                   load_data;
 		
-    fwd_path_cache <= write_data_reg;
+    fwd_path_cache <= addr_reg    when MemtoReg_reg = '0' else
+	                   load_data;
 	 
 	 -- NOP
     RegWrite_out    <= '0' when NOP_to_WB = '1' or exception_internal = '1' else

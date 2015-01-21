@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity exe_lookup_reg is
+entity lookup_cache_reg is
     port (-- buses
 			 addr_in              : in  std_logic_vector(31 downto 0);  --from LOOKUP
 			 addr_out             : out std_logic_vector(31 downto 0);  
@@ -47,12 +47,12 @@ entity exe_lookup_reg is
           Exc_EPC_in           : in  std_logic_vector(31 downto 0);    --from previous stage (pipelined)
           Exc_EPC_out          : out std_logic_vector(31 downto 0));
       
-end exe_lookup_reg;
+end lookup_cache_reg;
 
-architecture Structure of exe_lookup_reg is
+architecture Structure of lookup_cache_reg is
 begin
 
-    exe_lookup_reg : process(clk)
+    lookup_cache_reg : process(clk)
     begin
         if (enable = '1') then
             if (rising_edge(clk)) then
