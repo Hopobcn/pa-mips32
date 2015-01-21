@@ -4,17 +4,17 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
 
-entity state is
+entity dstate is
     port (-- data buses
-          index         : in std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
-          nextState     : in std_logic_vector(1 downto 0);
-          state         : out std_logic_vector(1 downto 0);
+          index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
+          nextState     : in  std_logic;
+          state         : out std_logic; -- I (0) or V (1)
           -- control signals
-          WriteEnable   : in std_logic);
-end state;
+          WriteEnable   : in  std_logic);
+end dstate;
 
-architecture Structure of state is
-    type ARRAY_STATE is array (2**5-1 downto 0) of std_logic_vector(1 downto 0);
+architecture Structure of dstate is
+    type ARRAY_STATE is array (2**5-1 downto 0) of std_logic;
     signal mem_state : ARRAY_STATE;
 begin
     

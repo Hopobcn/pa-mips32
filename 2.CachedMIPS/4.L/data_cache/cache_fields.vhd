@@ -3,26 +3,23 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
-entity icache_fields is
+entity dcache_fields is
     port (-- data buses
-          write_data    : in  std_logic_vector(127 downto 0);
-          read_data     : out std_logic_vector(31 downto 0);
-          tag           : in  std_logic_vector(24 downto 0);
+	       tag           : in  std_logic_vector(24 downto 0);
           index         : in  std_logic_vector(4 downto 0);
-          block_offset  : in  std_logic_vector(1 downto 0);
           nextState     : in  std_logic;
           -- control signals
           WriteTags     : in  std_logic;
           WriteState    : in  std_logic;
-          WriteCache    : in  std_logic;
-          Hit           : out std_logic);
-end icache_fields;
+          Hit           : out std_logic;
+          State         : out std_logic);
+end dcache_fields;
 
-architecture Structure of icache_fields is
+architecture Structure of dcache_fields is
     constant I    : std_logic := '0';
     constant MISS : std_logic := '0';
 
-    component itags is
+    component dtags is
     port (-- data buses
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
           tagWrite      : in  std_logic_vector(24 downto 0);
@@ -31,21 +28,11 @@ architecture Structure of icache_fields is
           WriteEnable   : in  std_logic);
     end component;
 
-    component istate is
+    component dstate is
     port (-- data buses
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
           nextState     : in  std_logic;
           state         : out std_logic;
-          -- control signals
-          WriteEnable   : in  std_logic);
-    end component;
-
-    component idata is
-    port (-- data buses
-          index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
-          block_offset  : in  std_logic_vector(1 downto 0); -- offset inside a container (1 container == 4 words)
-          write_data    : in  std_logic_vector(127 downto 0);
-          read_data     : out std_logic_vector(31 downto 0);
           -- control signals
           WriteEnable   : in  std_logic);
     end component;
@@ -55,25 +42,20 @@ architecture Structure of icache_fields is
     signal tag_compare  : std_logic;
 begin
 
-    TAGS : itags
+    TAGS : dtags
     port map(index         => index,
              tagWrite      => tag,
              tagRead       => tagRead,
              WriteEnable   => WriteTags);
 
-    STATE : istate
+    STATES : dstate
     port map(index         => index,
              nextState     => nextState,
              state         => currentState,
              WriteEnable   => WriteState);
 
-     DATA : idata
-     port map(index        => index,
-              block_offset => block_offset,
-              write_data   => write_data,
-              read_data    => read_data,
-              WriteEnable  => WriteCache);
-                 
+    State <= currentState;
+	 
     tag_comparator : process(tag, tagRead)
     begin
         if (tag = tagRead) then

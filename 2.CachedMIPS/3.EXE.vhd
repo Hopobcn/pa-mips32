@@ -4,64 +4,66 @@ use ieee.std_logic_unsigned.all;
 
 entity execute is
     port (-- buses
-            pc_up           :   in  std_logic_vector(31 downto 0);  --from ID
-            opcode          :   in  std_logic_vector(5 downto 0);       --from ID
-            rs              :   in std_logic_vector(31 downto 0);   --from ID
-            rt              :   in std_logic_vector(31 downto 0);   --from ID
-            sign_ext        :   in std_logic_vector(31 downto 0);   --from ID
-            zero_ext        :   in std_logic_vector(31 downto 0);   --from ID
-            addr_rt_in      :   in std_logic_vector(4 downto 0);        --from ID
-            addr_rt_out     :   out std_logic_vector(4 downto 0);   --to Hazard Ctrl
-            addr_rd         :   in std_logic_vector(4 downto 0);        --from ID
-            addr_jump_in    :   in  std_logic_vector(31 downto 0);  --from ID
-            addr_jump_out   :   out std_logic_vector(31 downto 0);  --to MEM,IF
-            addr_branch     :   out std_logic_vector(31 downto 0);  --to MEM,then IF
-            alu_res         :   out std_logic_vector(31 downto 0);  --to MEM
-            write_data_in   :   in  std_logic_vector(31 downto 0);  --from ID
-            write_data_out  :   out std_logic_vector(31 downto 0);  --to MEM
-            addr_regw       :   out std_logic_vector(4 downto 0);   --to MEM,WB, then IF
-            fwd_path_alu    :   out std_logic_vector(31 downto 0);  --to ID         [FWD]
-            fwd_path_mem    :   in   std_logic_vector(31 downto 0); --from MEM  [FWD]
-            -- control signals
-            clk             :   in std_logic;
-            RegWrite_in     :   in std_logic;                               --from ID
-            RegWrite_out    :   out std_logic;                              --to MEM,WB, then ID
-            Jump_in         :   in std_logic;                               --from ID
-            Jump_out        :   out std_logic;                              --to MEM,IF
-            Branch_in       :   in std_logic;                               --from ID
-            Branch_out      :   out std_logic;                              --to MEM
-            MemRead_in      :   in std_logic;                               --from ID 
-            MemRead_out     :   out std_logic;                              --to MEM
-            MemWrite_in     :   in std_logic;                               --from ID  
-            MemWrite_out    :   out std_logic;                              --to MEM    
-            ByteAddress_in  :  in std_logic;                                --from ID
-            ByteAddress_out :  out std_logic;                               --from MEM
-            WordAddress_in  :   in  std_logic;                              --from ID
-            WordAddress_out :   out std_logic;                              --from MEM  
-            MemtoReg_in     :   in std_logic;                               --from EXE
-            MemtoReg_out    :   out std_logic;                              --to MEM,WB
-            RegDst          :   in std_logic;                               --from ID
-            ALUOp           :   in std_logic_vector(2 downto 0);            --from ID
-            ALUSrc          :   in std_logic;                               --from ID
-            Zero            :   out std_logic;                              --to MEM
-            fwd_mem_regmem  :   in std_logic;                               --from FWD Ctrl
-            NOP_to_MEM      :   in std_logic;                               --from Hazard Ctrl
-            Stall           :   in std_logic;
-            -- exception bits
-            exception_if_in :   in  std_logic;
-            exception_if_out:   out std_logic;
-            exception_id_in :   in  std_logic;
-            exception_id_out:   out std_logic;
-            exception_exe   :   out std_logic;
-            -- Exception-related registers
-            Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
-            Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
-            Exc_Cause_in     : in std_logic_vector(31 downto 0);
-            Exc_Cause_out    : out std_logic_vector(31 downto 0);
-            Exc_EPC_in       : in std_logic_vector(31 downto 0);
-            Exc_EPC_out      : out std_logic_vector(31 downto 0));
+          pc_up               :   in  std_logic_vector(31 downto 0);  --from ID
+          opcode              :   in  std_logic_vector(5 downto 0);   --from ID
+          rs                  :   in  std_logic_vector(31 downto 0);  --from ID
+          rt                  :   in  std_logic_vector(31 downto 0);  --from ID
+          sign_ext            :   in  std_logic_vector(31 downto 0);  --from ID
+          zero_ext            :   in  std_logic_vector(31 downto 0);  --from ID
+          addr_rt_in          :   in  std_logic_vector(5 downto 0);   --from ID
+          addr_rt_out         :   out std_logic_vector(5 downto 0);   --to Hazard Ctrl
+          addr_rd             :   in  std_logic_vector(5 downto 0);   --from ID
+          addr_jump_in        :   in  std_logic_vector(31 downto 0);  --from ID
+          addr_jump_out       :   out std_logic_vector(31 downto 0);  --to IF
+          addr_branch         :   out std_logic_vector(31 downto 0);  --to LOOKUP,then IF
+          alu_res             :   out std_logic_vector(31 downto 0);  --to LOOKUP
+          write_data_in       :   in  std_logic_vector(31 downto 0);  --from ID
+          write_data_out      :   out std_logic_vector(31 downto 0);  --to LOOKUP
+          addr_regw           :   out std_logic_vector(5 downto 0);   --to LOOKUP,CACHE,WB, then IF
+          fwd_path_alu        :   out std_logic_vector(31 downto 0);  --to ID         [FWD]
+          fwd_path_lookup     :   in  std_logic_vector(31 downto 0);  --from LOOKUP   [FWD]
+          fwd_path_cache      :   in  std_logic_vector(31 downto 0);  --from CACHE    [FWD]
+          -- control signals
+          clk                 :   in  std_logic;
+          RegWrite_in         :   in  std_logic;                      --from ID
+          RegWrite_out        :   out std_logic;                      --to LOOKUP,CACHE,WB, then ID
+          Jump_in             :   in  std_logic;                      --from ID
+          Jump_out            :   out std_logic;                      --to IF
+          Branch_in           :   in  std_logic;                      --from ID
+          Branch_out          :   out std_logic;                      --to LOOKUP
+          MemRead_in          :   in  std_logic;                      --from ID 
+          MemRead_out         :   out std_logic;                      --to LOOKUP
+          MemWrite_in         :   in  std_logic;                      --from ID  
+          MemWrite_out        :   out std_logic;                      --to LOOKUP    
+          ByteAddress_in      :   in  std_logic;                      --from ID
+          ByteAddress_out     :   out std_logic;                      --from LOOKUP
+          WordAddress_in      :   in  std_logic;                      --from ID
+          WordAddress_out     :   out std_logic;                      --from LOOKUP  
+          MemtoReg_in         :   in  std_logic;                      --from EXE
+          MemtoReg_out        :   out std_logic;                      --to LOOKUP,CACHE,WB
+          RegDst              :   in  std_logic;                      --from ID
+          ALUOp               :   in  std_logic_vector(2 downto 0);   --from ID
+          ALUSrc              :   in  std_logic;                      --from ID
+          Zero                :   out std_logic;                      --to LOOKUP
+          fwd_lookup_regmem   :   in  std_logic;                      --from FWD Ctrl
+          fwd_cache_regmem    :   in  std_logic;                      --from FWD Ctrl
+          NOP_to_L            :   in  std_logic;                      --from Hazard Ctrl
+          Stall               :   in  std_logic;
+          -- exception bits
+          exception_if_in     :   in  std_logic;
+          exception_if_out    :   out std_logic;
+          exception_id_in     :   in  std_logic;
+          exception_id_out    :   out std_logic;
+          exception_exe       :   out std_logic;
+          -- Exception-related registers
+          Exc_BadVAddr_in     :   in  std_logic_vector(31 downto 0);
+          Exc_BadVAddr_out    :   out std_logic_vector(31 downto 0);
+          Exc_Cause_in        :   in  std_logic_vector(31 downto 0);
+          Exc_Cause_out       :   out std_logic_vector(31 downto 0);
+          Exc_EPC_in          :   in  std_logic_vector(31 downto 0);
+          Exc_EPC_out         :   out std_logic_vector(31 downto 0));
 
-            
+       
 end execute;
 
 architecture Structure of execute is
@@ -80,10 +82,10 @@ architecture Structure of execute is
             sign_ext_out    :   out std_logic_vector(31 downto 0);
             zero_ext_in     :   in  std_logic_vector(31 downto 0);  
             zero_ext_out    :   out std_logic_vector(31 downto 0);
-            addr_rt_in      :   in  std_logic_vector(4 downto 0);       
-            addr_rt_out     :   out std_logic_vector(4 downto 0);   
-            addr_rd_in      :   in  std_logic_vector(4 downto 0);       
-            addr_rd_out     :   out std_logic_vector(4 downto 0);   
+            addr_rt_in      :   in  std_logic_vector(5 downto 0);       
+            addr_rt_out     :   out std_logic_vector(5 downto 0);   
+            addr_rd_in      :   in  std_logic_vector(5 downto 0);       
+            addr_rd_out     :   out std_logic_vector(5 downto 0);   
             addr_jump_in    :   in  std_logic_vector(31 downto 0);  
             addr_jump_out   :   out std_logic_vector(31 downto 0);  
             -- control signals
@@ -110,20 +112,20 @@ architecture Structure of execute is
             ALUSrc_in       :   in  std_logic;          
             ALUSrc_out      :   out std_logic;  
             -- register control signals
-            enable          :   in std_logic;
-            clk             :   in std_logic;
+            enable          :   in  std_logic;
+            clk             :   in  std_logic;
             
             -- exceptions
-            exception_if_in   : in std_logic;
+            exception_if_in   : in  std_logic;
             exception_if_out  : out std_logic;
-            exception_id_in   : in std_logic;
+            exception_id_in   : in  std_logic;
             exception_id_out  : out std_logic;
             -- Exception-related registers
-            Exc_BadVAddr_in  : in std_logic_vector(31 downto 0);
+            Exc_BadVAddr_in  : in  std_logic_vector(31 downto 0);
             Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
-            Exc_Cause_in     : in std_logic_vector(31 downto 0);
+            Exc_Cause_in     : in  std_logic_vector(31 downto 0);
             Exc_Cause_out    : out std_logic_vector(31 downto 0);
-            Exc_EPC_in       : in std_logic_vector(31 downto 0);
+            Exc_EPC_in       : in  std_logic_vector(31 downto 0);
             Exc_EPC_out      : out std_logic_vector(31 downto 0));
 
     end component;
@@ -134,8 +136,8 @@ architecture Structure of execute is
     signal rt_reg           :   std_logic_vector(31 downto 0);
     signal sign_ext_reg     :   std_logic_vector(31 downto 0);
     signal zero_ext_reg     :   std_logic_vector(31 downto 0);  
-    signal addr_rt_reg      :   std_logic_vector(4 downto 0);       
-    signal addr_rd_reg      :   std_logic_vector(4 downto 0);   
+    signal addr_rt_reg      :   std_logic_vector(5 downto 0);       
+    signal addr_rd_reg      :   std_logic_vector(5 downto 0);   
     signal addr_jump_reg    :   std_logic_vector(31 downto 0);  
     signal RegWrite_reg     :   std_logic;  
     signal Jump_reg         :   std_logic;  
@@ -197,7 +199,7 @@ begin
     -- ID/EXE Register 
     ID_EXE_register : id_exe_reg
     port map(pc_up_in       => pc_up,
-             pc_up_out      =>  pc_up_reg,
+             pc_up_out      => pc_up_reg,
              opcode_in      => opcode,
              opcode_out     => opcode_reg,
              rs_in          => rs,
@@ -214,30 +216,30 @@ begin
              addr_rd_out    => addr_rd_reg,
              addr_jump_in   => addr_jump_in,
              addr_jump_out  => addr_jump_reg,
-             RegWrite_in    =>  RegWrite_in,
+             RegWrite_in    => RegWrite_in,
              RegWrite_out   => RegWrite_reg,
-             Jump_in        =>  Jump_in,
+             Jump_in        => Jump_in,
              Jump_out       => Jump_reg,
-             Branch_in      =>  Branch_in,
-             Branch_out     =>  Branch_reg,
-             MemRead_in     =>  MemRead_in,
-             MemRead_out    =>  MemRead_reg,
-             MemWrite_in    =>  MemWrite_in,
-             MemWrite_out   =>  MemWrite_reg,
-             ByteAddress_in =>  ByteAddress_in,
+             Branch_in      => Branch_in,
+             Branch_out     => Branch_reg,
+             MemRead_in     => MemRead_in,
+             MemRead_out    => MemRead_reg,
+             MemWrite_in    => MemWrite_in,
+             MemWrite_out   => MemWrite_reg,
+             ByteAddress_in => ByteAddress_in,
              ByteAddress_out=> ByteAddress_reg,
-             WordAddress_in =>  WordAddress_in,
-             WordAddress_out=>  WordAddress_reg,
-             MemtoReg_in    =>  MemtoReg_in,
-             MemtoReg_out   =>  MemtoReg_reg,
+             WordAddress_in => WordAddress_in,
+             WordAddress_out=> WordAddress_reg,
+             MemtoReg_in    => MemtoReg_in,
+             MemtoReg_out   => MemtoReg_reg,
              RegDst_in      => RegDst,
              RegDst_out     => RegDst_reg,
              ALUOp_in       => ALUOp,
-             ALUOp_out      =>  ALUOp_reg,
-             ALUSrc_in      =>  ALUSrc,
-             ALUSrc_out     =>  ALUSrc_reg,
+             ALUOp_out      => ALUOp_reg,
+             ALUSrc_in      => ALUSrc,
+             ALUSrc_out     => ALUSrc_reg,
              enable         => enable,
-             clk             => clk,
+             clk            => clk,
              -- exceptions 
              exception_if_in  => exception_if_in,
              exception_if_out => exception_if_reg,
@@ -252,12 +254,12 @@ begin
              Exc_EPC_out       => Exc_EPC_reg);
 
     -- Output the exception (and put exceptions through)
-    exception_if_out <= exception_if_reg when NOP_to_MEM = '0' else
+    exception_if_out <= exception_if_reg when NOP_to_L = '0' else
                         '0';
-    exception_id_out <= exception_id_reg when NOP_to_MEM = '0' else
+    exception_id_out <= exception_id_reg when NOP_to_L = '0' else
                         '0';
-    exception_exe <= exception_internal when NOP_to_MEM = '0' else
-                     '0';
+    exception_exe    <= exception_internal when NOP_to_L = '0' else
+                        '0';
     -- Output the exception registers, change when needed
     Exc_BadVaddr_out <= Exc_BadVAddr_reg;
     Exc_EPC_out <= Exc_EPC_reg;
@@ -266,25 +268,26 @@ begin
                      Exc_Cause_reg;
 
 
-   -- NOP IMPLEMENTATION
+    -- NOP IMPLEMENTATION
     -- pulling to zero the bits that can modify the state of the processor seems enough (not all needed)
     addr_jump_out   <= addr_jump_reg;
-    write_data_out  <= fwd_path_mem     when fwd_mem_regmem = '1' else
+    write_data_out  <= fwd_path_cache      when fwd_cache_regmem = '1' else
+                       fwd_path_lookup     when fwd_lookup_regmem = '1' else
                        write_data_in;
 
-    RegWrite_out    <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
+    RegWrite_out    <= '0' when NOP_to_L = '1' or exception_internal = '1' else
                         RegWrite_reg;
                         
-    Jump_out        <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
+    Jump_out        <= '0' when NOP_to_L = '1' or exception_internal = '1' else
                        Jump_reg;
-    Branch_out      <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
+    Branch_out      <= '0' when NOP_to_L = '1' or exception_internal = '1' else
                        Branch_reg;
     
-    MemRead_out     <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
-                            MemRead_reg;
+    MemRead_out     <= '0' when NOP_to_L = '1' or exception_internal = '1' else
+                        MemRead_reg;
                             
-    MemWrite_out    <= '0' when NOP_to_MEM = '1' or exception_internal = '1' else
-                            MemWrite_reg;
+    MemWrite_out    <= '0' when NOP_to_L = '1' or exception_internal = '1' else
+                        MemWrite_reg;
     ByteAddress_out <= ByteAddress_reg;
     WordAddress_out <= WordAddress_reg;
     MemtoReg_out    <=  MemtoReg_reg;
@@ -314,14 +317,14 @@ begin
                       rt_reg;
     
     integer_alu : alu
-    port map(a      => alusrc_a_mux,
-             b      => shiftsrc_mux,
-             res    => alu_result,
-             Zero   =>  Zero,
+    port map(a        => alusrc_a_mux,
+             b        => shiftsrc_mux,
+             res      => alu_result,
+             Zero     =>  Zero,
              Overflow => exception_internal,
              --CarryOut =>
-             funct  => sign_ext_reg(5 downto 0),
-             ALUOp  => ALUOp_control); 
+             funct    => sign_ext_reg(5 downto 0),
+             ALUOp    => ALUOp_control); 
     
     fwd_path_alu <= alu_result;
     alu_res      <= alu_result;

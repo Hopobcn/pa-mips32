@@ -3,13 +3,14 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
-entity icache_controller is
+entity dcache_controller is
     port (-- Interface with the Processor
           PrRd          : in  std_logic;
           PrWr          : in  std_logic;
           Ready         : out std_logic;
           -- Interface with cache_fields
           Hit           : in  std_logic;
+          State         : in  std_logic;
           WriteTags     : out std_logic;
           WriteState    : out std_logic;
           WriteCache    : out std_logic;
@@ -24,9 +25,9 @@ entity icache_controller is
           clk           : in  std_logic;
           reset         : in  std_logic);
 
-end icache_controller;
+end dcache_controller;
 
-architecture Structure of icache_controller is
+architecture Structure of dcache_controller is
     type proc_state_type is (PROC_IDLE,PROC_LOAD_MISS_WAIT,PROC_STORE_HIT_WAIT,PROC_STORE_MISS_WAIT);
     signal procCurrState, procNextState : proc_state_type;
 
@@ -91,8 +92,7 @@ begin
         WriteTags  <= '0';
         WriteState <= '0';
         WriteCache <= '0';
-        muxDataR   <= '0';
-        -- Comentades les senyals que no cal inicialitzar en cada Estat
+         -- Comentades les senyals que no cal inicialitzar en cada Estat
         case procCurrState is
         when PROC_IDLE =>
             if (BusReady = '1') then

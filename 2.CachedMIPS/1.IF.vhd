@@ -4,20 +4,22 @@ use ieee.std_logic_unsigned.all;
 
 entity instruction_fetch is
     port (-- buses
-          addr_jump       :   in  std_logic_vector(31 downto 0);  --from MEM
-          addr_branch     :   in  std_logic_vector(31 downto 0);  --from MEM
+          addr_jump       :   in  std_logic_vector(31 downto 0);  --from EXE
+          addr_branch     :   in  std_logic_vector(31 downto 0);  --from LOOKUP
+          pc              :   out std_logic_vector(31 downto 0);  --to Main Memory BUS
           pc_up           :   out std_logic_vector(31 downto 0);  --to stage ID
           instruction     :   out std_logic_vector(31 downto 0);  --to stage ID
-			 busDataMem  	  :   in std_logic_vector(31 downto 0);   --to Main Memory
+          busDataMem      :   in  std_logic_vector(127 downto 0);  --to Main Memory
           -- control signals
-          clk             :   in std_logic;
-          boot            :   in std_logic;
-          Jump            :   in std_logic;                       --from MEM
-          PCSrc           :   in std_logic;                       --from MEM
-          ExceptionJump   :   in std_logic;                       --from Exception Ctrl
-          NOP_to_ID       :   in std_logic;                       --from Hazard Ctrl
-          Stall           :   in std_logic;                       --from Hazard Ctrl	 
-			 BusRd           :   out std_logic;                      --to Main Memory
+          clk             :   in  std_logic;
+          boot            :   in  std_logic;
+          Jump            :   in  std_logic;                      --from EXE
+          PCSrc           :   in  std_logic;                      --from LOOKUP
+          ExceptionJump   :   in  std_logic;                      --from Exception Ctrl
+			 IC_Ready        :   out std_logic;                      --to Hazard Ctrl
+          NOP_to_ID       :   in  std_logic;                      --from Hazard Ctrl
+          Stall           :   in  std_logic;                      --from Hazard Ctrl     
+          BusRd           :   out std_logic;                      --to Main Memory
           BusWr           :   out std_logic;                      --to Main Memory
           BusReady        :   in  std_logic;                      --to Main Memory
           -- exception bits
@@ -41,17 +43,17 @@ architecture Structure of instruction_fetch is
     end component;
     
     component inst_cache is
-	 port (addr			:	in std_logic_vector(31 downto 0);
-			 instruction:	out std_logic_vector(31 downto 0);
-			 busDataMem :  in std_logic_vector(31 downto 0);
-			 -- control signal
-			 BusRd      :  out std_logic;
-          BusWr      :  out std_logic;
-          BusReady   :  in  std_logic;
-			 Ready 		:  out std_logic;
-			 clk			:	in  std_logic;
-			 boot			:	in  std_logic);
-    end inst_cache;
+    port (addr       : in  std_logic_vector(31 downto 0);
+          instruction: out std_logic_vector(31 downto 0);
+          busDataMem : in  std_logic_vector(127 downto 0);
+          -- control signal
+          BusRd      : out std_logic;
+          BusWr      : out std_logic;
+          BusReady   : in  std_logic;
+          Ready      : out std_logic;
+          clk        : in  std_logic;
+          reset      : in  std_logic);
+    end component;
 
     signal pc_up_tmp        :   std_logic_vector(31 downto 0);
     signal pc_tmp           :   std_logic_vector(31 downto 0);
@@ -70,21 +72,24 @@ begin
                        pc_tmp + x"00000004";
     
     program_counter :   reg_pc
-    port map(pc_up      =>  pc_up_tmp,
-                pc      => pc_tmp,
-                Stall   => Stall,
-                clk     => clk,
-                boot    => boot);
-				 
-	 instruction_cache	: 	inst_cache
-	 port map(addr 		=> pc_tmp,
-				 instruction=> instruction_read,
-				 busDataMem	=> busDataMem,
-				 BusRd		=> BusRd,
-				 BusWr		=> BusWr,
-				 BusReady	=> BusReady,
-				 Ready		=> );
+    port map(pc_up       =>  pc_up_tmp,
+                pc       => pc_tmp,
+                Stall    => Stall,
+                clk      => clk,
+                boot     => boot);
+                 
+     instruction_cache  :   inst_cache
+     port map(addr       => pc_tmp,
+              instruction=> instruction_read,
+              busDataMem => busDataMem,
+              BusRd      => BusRd,
+              BusWr      => BusWr,
+              BusReady   => BusReady,
+              Ready      => IC_Ready,
+              clk        => clk,
+              reset      => boot);
     
+    pc    <= pc_tmp;
     pc_up <= pc_up_tmp;
     
     -- Exception (to be fully implemented with virtual memory)
