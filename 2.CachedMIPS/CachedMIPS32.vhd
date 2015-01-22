@@ -303,6 +303,7 @@ architecture Structure of CachedMIPS32 is
             addr_regw       :   out std_logic_vector(4 downto 0);   --to 8.WB
             -- control signals
             clk             :   in std_logic;
+            boot            :   in std_logic;
             Stall           :   in std_logic;
             doinstruction   :   in  std_logic;
             write_output    :   out std_logic);
@@ -920,6 +921,7 @@ begin
              addr_regw      => lp_addr_regw,
              -- control signals
              clk            => clk,
+             boot           => boot,
              Stall          => lp_Stall,
              doinstruction  => lp_doinst,
              write_output   => lp_write_output);

@@ -11,6 +11,7 @@ entity longinstruction is
             addr_regw       :   out std_logic_vector(4 downto 0);   --to 8.WB
             -- control signals
             clk             :   in std_logic;
+            boot            :   in std_logic;
             Stall           :   in std_logic;
             doinstruction   :   in  std_logic;
             write_output    :   out std_logic);
@@ -50,8 +51,24 @@ architecture Structure of longinstruction is
     signal doinst_reg23  : std_logic;
     signal doinst_reg34  : std_logic;
     signal doinst_reg45  : std_logic;
+    
+    signal doinst_reg12bis  : std_logic;
+    signal doinst_reg23bis  : std_logic;
+    signal doinst_reg34bis  : std_logic;
+    signal doinst_reg45bis  : std_logic;
+
 
 begin
+
+    doinst_reg12bis <= '0' when boot = '1' else
+                      '1';
+    doinst_reg23bis <= '0' when boot = '1' else
+                      '1';
+    doinst_reg34bis <= '0' when boot = '1' else
+                      '1';
+    doinst_reg45bis <= '0' when boot = '1' else
+                      '1';
+
     stage1 : LI_stage
     port map(-- buses
              rs_in          => rs,
@@ -77,7 +94,7 @@ begin
              -- control signals
              clk            => clk,
              Stall          => Stall,
-             doinst_in      => doinst_reg12,
+             doinst_in      => doinst_reg12bis,
              doinst_out     => doinst_reg23);
     
     stage3 : LI_stage
@@ -91,7 +108,7 @@ begin
              -- control signals
              clk            => clk,
              Stall          => Stall,
-             doinst_in      => doinst_reg23,
+             doinst_in      => doinst_reg23bis,
              doinst_out     => doinst_reg34);
     
     stage4 : LI_stage
@@ -105,7 +122,7 @@ begin
              -- control signals
              clk            => clk,
              Stall          => Stall,
-             doinst_in      => doinst_reg34,
+             doinst_in      => doinst_reg34bis,
              doinst_out     => doinst_reg45);
 
     stage5 : LI_stage
@@ -119,7 +136,7 @@ begin
              -- control signals
              clk            => clk,
              Stall          => Stall,
-             doinst_in      => doinst_reg45,
+             doinst_in      => doinst_reg45bis,
              doinst_out     => write_output);
 
 end Structure;

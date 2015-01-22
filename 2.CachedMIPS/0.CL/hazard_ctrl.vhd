@@ -33,8 +33,6 @@ end hazard_ctrl;
 architecture Structure of hazard_ctrl is
     
 begin
-                
-  
                        
     stall_logic : process(idRegisterRs,idRegisterRt,exeRegisterRt,exeMemRead,Branch,Jump,Exception,Interrupt,IC_Ready,DC_Ready)
     begin

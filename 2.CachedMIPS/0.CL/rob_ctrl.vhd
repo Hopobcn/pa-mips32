@@ -56,7 +56,7 @@ begin
         if (boot = '1') then
           i_head <= "000";
           i_tail <= "000";
-          empty <= '0';
+          empty <= '1';
         else
           if (except_flag = '1') then
             data(to_integer(unsigned(except_addr)))(102) <= '1';
@@ -103,9 +103,9 @@ begin
       end if;
     end process;
 
-    ready <= '0' when i_head /= i_tail else
-             '0' when empty = '1' else
-             '1';
+    ready <= '1' when i_head /= i_tail else
+             '1' when empty = '1' else
+             '0';
 
     tail <= i_tail;
 end Structure;
