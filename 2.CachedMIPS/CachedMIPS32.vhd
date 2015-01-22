@@ -333,6 +333,8 @@ architecture Structure of CachedMIPS32 is
           Interrupt_to_Exception_ctrl : out std_logic;
           IC_Ready        : in  std_logic;                     -- from IF (means Instruction Cache Ready (1 when hit) if 0 stall)
           DC_Ready        : in  std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
+          ROB_Ready       : in  std_logic;                     -- from ROB, indicating not-full state
+          ROB_Update      : out std_logic;                     -- to ROB, when we are not stalling ID
           -- control signals
           Stall_LP        : out std_logic;
           Stall_PC        : out std_logic;
@@ -390,6 +392,36 @@ architecture Structure of CachedMIPS32 is
           int_flag   : out std_logic;
           clk        : in  std_logic;
           boot       : in  std_logic); 
+    end component;
+    
+    component rob_ctrl is
+    port (
+      clk : in std_logic;
+      boot : in std_logic;
+
+      -- The exception flag, for a certain exception operation
+      except_flag : in std_logic;
+      except_addr : in std_logic_vector(2 downto 0);
+
+      -- The value flag, for storing an intermediate value
+      value_flag : in std_logic;
+      value_addr : in std_logic_vector(2 downto 0);
+      value_alu  : in std_logic_vector(31 downto 0);
+      -- ... and the memory address for stores
+      value_mem  : in std_logic_vector(31 downto 0);
+
+      -- To-RegisterFile signals
+      rf_write   : out std_logic;
+      rf_addr    : out std_logic_vector(4 downto 0);
+      rf_val     : out std_logic_vector(31 downto 0);
+
+      -- New entries (from decode stage)
+      newentry_flag  : in std_logic; -- UB if using this while full
+      newentry_store : in std_logic;
+
+      ready : out std_logic;  -- If head == tail and !empty, then we are full
+      tail  : out std_logic_vector(2 downto 0)
+    );
     end component;
  
     -- buses
@@ -519,7 +551,7 @@ architecture Structure of CachedMIPS32 is
     signal lp_Stall    : std_logic;
     
     --------------------------------
-	 ---     Memory Interface      --
+     ---     Memory Interface      --
     --------------------------------
     signal busRdDataMem             :   std_logic_vector(127 downto 0);
     signal busWrDataMem             :   std_logic_vector(31 downto 0);
@@ -589,6 +621,22 @@ architecture Structure of CachedMIPS32 is
     signal Exc_EPC_at_cache         :   std_logic_vector(31 downto 0);
     signal Exc_EPC_at_wb            :   std_logic_vector(31 downto 0);
     signal Exc_EPC_to_id            :   std_logic_vector(31 downto 0); -- write to register file
+    
+    -- The stuff for the ReOrderBuffer
+    signal ROB_Update_ToROB         :   std_logic;
+    signal ROB_Ready_FromROB        :   std_logic;
+    signal ROB_tail                 :   std_logic_vector(2 downto 0);
+    signal ROB_except_flag          :   std_logic;
+    signal ROB_except_addr          :   std_logic_vector(2 downto 0);
+    signal ROB_value_flag           :   std_logic;
+    signal ROB_value_addr           :   std_logic_vector(2 downto 0);
+    signal ROB_value_alu            :   std_logic_vector(31 downto 0);
+    signal ROB_value_mem            :   std_logic_vector(31 downto 0);
+    signal ROB_rf_write             :   std_logic;
+    signal ROB_rf_addr              :   std_logic_vector(4 downto 0);
+    signal ROB_rf_val               :   std_logic_vector(31 downto 0);
+    signal ROB_newentry_store       :   std_logic;
+
   
     -- The signals from exception_ctrl to writeback
     signal writeEPC_to_wb           :   std_logic;
@@ -753,7 +801,7 @@ begin
 
            --  write_data_mem      => write_data_3to4,
            --  write_data_rb       => register_d_4to5,
-			 
+             
     fourth_stage   : lookup
     port map(addr_branch_in     => addr_branch_3to4,
              addr_branch_out    => addr_branch_4to1,
@@ -810,20 +858,20 @@ begin
              write_data_mem     => write_data_4to5, 
              addr_regw_in       => addr_regw_4to5,
              addr_regw_out      => addr_regw_5to6,
-			    write_data_reg     => register_d_5to6,
+                write_data_reg     => register_d_5to6,
              fwd_path_cache     => fwd_path_cache_5to2and3and4,
              busDataMem         => busRdDataMem,
              clk                => clk,
              RegWrite_in        => RegWrite_4to5,
              RegWrite_out       => RegWrite_5to6,
-			    ByteAddress        => ByteAddress_4to5,
+                ByteAddress        => ByteAddress_4to5,
              WordAddress        => WordAddress_4to5,
-			    MemtoReg           => MemtoReg_4to5,
-			    WriteCache         => WriteCache_4to5,
+                MemtoReg           => MemtoReg_4to5,
+                WriteCache         => WriteCache_4to5,
              muxDataR           => muxDataR_4to5,
              muxDataW           => muxDataW_4to5,
              NOP_to_WB          => NOP_HazardCtrlto5,
-			    -- exception bits
+                -- exception bits
              exception_if_in    => exception_if_at_lookup,
              exception_if_out   => exception_if_at_cache,
              exception_id_in    => exception_id_at_lookup,
@@ -831,8 +879,8 @@ begin
              exception_exe_in   => exception_exe_at_lookup,
              exception_exe_out  => exception_exe_at_cache,
              exception_lookup_in  => exception_lookup_at_lookup,
-			    exception_lookup_out => exception_lookup_at_cache,
-			    exception_cache    => exception_cache_at_cache,
+                exception_lookup_out => exception_lookup_at_cache,
+                exception_cache    => exception_cache_at_cache,
              -- Exception-related registers
              Exc_BadVAddr_in    => Exc_BadVAddr_at_lookup,
              Exc_BadVAddr_out   => Exc_BadVAddr_at_cache,
@@ -840,7 +888,7 @@ begin
              Exc_Cause_out      => Exc_Cause_at_cache,
              Exc_EPC_in         => Exc_EPC_at_lookup,
              Exc_EPC_out        => Exc_EPC_at_cache );
-			 
+             
     sixth_stage :   write_back
     port map(write_data_in      => register_d_5to6,
              write_data_out     => register_d_6to2,
@@ -888,9 +936,9 @@ begin
     BusReady_DRAMto1 <= '0' when (BusRd_4toDRAM = '1' or BusWr_4toDRAM = '1') else
                         BusReady;
     BusReady_DRAMto5 <= BusReady;
-	 
+     
     DRAM : main_mem
-	 port map(addr               => busAddr,
+     port map(addr               => busAddr,
              write_data         => busWrDataMem, -- OBS: We never write Global mem, IC don't write and DC don't do refill operations
              read_data          => busRdDataMem,
              Rd                 => BusRd,
@@ -898,7 +946,7 @@ begin
              Ready              => BusReady,
              reset              => boot,
              clk                => clk);
-	
+    
     
     Jump_3toCtrl <= Jump_3to1;
     hazard_contol_logic : hazard_ctrl
@@ -910,7 +958,9 @@ begin
              Jump               => Jump_3toCtrl,
              Exception          => Exception_ExcepCtrlOut,
              Interrupt          => Interrupt_InterruptCtrltoHazaardCtrl,
-				 Interrupt_to_Exception_ctrl => Interrupt_ExceptionCtrlfromHazardCtrl,
+                 Interrupt_to_Exception_ctrl => Interrupt_ExceptionCtrlfromHazardCtrl,
+             ROB_Ready          => ROB_Ready_FromROB,
+             ROB_Update         => ROB_Update_ToROB,
              IC_Ready           => instCacheReady_1toCtrl,
              DC_Ready           => dataCacheReady_4toCtrl,
              Stall_LP           => Stall_HazardCtrltoLP,
@@ -956,6 +1006,23 @@ begin
              wbexc_writeEPC      => writeEPC_to_wb,
              wbexc_writeBadVAddr => writeBadVAddr_to_wb,
              wbexc_writeCause    => writeCause_to_wb); 
+       
+    rob_control_logic : rob_ctrl
+    port map (clk   => clk,
+          boot  => boot,
+          except_flag => ROB_except_flag,
+          except_addr => ROB_except_addr,
+          value_flag => ROB_value_flag,
+          value_addr => ROB_value_addr,
+          value_alu  => ROB_value_alu,
+          value_mem  => ROB_value_mem,
+          rf_write   => ROB_rf_write,
+          rf_addr    => ROB_rf_addr,
+          rf_val     => ROB_rf_val,
+          newentry_flag  => ROB_Update_ToROB,
+          newentry_store => ROB_newentry_store,
+          ready => ROB_Ready_FromROB,
+          tail  => ROB_tail);
 
     interrupts_control_logic : interrupt_ctrl
     port map(interrupt          => external_interrupt,
@@ -963,5 +1030,5 @@ begin
              int_flag           => Interrupt_InterruptCtrltoHazaardCtrl,
              clk                => clk,
              boot               => boot ); 
-	 
+     
 end Structure;
