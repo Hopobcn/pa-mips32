@@ -7,7 +7,7 @@ entity icache_fields is
     port (-- data buses
           write_data    : in  std_logic_vector(127 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
-          tag           : in  std_logic_vector(24 downto 0);
+          tag           : in  std_logic_vector(22 downto 0);
           index         : in  std_logic_vector(4 downto 0);
           block_offset  : in  std_logic_vector(1 downto 0);
           nextState     : in  std_logic;
@@ -25,8 +25,8 @@ architecture Structure of icache_fields is
     component itags is
     port (-- data buses
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
-          tagWrite      : in  std_logic_vector(24 downto 0);
-          tagRead       : out std_logic_vector(24 downto 0);
+          tagWrite      : in  std_logic_vector(22 downto 0);
+          tagRead       : out std_logic_vector(22 downto 0);
           -- control signals
           WriteEnable   : in  std_logic);
     end component;
@@ -50,7 +50,7 @@ architecture Structure of icache_fields is
           WriteEnable   : in  std_logic);
     end component;
     
-    signal tagRead      : std_logic_vector(24 downto 0);
+    signal tagRead      : std_logic_vector(22 downto 0);
     signal currentState : std_logic;
     signal tag_compare  : std_logic;
 begin

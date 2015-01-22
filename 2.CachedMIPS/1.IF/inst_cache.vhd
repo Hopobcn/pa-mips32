@@ -22,7 +22,7 @@ architecture Structure of inst_cache is
     port (-- data buses
           write_data    : in  std_logic_vector(127 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
-          tag           : in  std_logic_vector(24 downto 0);
+          tag           : in  std_logic_vector(22 downto 0);
           index         : in  std_logic_vector(4 downto 0);
           block_offset  : in  std_logic_vector(1 downto 0);
           nextState     : in  std_logic;
@@ -72,9 +72,9 @@ begin
     FIELDS : icache_fields
     port map(write_data     => writeCache,
              read_data      => readCache,
-             tag            => addr(31 downto 7),
-             index          => addr(6 downto 2),
-             block_offset   => addr(1 downto 0),
+             tag            => addr(31 downto 9),
+             index          => addr(8 downto 4),
+             block_offset   => addr(3 downto 2),
              nextState      => nextState_wire,
              WriteTags      => WriteTags_wire,
              WriteState     => WriteState_wire,

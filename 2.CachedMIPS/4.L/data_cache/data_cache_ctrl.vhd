@@ -92,6 +92,8 @@ begin
         WriteTags  <= '0';
         WriteState <= '0';
         WriteCache <= '0';
+        muxDataR   <= '0';
+        muxDataW   <= '0';
          -- Comentades les senyals que no cal inicialitzar en cada Estat
         case procCurrState is
         when PROC_IDLE =>
