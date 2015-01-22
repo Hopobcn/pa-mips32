@@ -6,6 +6,8 @@ use ieee.std_logic_unsigned.all;
 entity data_cache_lookup is
     port (addr        :  in  std_logic_vector(31 downto 0);
           -- control signals;
+          PrRd        :  in  std_logic;
+          PrWr        :  in  std_logic;
           Ready       :  out std_logic;
           WriteCache  :  out std_logic;
           -- periferics
@@ -74,8 +76,8 @@ begin
 				 State          => State_wire);
      
      CONTROLLER : dcache_controller
-     port map(PrRd          => '1',
-              PrWr          => '0',
+     port map(PrRd          => PrRd,
+              PrWr          => PrWr,
               Ready         => Ready,
               Hit           => Hit_wire,
               State         => State_wire,

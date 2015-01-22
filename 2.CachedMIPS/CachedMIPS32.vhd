@@ -532,7 +532,7 @@ architecture Structure of CachedMIPS32 is
     signal Exc_BadVAddr_at_exe      :   std_logic_vector(31 downto 0);
     signal Exc_BadVAddr_at_lookup   :   std_logic_vector(31 downto 0);
     signal Exc_BadVAddr_at_cache    :   std_logic_vector(31 downto 0);
-    signal Exc_BadVAddr_at_wb       :   std_logic_vector(31 downto 0);
+    --signal Exc_BadVAddr_at_wb       :   std_logic_vector(31 downto 0);
     signal Exc_BadVAddr_to_id       :   std_logic_vector(31 downto 0); -- write to register file
   
     -- Cause register
@@ -541,7 +541,7 @@ architecture Structure of CachedMIPS32 is
     signal Exc_Cause_at_exe         :   std_logic_vector(31 downto 0);
     signal Exc_Cause_at_lookup      :   std_logic_vector(31 downto 0);
     signal Exc_Cause_at_cache       :   std_logic_vector(31 downto 0);
-    signal Exc_Cause_at_wb          :   std_logic_vector(31 downto 0);
+    --signal Exc_Cause_at_wb          :   std_logic_vector(31 downto 0);
     signal Exc_Cause_to_id          :   std_logic_vector(31 downto 0); -- write to register file
   
     -- EPC register
@@ -550,7 +550,7 @@ architecture Structure of CachedMIPS32 is
     signal Exc_EPC_at_exe           :   std_logic_vector(31 downto 0);
     signal Exc_EPC_at_lookup        :   std_logic_vector(31 downto 0);
     signal Exc_EPC_at_cache         :   std_logic_vector(31 downto 0);
-    signal Exc_EPC_at_wb            :   std_logic_vector(31 downto 0);
+    --signal Exc_EPC_at_wb            :   std_logic_vector(31 downto 0);
     signal Exc_EPC_to_id            :   std_logic_vector(31 downto 0); -- write to register file
   
     -- The signals from exception_ctrl to writeback
@@ -640,10 +640,10 @@ begin
              Exc_Cause_out      => Exc_Cause_at_id,
              Exc_EPC_in         => Exc_EPC_at_if,
              Exc_EPC_out        => Exc_EPC_at_id,
-             -- coprocessor 0 exception-related
-             Exc_BadVAddr_to_regfile   => Exc_BadVAddr_at_wb,
-             Exc_Cause_to_regfile      => Exc_Cause_at_wb,
-             Exc_EPC_to_regfile        => Exc_EPC_at_wb,
+             -- coprocessor 0 exception-related              
+             Exc_BadVAddr_to_regfile   => Exc_BadVAddr_to_id, --Exc_BadVAddr_at_wb,
+             Exc_Cause_to_regfile      => Exc_Cause_to_id, --Exc_Cause_at_wb,
+             Exc_EPC_to_regfile        => Exc_EPC_to_id, --Exc_EPC_at_wb,
              writeBadVAddr_to_regfile  => writeBadVAddr_to_id,
              writeCause_to_regfile     => writeCause_to_id,
              writeEPC_to_regfile       => writeEPC_to_id);

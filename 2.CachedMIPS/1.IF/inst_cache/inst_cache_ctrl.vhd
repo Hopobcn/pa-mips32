@@ -40,7 +40,7 @@ begin
         if (reset = '1') then
             procCurrState <= PROC_IDLE;
         elsif (rising_edge(clk)) then
-            procCurrState <= procNextState;
+            procCurrState <= procNextState after 10ps;
         end if;
     end process processor_state;
 
@@ -85,20 +85,21 @@ begin
 
     proc_output_logic : process(procCurrState,PrRd,PrWr,Hit,BusReady)
     begin
-        Ready      <= '1';
+        Ready      <= '0';
         BusRd      <= '0';
         BusWr      <= '0';
         WriteTags  <= '0';
         WriteState <= '0';
         WriteCache <= '0';
         muxDataR   <= '0';
+        muxDataW   <= '0';
         -- Comentades les senyals que no cal inicialitzar en cada Estat
         case procCurrState is
         when PROC_IDLE =>
             if (BusReady = '1') then
                 Ready      <= (not PrWr) and ((Hit and PrRd) or (not PrRd));
-                BusRd      <= PrRd;
-                BusWr      <= PrWr;
+                BusRd      <= PrRd and not Hit;
+                BusWr      <= PrWr and not Hit;
                 WriteTags  <= '0';
                 WriteState <= '0';
                 WriteCache <= '0';
@@ -119,6 +120,8 @@ begin
                      
                 muxDataR   <= '1';
                 muxDataW   <= '1';
+            else
+                BusRd <= '1';
             end if;
         when PROC_STORE_HIT_WAIT =>
             if (BusReady = '1') then

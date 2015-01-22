@@ -21,22 +21,14 @@ architecture Structure of idata is
     signal container_128 : std_logic_vector(127 downto 0);
 begin
     
-    data_read : process(index)
-    begin
-        container_128 <= mem_data(to_integer(unsigned(index)));
+    container_128 <= mem_data(to_integer(unsigned(index)));
 
-        if (block_offset = "00") then
-            read_data <= container_128(31 downto 0);
-        elsif (block_offset = "01") then
-            read_data <= container_128(63 downto 32);
-        elsif (block_offset = "10") then
-            read_data <= container_128(95 downto 64);
-        else
-            read_data <= container_128(127 downto 96);
-        end if;
-    end process data_read;
+    read_data <= container_128( 31 downto  0) when block_offset = "00" else
+	              container_128( 63 downto 32) when block_offset = "01" else
+					  container_128( 95 downto 64) when block_offset = "10" else
+					  container_128(127 downto 96);
 
-    data_write : process(index)
+    data_write : process(index,write_data,WriteEnable)
     begin
         if (writeEnable = '1') then
             mem_data(to_integer(unsigned(index))) <= write_data;

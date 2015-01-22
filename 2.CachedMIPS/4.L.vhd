@@ -125,6 +125,8 @@ architecture Structure of lookup is
 	 component data_cache_lookup is
     port (addr        :  in  std_logic_vector(31 downto 0);
           -- control signals;
+          PrRd        :  in  std_logic;
+          PrWr        :  in  std_logic;
           Ready       :  out std_logic;
           WriteCache  :  out std_logic;
           -- periferics
@@ -204,6 +206,8 @@ begin
 
 	 TAGS_AND_STATE : data_cache_lookup
     port map(addr       => addr_reg,
+             PrRd       => MemRead_reg,
+             PrWr       => MemWrite_reg,
              Ready      => DC_Ready,
              WriteCache => WriteCache_reg,
              muxDataR   => muxDataR,

@@ -14,16 +14,16 @@ entity istate is
 end istate;
 
 architecture Structure of istate is
+    constant I    : std_logic := '0';
+    constant V    : std_logic := '1';
+	 
     type ARRAY_STATE is array (2**5-1 downto 0) of std_logic;
-    signal mem_state : ARRAY_STATE;
+    signal mem_state : ARRAY_STATE := (others => I);
 begin
     
-    read_state : process(index)
-    begin
-        state <= mem_state(to_integer(unsigned(index)));
-    end process read_state;
+    state <= mem_state(to_integer(unsigned(index)));
 
-    write_state : process(index)
+    write_state : process(index,nextState,WriteEnable)
     begin 
         if (WriteEnable = '1') then
             mem_state(to_integer(unsigned(index))) <= nextState;
