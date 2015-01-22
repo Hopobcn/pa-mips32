@@ -71,36 +71,30 @@ begin
               data(to_integer(unsigned(value_addr)))(104) <= '1'; -- value ready
             end if;
           end if;
-        end if;
-      end if;
-    end process;
-
-    -- Commit stores and prepare new entries
-    store_io : process(clk, boot)
-    begin
-      if (rising_edge(clk) AND (boot = '0')) then
-        -- Here, the commit-to-register-file part
-        if (data(to_integer(unsigned(i_head)))(38) = '1') then
-          -- proceed to commit a value to the register file
-          rf_write <= '1';
-          rf_addr <= data(to_integer(unsigned(i_head)))(36 downto 32);
-          rf_val <= data(to_integer(unsigned(i_head)))(31 downto 0);
-
-          i_head <= std_logic_vector(unsigned(i_head) + 1);
-          if (i_head = i_tail) then
-            empty <= '1';
+          
+          -- Here, the commit-to-register-file part
+          if (data(to_integer(unsigned(i_head)))(38) = '1') then
+            -- proceed to commit a value to the register file
+            rf_write <= '1';
+            rf_addr <= data(to_integer(unsigned(i_head)))(36 downto 32);
+            rf_val <= data(to_integer(unsigned(i_head)))(31 downto 0);
+  
+            i_head <= std_logic_vector(unsigned(i_head) + 1);
+            if (i_head = i_tail) then
+              empty <= '1';
+            end if;
+          else
+            rf_write <= '0';
           end if;
-        else
-          rf_write <= '0';
+  
+          -- Here, the add-a-member part
+          if (newentry_flag = '1') then
+            data(to_integer(unsigned(i_tail)))(104 downto 0) <= (others => '0');
+            i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
+            empty <= '0';
+          end if;
         end if;
-
-        -- Here, the add-a-member part
-        if (newentry_flag = '1') then
-          data(to_integer(unsigned(i_tail)))(104 downto 0) <= (others => '0');
-          i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
-          empty <= '0';
-        end if;
-      end if;
+    end if;
     end process;
 
     ready <= '1' when i_head /= i_tail else

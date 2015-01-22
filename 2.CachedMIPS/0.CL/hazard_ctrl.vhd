@@ -100,6 +100,7 @@ begin
             NOP_to_LP       <= '1';
             NOP_to_EXE      <= '1';
         elsif (not IC_Ready = '1') then
+            ROB_Update      <= '0';
             Stall_PC        <= '1';
             NOP_to_ID       <= '1';
         end if;
