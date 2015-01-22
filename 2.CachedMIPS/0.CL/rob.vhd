@@ -32,7 +32,7 @@ entity rob_ctrl is
 end rob_ctrl;
 
 architecture Structure of rob_ctrl is
-    type ROB_DATA is array (7 downto 0) of std_logic_vector(103 downto 0);
+    type ROB_DATA is array (7 downto 0) of std_logic_vector(104 downto 0);
     -- *** Data inside the structure (each std_logic_Vector) ***
     -- Bit 104 ValidData
     -- Bit 103 ReadyToStore

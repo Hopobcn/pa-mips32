@@ -15,10 +15,12 @@ entity hazard_ctrl is
           IC_Ready        : in  std_logic;                     -- from IF (means Instruction Cache Ready (1 when hit) if 0 stall)
           DC_Ready        : in  std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
           -- control signals
+          Stall_LP        : out std_logic;
           Stall_PC        : out std_logic;
           Stall_IF_ID     : out std_logic;
           Stall_ID_EXE    : out std_logic;
           Stall_EXE_LOOKUP: out std_logic;
+          NOP_to_LP       : out std_logic;
           NOP_to_ID       : out std_logic;
           NOP_to_EXE      : out std_logic;
           NOP_to_L        : out std_logic;

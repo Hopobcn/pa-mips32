@@ -334,10 +334,12 @@ architecture Structure of CachedMIPS32 is
           IC_Ready        : in  std_logic;                     -- from IF (means Instruction Cache Ready (1 when hit) if 0 stall)
           DC_Ready        : in  std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
           -- control signals
+          Stall_LP        : out std_logic;
           Stall_PC        : out std_logic;
           Stall_IF_ID     : out std_logic;
           Stall_ID_EXE    : out std_logic;
           Stall_EXE_LOOKUP: out std_logic;
+          NOP_to_LP       : out std_logic;
           NOP_to_ID       : out std_logic;
           NOP_to_EXE      : out std_logic;
           NOP_to_L        : out std_logic;
@@ -476,6 +478,7 @@ architecture Structure of CachedMIPS32 is
     
     signal Zero_3to4                :   std_logic;
     
+    signal Stall_HazardCtrltoLP     :   std_logic;
     signal Stall_HazardCtrlto1      :   std_logic;
     signal Stall_HazardCtrlto2      :   std_logic;
     signal Stall_HazardCtrlto3      :   std_logic;
@@ -487,6 +490,7 @@ architecture Structure of CachedMIPS32 is
     signal fwd_lookup_regmem_4to3   :   std_logic;
     signal fwd_cache_regmem_5to3    :   std_logic;
     
+    signal NOP_HazardCtrltoLP       :   std_logic;
     signal NOP_HazardCtrlto1        :   std_logic;
     signal NOP_HazardCtrlto2        :   std_logic;
     signal NOP_HazardCtrlto3        :   std_logic;
@@ -909,10 +913,12 @@ begin
 				 Interrupt_to_Exception_ctrl => Interrupt_ExceptionCtrlfromHazardCtrl,
              IC_Ready           => instCacheReady_1toCtrl,
              DC_Ready           => dataCacheReady_4toCtrl,
+             Stall_LP           => Stall_HazardCtrltoLP,
              Stall_PC           => Stall_HazardCtrlto1,
              Stall_IF_ID        => Stall_HazardCtrlto2,
              Stall_ID_EXE       => Stall_HazardCtrlto3,
              Stall_EXE_LOOKUP   => Stall_HazardCtrlto4,
+             NOP_to_LP          => NOP_HazardCtrltoLP,
              NOP_to_ID          => NOP_HazardCtrlto1,
              NOP_to_EXE         => NOP_HazardCtrlto2,
              NOP_to_L           => NOP_HazardCtrlto3,
