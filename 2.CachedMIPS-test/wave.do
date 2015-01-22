@@ -55,6 +55,19 @@ add wave -noupdate -group {Interrupt Control} -label {clear interrupts [in]} /ca
 add wave -noupdate -group {Interrupt Control} -label {interrupt flag [out]} /cachedmips32test/processor/interrupts_control_logic/int_flag
 add wave -noupdate -group {Interrupt Control} -label clk /cachedmips32test/processor/interrupts_control_logic/clk
 add wave -noupdate -group {Interrupt Control} -label boot /cachedmips32test/processor/interrupts_control_logic/boot
+add wave -noupdate -group {ReOrder Buffer} -label {Except Flag} /cachedmips32test/processor/rob_control_logic/except_flag
+add wave -noupdate -group {ReOrder Buffer} -label {Except Addr (in ROB)} /cachedmips32test/processor/rob_control_logic/except_addr
+add wave -noupdate -group {ReOrder Buffer} -label {Value Flag} /cachedmips32test/processor/rob_control_logic/value_flag
+add wave -noupdate -group {ReOrder Buffer} -label {Value Addr (in ROB)} /cachedmips32test/processor/rob_control_logic/value_addr
+add wave -noupdate -group {ReOrder Buffer} -label {Value (from ALU)} /cachedmips32test/processor/rob_control_logic/value_alu
+add wave -noupdate -group {ReOrder Buffer} -label {Value (mem address)} /cachedmips32test/processor/rob_control_logic/value_mem
+add wave -noupdate -group {ReOrder Buffer} -label {Register rf write} /cachedmips32test/processor/rob_control_logic/rf_write
+add wave -noupdate -group {ReOrder Buffer} -label {Register rf addr} /cachedmips32test/processor/rob_control_logic/rf_addr
+add wave -noupdate -group {ReOrder Buffer} -label {Register rf value} /cachedmips32test/processor/rob_control_logic/rf_val
+add wave -noupdate -group {ReOrder Buffer} -label {New Entry flag} /cachedmips32test/processor/rob_control_logic/newentry_flag
+add wave -noupdate -group {ReOrder Buffer} -label {New Entry store} /cachedmips32test/processor/rob_control_logic/newentry_store
+add wave -noupdate -group {ReOrder Buffer} -label Ready /cachedmips32test/processor/rob_control_logic/ready
+add wave -noupdate -group {ReOrder Buffer} -label Tail /cachedmips32test/processor/rob_control_logic/tail
 add wave -noupdate -divider 0.MEM
 add wave -noupdate -label addr -radix hexadecimal /cachedmips32test/processor/DRAM/addr
 add wave -noupdate -label write_data -radix hexadecimal /cachedmips32test/processor/DRAM/write_data
@@ -196,6 +209,7 @@ add wave -noupdate -group {Mux Write Data(dcache)} -label {fwd_alu_regmem [Contr
 add wave -noupdate -group {Mux Write Data(dcache)} -label {write_data [out]} /cachedmips32test/processor/second_stage/write_data
 add wave -noupdate -label sign_ext /cachedmips32test/processor/second_stage/sign_ext
 add wave -noupdate -label zero_ext /cachedmips32test/processor/second_stage/zero_ext
+add wave -noupdate -divider -height 30 3-7.LONGPIPE
 add wave -noupdate -divider -height 30 3.EXE
 add wave -noupdate -label addr_jump_out /cachedmips32test/processor/third_stage/addr_jump_out
 add wave -noupdate -label write_data_out /cachedmips32test/processor/third_stage/write_data_out
