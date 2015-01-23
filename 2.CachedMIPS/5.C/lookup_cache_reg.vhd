@@ -11,6 +11,8 @@ entity lookup_cache_reg is
           addr_regw_out        : out std_logic_vector(5 downto 0);   --to WB,ID
           busDataMem_in        : in  std_logic_vector(127 downto 0);  --from Main Memory
           busDataMem_out       : out std_logic_vector(127 downto 0);  --from Main Memory
+          rob_addr_in      : in  std_logic_vector(2 downto 0);
+          rob_addr_out     : out std_logic_vector(2 downto 0);
           -- control signals
           RegWrite_in          : in  std_logic;                      --from LOOKUP
           RegWrite_out         : out std_logic;                      --to WB, ID
@@ -60,7 +62,8 @@ begin
                 write_data_mem_out  <= write_data_mem_in;
                 addr_regw_out       <= addr_regw_in;
                 busDataMem_out      <= busDataMem_in;
-					 
+                rob_addr_out        <= rob_addr_in;
+                     
                 RegWrite_out        <= RegWrite_in;
                 ByteAddress_out     <= ByteAddress_in;
                 WordAddress_out     <= WordAddress_in;

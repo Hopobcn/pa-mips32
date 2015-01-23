@@ -48,14 +48,14 @@ architecture Structure of CachedMIPS32 is
           opcode          :   out std_logic_vector(5 downto 0);   --to EXE
           rs              :   out std_logic_vector(31 downto 0);  --to EXE
           rt              :   out std_logic_vector(31 downto 0);  --to EXE
-          rd              :   in  std_logic_vector(31 downto 0);  --from WB           
+          rd              :   in  std_logic_vector(31 downto 0);  --from WB
           sign_ext        :   out std_logic_vector(31 downto 0);  --to EXE
           zero_ext        :   out std_logic_vector(31 downto 0);  --to EXE
           addr_rs         :   out std_logic_vector(5 downto 0);   --to HAZARD CTRL
           addr_rt         :   out std_logic_vector(5 downto 0);   --to EXE
           addr_rd         :   out std_logic_vector(5 downto 0);   --to EXE
           write_data      :   out std_logic_vector(31 downto 0);  --to EXE,LOOKUP,CACHE
-          addr_regw       :   in  std_logic_vector(5 downto 0);   --from WB
+          addr_regw       :   in  std_logic_vector(4 downto 0);   --from WB
           fwd_path_alu    :   in  std_logic_vector(31 downto 0);  --from ALU    [FWD]
           fwd_path_lookup :   in  std_logic_vector(31 downto 0);  --from LOOKUP [FWD]
           fwd_path_cache  :   in  std_logic_vector(31 downto 0);  --from CACHE  [FWD]
@@ -126,6 +126,8 @@ architecture Structure of CachedMIPS32 is
           fwd_path_alu        :   out std_logic_vector(31 downto 0);  --to ID         [FWD]
           fwd_path_lookup     :   in  std_logic_vector(31 downto 0);  --from LOOKUP   [FWD]
           fwd_path_cache      :   in  std_logic_vector(31 downto 0);  --from CACHE    [FWD]
+          rob_addr_in         :   in  std_logic_vector(2 downto 0);   --ReOrder Buffer pipelined
+          rob_addr_out        :   out std_logic_vector(2 downto 0);
           -- control signals
           clk                 :   in  std_logic;
           RegWrite_in         :   in  std_logic;                      --from ID
@@ -179,6 +181,8 @@ architecture Structure of CachedMIPS32 is
           addr_regw_in       : in  std_logic_vector(5 downto 0);   --from EXE
           addr_regw_out      : out std_logic_vector(5 downto 0);   --to CACHE, WB, then IF
           fwd_path_lookup    : out std_logic_vector(31 downto 0);  --to ID [FWD]
+          rob_addr_in        : in  std_logic_vector(2 downto 0);   --ReOrder Buffer pipelined
+          rob_addr_out       : out std_logic_vector(2 downto 0);
           -- control signals
           clk                : in  std_logic;
           boot               : in  std_logic;
@@ -234,6 +238,8 @@ architecture Structure of CachedMIPS32 is
           write_data_reg       : out std_logic_vector(31 downto 0);  --to WB
           fwd_path_cache       : out std_logic_vector(31 downto 0);  --to ID [FWD]       
           busDataMem           : in  std_logic_vector(127 downto 0);  --from Main Memory
+          rob_addr_in          : in  std_logic_vector(2 downto 0);   --ReOrder Buffer pipelined
+          rob_addr_out         : out std_logic_vector(2 downto 0);
           -- control signals
           clk                  : in  std_logic;
           RegWrite_in          : in  std_logic;                      --from LOOKUP
@@ -273,6 +279,7 @@ architecture Structure of CachedMIPS32 is
           write_data_out   : out std_logic_vector(31 downto 0);  --to WB,ID
           addr_regw_in     : in  std_logic_vector(5 downto 0);   --from LOOKUP
           addr_regw_out    : out std_logic_vector(5 downto 0);   --to WB,ID
+          rob_addr         : in  std_logic_vector(2 downto 0);   --ReOrder Buffer pipelined
           -- control signals
           clk              : in std_logic;
           RegWrite_in      : in std_logic;
@@ -301,6 +308,8 @@ architecture Structure of CachedMIPS32 is
             addr_rd         :   in  std_logic_vector(4 downto 0);   --from ID
             write_data_out  :   out std_logic_vector(31 downto 0);  --to 8.WB
             addr_regw       :   out std_logic_vector(4 downto 0);   --to 8.WB
+            rob_addr_in     :   in  std_logic_vector(2 downto 0);   --ReOrder Buffer pipelined
+            rob_addr_out    :   out std_logic_vector(2 downto 0);
             -- control signals
             clk             :   in std_logic;
             boot            :   in std_logic;
@@ -470,6 +479,11 @@ architecture Structure of CachedMIPS32 is
     signal instCacheReady_1toCtrl   :   std_logic;
     signal dataCacheReady_4toCtrl   :   std_logic;
     
+    signal rob_addr_EXE_L           :   std_logic_vector(2 downto 0);
+    signal rob_addr_L_C             :   std_logic_vector(2 downto 0);
+    signal rob_addr_C_WB            :   std_logic_vector(2 downto 0);
+    signal rob_addr_fromLP          :   std_logic_vector(2 downto 0);
+    
     -- control signals
     signal PCSrc_4to1               :   std_logic;
     
@@ -636,6 +650,7 @@ architecture Structure of CachedMIPS32 is
     signal ROB_rf_write             :   std_logic;
     signal ROB_rf_addr              :   std_logic_vector(4 downto 0);
     signal ROB_rf_val               :   std_logic_vector(31 downto 0);
+    signal ROB_newentry_flag        :   std_logic;
     signal ROB_newentry_store       :   std_logic;
 
   
@@ -685,14 +700,14 @@ begin
              opcode             => opcode_2to3,
              rs                 => register_s_2to3,
              rt                 => register_t_2to3,
-             rd                 => register_d_6to2,
+             rd                 => ROB_rf_val,
              sign_ext           => sign_ext_2to3,
              zero_ext           => zero_ext_2to3,
              addr_rs            => addr_rs_2toCtrl,
              addr_rt            => addr_rt_2to3,
              addr_rd            => addr_rd_2to3,
              write_data         => write_data_2to3,
-             addr_regw          => addr_regw_6to2,
+             addr_regw          => ROB_rf_addr,
              fwd_path_alu       => fwd_path_alu_3to2,
              fwd_path_lookup    => fwd_path_lookup_4to2,
              fwd_path_cache     => fwd_path_cache_5to2and3and4,
@@ -715,7 +730,7 @@ begin
              RegDst             => RegDst_2to3,
              ALUOp              => ALUOp_2to3,
              ALUSrc             => ALUSrc_2to3,
-             RegWrite_in        => RegWrite_6to2,
+             RegWrite_in        => ROB_rf_write,
              fwd_aluRs          => fwd_aluRs_to2,
              fwd_aluRt          => fwd_aluRt_to2,
              fwd_alu_regmem     => fwd_alu_regmem_to2,
@@ -760,6 +775,8 @@ begin
              fwd_path_alu       => fwd_path_alu_3to2,
              fwd_path_lookup    => fwd_path_lookup_4to2,
              fwd_path_cache     => fwd_path_cache_5to2and3and4,
+             rob_addr_in        => ROB_tail,
+             rob_addr_out       => rob_addr_EXE_L,
              clk                => clk,
              RegWrite_in        => RegWrite_2to3,
              RegWrite_out       => RegWrite_3to4,
@@ -813,6 +830,8 @@ begin
              addr_regw_in       => addr_regw_3to4,
              addr_regw_out      => addr_regw_4to5,
              fwd_path_lookup    => fwd_path_lookup_4to2,
+             rob_addr_in        => rob_addr_EXE_L,
+             rob_addr_out       => rob_addr_L_C,
              clk                => clk,
              boot               => boot,
              RegWrite_in        => RegWrite_3to4,
@@ -862,6 +881,8 @@ begin
                 write_data_reg     => register_d_5to6,
              fwd_path_cache     => fwd_path_cache_5to2and3and4,
              busDataMem         => busRdDataMem,
+             rob_addr_in        => rob_addr_L_C,
+             rob_addr_out       => rob_addr_C_WB,
              clk                => clk,
              RegWrite_in        => RegWrite_4to5,
              RegWrite_out       => RegWrite_5to6,
@@ -895,6 +916,7 @@ begin
              write_data_out     => register_d_6to2,
              addr_regw_in       => addr_regw_5to6,
              addr_regw_out      => addr_regw_6to2,
+             rob_addr           => rob_addr_C_WB,
              clk                => clk,
              RegWrite_in        => RegWrite_5to6,
              RegWrite_out       => RegWrite_6to2,
@@ -919,6 +941,8 @@ begin
              addr_rd        => lp_addr_rd,
              write_data_out => lp_write_data_out,
              addr_regw      => lp_addr_regw,
+             rob_addr_in    => ROB_tail,
+             rob_addr_out   => rob_addr_fromLP,
              -- control signals
              clk            => clk,
              boot           => boot,
@@ -1008,6 +1032,20 @@ begin
              wbexc_writeEPC      => writeEPC_to_wb,
              wbexc_writeBadVAddr => writeBadVAddr_to_wb,
              wbexc_writeCause    => writeCause_to_wb); 
+             
+    ROB_value_flag <= '1' when RegWrite_3to4 = '1' AND addr_regw_3to4/= "000000" else
+                      '1' when MemWrite_3to4 = '1' else
+                      '0';
+    ROB_value_addr <= rob_addr_EXE_L when RegWrite_3to4 = '1' OR MemWrite_3to4 = '1' else
+                      rob_addr_fromLP;
+    ROB_value_alu <=  alu_res_3to4 when RegWrite_3to4 = '1' OR MemWrite_3to4 = '1' else
+                      lp_write_data_out;
+                      
+    
+    ROB_newentry_flag <= '1' when ROB_Update_ToROB = '1' AND 
+        ((addr_rt_2to3 /= "000000" and RegDst_2to3 = '0') OR  
+         (addr_rd_2to3 /= "000000" and RegDst_2to3 = '1')) else
+                         '0';
        
     rob_control_logic : rob_ctrl
     port map (clk   => clk,
@@ -1021,7 +1059,7 @@ begin
           rf_write   => ROB_rf_write,
           rf_addr    => ROB_rf_addr,
           rf_val     => ROB_rf_val,
-          newentry_flag  => ROB_Update_ToROB,
+          newentry_flag  => ROB_newentry_flag,
           newentry_store => ROB_newentry_store,
           ready => ROB_Ready_FromROB,
           tail  => ROB_tail);

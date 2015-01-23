@@ -9,9 +9,14 @@ entity longinstruction is
             addr_rd         :   in  std_logic_vector(4 downto 0);   --from ID
             write_data_out  :   out std_logic_vector(31 downto 0);  --to 8.WB
             addr_regw       :   out std_logic_vector(4 downto 0);   --to 8.WB
+            rob_addr_in     :   in  std_logic_vector(2 downto 0);   --from ReOrder Buffer
+            rob_addr_out    :   out std_logic_vector(2 downto 0);  
+
             -- control signals
             clk             :   in std_logic;
             boot            :   in std_logic;
+            noop_all        :   in std_logic;
+            noop_insert     :   in std_logic;
             Stall           :   in std_logic;
             doinstruction   :   in  std_logic;
             write_output    :   out std_logic);
@@ -52,22 +57,29 @@ architecture Structure of longinstruction is
     signal doinst_reg34  : std_logic;
     signal doinst_reg45  : std_logic;
     
+    signal rob_addr_reg12 : std_logic_vector(2 downto 0);
+    signal rob_addr_reg23 : std_logic_vector(2 downto 0);
+    signal rob_addr_reg34 : std_logic_vector(2 downto 0);
+    signal rob_addr_reg45 : std_logic_vector(2 downto 0);
+    
     signal doinst_reg12bis  : std_logic;
     signal doinst_reg23bis  : std_logic;
     signal doinst_reg34bis  : std_logic;
     signal doinst_reg45bis  : std_logic;
-
-
+    signal doinst_in_tmp : std_logic;
 begin
 
-    doinst_reg12bis <= '0' when boot = '1' else
+    doinst_reg12bis <= '0' when boot = '1' OR noop_all = '1' else
                       '1';
-    doinst_reg23bis <= '0' when boot = '1' else
+    doinst_reg23bis <= '0' when boot = '1' OR noop_all = '1' else
                       '1';
-    doinst_reg34bis <= '0' when boot = '1' else
+    doinst_reg34bis <= '0' when boot = '1' OR noop_all = '1' else
                       '1';
-    doinst_reg45bis <= '0' when boot = '1' else
+    doinst_reg45bis <= '0' when boot = '1' OR noop_all = '1' else
                       '1';
+                      
+    doinst_in_tmp <= doinstruction when noop_insert = '0' else
+                     '0';
 
     stage1 : LI_stage
     port map(-- buses
@@ -80,7 +92,7 @@ begin
              -- control signals
              clk            => clk,
              Stall          => Stall,
-             doinst_in      => doinstruction,
+             doinst_in      => doinst_in_tmp,
              doinst_out     => doinst_reg12);
 
     stage2 : LI_stage

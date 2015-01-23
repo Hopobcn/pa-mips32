@@ -73,7 +73,7 @@ begin
           end if;
           
           -- Here, the commit-to-register-file part
-          if (data(to_integer(unsigned(i_head)))(38) = '1') then
+          if (data(to_integer(unsigned(i_head)))(104) = '1') then
             -- proceed to commit a value to the register file
             rf_write <= '1';
             rf_addr <= data(to_integer(unsigned(i_head)))(36 downto 32);

@@ -7,12 +7,14 @@ entity lookup is
           addr_branch_in     : in  std_logic_vector(31 downto 0);  --from EXE
           addr_branch_out    : out std_logic_vector(31 downto 0);  --to IF
           addr_in            : in  std_logic_vector(31 downto 0);  --from EXE --named alu_res in EXE
-			 addr_out           : out std_logic_vector(31 downto 0);  --to CACHE
+             addr_out           : out std_logic_vector(31 downto 0);  --to CACHE
           write_data_mem_in  : in  std_logic_vector(31 downto 0);  --from EXE
-			 write_data_mem_out : out std_logic_vector(31 downto 0);  --to CACHE
+             write_data_mem_out : out std_logic_vector(31 downto 0);  --to CACHE
           addr_regw_in       : in  std_logic_vector(5 downto 0);   --from EXE
           addr_regw_out      : out std_logic_vector(5 downto 0);   --to CACHE, WB, then IF
           fwd_path_lookup    : out std_logic_vector(31 downto 0);  --to ID [FWD]
+          rob_addr_in        : in  std_logic_vector(2 downto 0);   --from EXE (ReOrderBuffer-related)
+          rob_addr_out       : out std_logic_vector(2 downto 0);
           -- control signals
           clk                : in  std_logic;
           boot               : in  std_logic;
@@ -30,15 +32,15 @@ entity lookup is
           MemtoReg_in        : in  std_logic;                      --from EXE
           MemtoReg_out       : out std_logic;                      --to CACHE
           Zero               : in  std_logic;                      --from EXE
-			 -- interface with data_cache data
-			 WriteCache         : out std_logic;                      --to CACHE
+             -- interface with data_cache data
+             WriteCache         : out std_logic;                      --to CACHE
           muxDataR           : out std_logic;                      --to CACHE
           muxDataW           : out std_logic;                      --to CACHE 
           BusRd              : out std_logic;                      --to Main Memory
           BusWr              : out std_logic;                      --to Main Memory
           BusReady           : in  std_logic;                      --from Main Memory
-			 -- interface with Hazard Control
-			 DC_Ready           : out std_logic;                      --to Hazard Ctrl
+             -- interface with Hazard Control
+             DC_Ready           : out std_logic;                      --to Hazard Ctrl
           NOP_to_C           : in  std_logic;                      --from Hazard Control
           Stall              : in  std_logic;                      --from Hazard Control
           -- exception bits
@@ -70,6 +72,8 @@ architecture Structure of lookup is
           write_data_out   : out std_logic_vector(31 downto 0);  
           addr_regw_in     : in  std_logic_vector(5 downto 0);       
           addr_regw_out    : out std_logic_vector(5 downto 0);
+          rob_addr_in      : in  std_logic_vector(2 downto 0);
+          rob_addr_out     : out std_logic_vector(2 downto 0);
           -- control signals
           RegWrite_in      : in  std_logic;                              
           RegWrite_out     : out std_logic;      
@@ -111,18 +115,19 @@ architecture Structure of lookup is
     signal addr_reg             :   std_logic_vector(31 downto 0);  
     signal write_data_mem_reg   :   std_logic_vector(31 downto 0);
     signal addr_regw_reg        :   std_logic_vector(5 downto 0);   
-    signal RegWrite_reg         :   std_logic;     
-    signal Branch_reg           :   std_logic;      
-    signal MemRead_reg          :   std_logic;  
-    signal MemWrite_reg         :   std_logic;  
-    signal ByteAddress_reg      :   std_logic;   
-    signal WordAddress_reg      :   std_logic;  
-    signal MemtoReg_reg         :   std_logic;      
+    signal rob_addr_reg         :   std_logic_vector(2 downto 0);
+    signal RegWrite_reg         :   std_logic;
+    signal Branch_reg           :   std_logic;
+    signal MemRead_reg          :   std_logic;
+    signal MemWrite_reg         :   std_logic;
+    signal ByteAddress_reg      :   std_logic;
+    signal WordAddress_reg      :   std_logic;
+    signal MemtoReg_reg         :   std_logic;
     signal Zero_reg             :   std_logic;
-	 
-    signal WriteCache_reg       :   std_logic;    
-	 
-	 component data_cache_lookup is
+    
+    signal WriteCache_reg       :   std_logic;
+    
+    component data_cache_lookup is
     port (addr        :  in  std_logic_vector(31 downto 0);
           -- control signals;
           PrRd        :  in  std_logic;
@@ -138,8 +143,8 @@ architecture Structure of lookup is
           BusReady    :  in  std_logic;
           clk         :  in  std_logic;
           reset       :  in  std_logic);
-    end component;	  
-		  
+    end component;    
+          
     signal exception_if_reg   : std_logic;
     signal exception_id_reg   : std_logic;
     signal exception_exe_reg  : std_logic;
@@ -164,6 +169,8 @@ begin
              write_data_out => write_data_mem_reg,
              addr_regw_in   => addr_regw_in,
              addr_regw_out  => addr_regw_reg,
+             rob_addr_in    => rob_addr_in,
+             rob_addr_out   => rob_addr_reg,
              RegWrite_in    => RegWrite_in,             
              RegWrite_out   => RegWrite_reg,    
              Branch_in      => Branch,
@@ -202,9 +209,10 @@ begin
     addr_out           <= addr_reg;
     write_data_mem_out <= write_data_mem_reg;
     addr_regw_out      <= addr_regw_reg;
+    rob_addr_out       <= rob_addr_reg;
     fwd_path_lookup    <= addr_reg; 
 
-	 TAGS_AND_STATE : data_cache_lookup
+     TAGS_AND_STATE : data_cache_lookup
     port map(addr       => addr_reg,
              PrRd       => MemRead_reg,
              PrWr       => MemWrite_reg,
@@ -217,8 +225,8 @@ begin
              BusReady   => BusReady,
              clk        => clk,
              reset      => boot );
-			 
-	 -- NOP
+             
+     -- NOP
     RegWrite_out    <= '0' when NOP_to_C = '1' or exception_internal = '1' else
                         RegWrite_reg;
                         
@@ -232,11 +240,11 @@ begin
     ByteAddress_out <= ByteAddress_reg;
     WordAddress_out <= WordAddress_reg;
     MemtoReg_out    <=  MemtoReg_reg;
-	 
+     
     WriteCache      <= '0' when NOP_to_C = '1' or exception_internal = '1' else
-	                     WriteCache_reg;
+                         WriteCache_reg;
 
-	 
+     
     -- Exception (to be fully implemented with virtual memory)
     exception_internal <= '0';
     

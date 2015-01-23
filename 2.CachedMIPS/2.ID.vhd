@@ -17,7 +17,7 @@ entity instruction_decode is
           addr_rt         :   out std_logic_vector(5 downto 0);   --to EXE
           addr_rd         :   out std_logic_vector(5 downto 0);   --to EXE
           write_data      :   out std_logic_vector(31 downto 0);  --to EXE,LOOKUP,CACHE
-          addr_regw       :   in  std_logic_vector(5 downto 0);   --from WB
+          addr_regw       :   in  std_logic_vector(4 downto 0);   --from ReOrderBuffer
           fwd_path_alu    :   in  std_logic_vector(31 downto 0);  --from ALU    [FWD]
           fwd_path_lookup :   in  std_logic_vector(31 downto 0);  --from LOOKUP [FWD]
           fwd_path_cache  :   in  std_logic_vector(31 downto 0);  --from CACHE  [FWD]
@@ -124,9 +124,9 @@ architecture Structure of instruction_decode is
     end component;
 
     component c0regfile is
-    port (clk		          :	  in  std_logic;
-          addr_read         :	  in  std_logic_vector(4 downto 0);   --! Read address
-          reg_read          :	  out	std_logic_vector(31 downto 0); --! Register data for the read operation
+    port (clk                 :   in  std_logic;
+          addr_read         :     in  std_logic_vector(4 downto 0);   --! Read address
+          reg_read          :     out   std_logic_vector(31 downto 0); --! Register data for the read operation
           addr_write        :   in  std_logic_vector(4 downto 0);  --! Write address
           reg_write         :   in  std_logic_vector(31 downto 0);  --! Register data for the write operation
           RegWrite          :   in  std_logic;                      --! Enable Write for the write port
@@ -168,15 +168,15 @@ architecture Structure of instruction_decode is
     
     -- Coprocessor 0 operations
     signal c0RegRead_tmp    :  std_logic;
-	 signal c0RegWrite_tmp   :  std_logic;
-	 signal c0reg_out        :  std_logic_vector(31 downto 0);
+     signal c0RegWrite_tmp   :  std_logic;
+     signal c0reg_out        :  std_logic_vector(31 downto 0);
 
     -- Signal to the regular register file for non-c0 write operations
     signal addr_rd_tmp      :  std_logic_vector(4 downto 0);
-	 -- Signal for the c0 register file
-	 signal addr_c0_write_tmp:  std_logic_vector(4 downto 0);
+     -- Signal for the c0 register file
+     signal addr_c0_write_tmp:  std_logic_vector(4 downto 0);
 
-	 -- Enable for the write operations on c0 register file
+     -- Enable for the write operations on c0 register file
     signal c0RegWrite_in_tmp:  std_logic;
 
     signal enable           :   std_logic;
@@ -280,11 +280,14 @@ begin
              rd         => rd,
              RegWrite   => RegWrite_in);
 
-     addr_rd_tmp <= addr_regw(4 downto 0) when addr_regw(5) = '0' else
-                    "00000";
-     addr_c0_write_tmp <= addr_regw(4 downto 0) when  addr_regw(5) = '1' else
-                          "00000";
-     c0RegWrite_in_tmp <= RegWrite_in and addr_regw(5);
+     addr_rd_tmp <= addr_regw;
+     
+--     addr_c0_write_tmp <= addr_regw(4 downto 0) when  addr_regw(5) = '1' else
+--                          "00000";
+    addr_c0_write_tmp <= "00000";
+    
+--     c0RegWrite_in_tmp <= RegWrite_in and addr_regw(5);
+  c0RegWrite_in_tmp <= '0';
 
      coprocessor0_register_file : c0regfile
      port map(clk          => clk,

@@ -7,6 +7,7 @@ entity write_back is
           write_data_out   : out std_logic_vector(31 downto 0);  --to WB,ID
           addr_regw_in     : in  std_logic_vector(5 downto 0);   --from LOOKUP
           addr_regw_out    : out std_logic_vector(5 downto 0);   --to WB,ID
+          rob_addr         : in  std_logic_vector(2 downto 0);   --ReOrder Buffer pipelined
           -- control signals
           clk              : in std_logic;
           RegWrite_in      : in std_logic;
@@ -25,7 +26,7 @@ entity write_back is
           writeBadVAddr_out: out std_logic;      --to coprocessor 0 register file
           writeCause_in    : in  std_logic;      --from Exception Control
           writeCause_out   : out std_logic);     --to coprocessor 0 register file
-              
+          
 end write_back;
 
 architecture Structure of write_back is

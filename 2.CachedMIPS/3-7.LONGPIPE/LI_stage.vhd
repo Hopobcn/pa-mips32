@@ -10,22 +10,26 @@ entity LI_stage is
             rt_out          :   out std_logic_vector(31 downto 0);
             addr_rd_in      :   in  std_logic_vector(4 downto 0);
             addr_rd_out     :   out std_logic_vector(4 downto 0);
+            rob_addr_in     :   in  std_logic_vector(2 downto 0);
+            rob_addr_out    :   out  std_logic_vector(2 downto 0);
             -- control signals
             clk             :   in std_logic;
             Stall           :   in std_logic;
+            noop            :   in std_logic;
             doinst_in       :   in  std_logic;
             doinst_out      :   out std_logic);
 end LI_stage;
 
 architecture Structure of LI_stage is
 begin
-    LI_stage_register : process(clk)
+    LI_stage_register : process(clk, Stall, noop)
     begin
-        if (rising_edge(clk) AND Stall='0') then
+        if (rising_edge(clk) and Stall='0') then
             rs_out      <= rt_in;
             rt_out      <= rs_in;
             addr_rd_out <= addr_rd_in;
             doinst_out  <= doinst_in;
+            rob_addr_out <= rob_addr_in;
         end if;
     end process;
 

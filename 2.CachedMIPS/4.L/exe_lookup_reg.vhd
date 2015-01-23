@@ -11,6 +11,8 @@ entity exe_lookup_reg is
           write_data_out   : out std_logic_vector(31 downto 0);  
           addr_regw_in     : in  std_logic_vector(5 downto 0);       
           addr_regw_out    : out std_logic_vector(5 downto 0);
+          rob_addr_in      : in  std_logic_vector(2 downto 0);
+          rob_addr_out     : out std_logic_vector(2 downto 0);
           -- control signals
           RegWrite_in      : in  std_logic;                              
           RegWrite_out     : out std_logic;      
@@ -59,6 +61,7 @@ begin
                 addr_out            <= addr_in;
                 write_data_out      <= write_data_in;
                 addr_regw_out       <= addr_regw_in;
+                rob_addr_out        <= rob_addr_in;
                 RegWrite_out        <= RegWrite_in;
                 Branch_out          <= Branch_in;
                 MemRead_out         <= MemRead_in;
