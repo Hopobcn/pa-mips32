@@ -23,13 +23,14 @@ architecture Structure of data_cache_data is
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
           block_offset  : in  std_logic_vector(1 downto 0); -- offset inside a container (1 container == 4 words)
           write_data    : in  std_logic_vector(31 downto 0);
+          fill          : in  std_logic_vector(127 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
           -- control signals
+          WriteOrFill   : in  std_logic;
           WriteEnable   : in  std_logic);
     end component;
 	 
     signal readCache        : std_logic_vector(31 downto 0);
-    signal writeCache       : std_logic_vector(31 downto 0);
 	 
 	 signal readByte         : std_logic_vector(31 downto 0);
 begin
@@ -37,12 +38,11 @@ begin
     DATA : ddata
     port map(index        => addr(6 downto 2),
              block_offset => addr(1 downto 0),
-             write_data   => writeCache,
+             write_data   => write_data,
+				 fill         => busDataMem,
              read_data    => readCache,
+				 WriteOrFill  => muxDataW, -- '0' write from Processor, '1' fill from memory
              WriteEnable  => WriteEnable);
-			 
-    writeCache <= write_data when (muxDataW = '0') else
-                  busDataMem(31 downto 0); --TODO: cal distingir entre un write del processador i un fill de la cache desde mem
             
     mux_word_half_byte : process(readCache,busDataMem,ByteAddress,WordAddress)
     begin

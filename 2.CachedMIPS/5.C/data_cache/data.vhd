@@ -9,8 +9,10 @@ entity ddata is
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
           block_offset  : in  std_logic_vector(1 downto 0); -- offset inside a container (1 container == 4 words)
           write_data    : in  std_logic_vector(31 downto 0);
+          fill          : in  std_logic_vector(127 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
           -- control signals
+          WriteOrFill   : in  std_logic;
           WriteEnable   : in  std_logic);
 end ddata;
 
@@ -28,10 +30,14 @@ begin
 					  container_128( 95 downto 64) when block_offset = "10" else
 					  container_128(127 downto 96);
 
-    data_write : process(index,writeEnable,write_data)
+    data_write : process(index,writeEnable,WriteOrFill)
     begin
         if (writeEnable = '1') then
-            mem_data(to_integer(unsigned(index)))(31 downto 0) <= write_data;
+            if (WriteOrFill = '0') then -- Write from the processor
+                mem_data(to_integer(unsigned(index)))(31 downto 0) <= write_data;
+            else
+                mem_data(to_integer(unsigned(index))) <= fill;
+            end if;
         end if;
     end process data_write;
 
