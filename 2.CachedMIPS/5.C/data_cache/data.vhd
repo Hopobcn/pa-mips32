@@ -34,7 +34,15 @@ begin
     begin
         if (writeEnable = '1') then
             if (WriteOrFill = '0') then -- Write from the processor
-                mem_data(to_integer(unsigned(index)))(31 downto 0) <= write_data;
+                if (block_offset = "0000") then
+                    mem_data(to_integer(unsigned(index))) <= container_128(127 downto 32) & write_data;
+					 elsif (block_offset = "0010") then
+                    mem_data(to_integer(unsigned(index))) <= container_128(127 downto 64) & write_data & container_128(31 downto 0);
+					 elsif (block_offset = "0100") then
+                    mem_data(to_integer(unsigned(index))) <= container_128(127 downto 96) & write_data & container_128(63 downto 0);
+					 else
+                    mem_data(to_integer(unsigned(index))) <=                                write_data & container_128(95 downto 0);
+                end if;
             else
                 mem_data(to_integer(unsigned(index))) <= fill;
             end if;

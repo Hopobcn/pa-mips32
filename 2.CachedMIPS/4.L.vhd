@@ -13,6 +13,7 @@ entity lookup is
           addr_regw_in       : in  std_logic_vector(5 downto 0);   --from EXE
           addr_regw_out      : out std_logic_vector(5 downto 0);   --to CACHE, WB, then IF
           fwd_path_lookup    : out std_logic_vector(31 downto 0);  --to ID [FWD]
+          busWrDataMemWrite  : out std_logic_vector(31 downto 0);  --to DRAM 
           -- control signals
           clk                : in  std_logic;
           boot               : in  std_logic;
@@ -217,7 +218,9 @@ begin
              BusReady   => BusReady,
              clk        => clk,
              reset      => boot );
-			 
+
+    busWrDataMemWrite <= addr_reg;			 
+	 
 	 -- NOP
     RegWrite_out    <= '0' when NOP_to_C = '1' or exception_internal = '1' else
                         RegWrite_reg;

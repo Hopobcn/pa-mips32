@@ -174,6 +174,7 @@ architecture Structure of CachedMIPS32 is
           addr_regw_in       : in  std_logic_vector(5 downto 0);   --from EXE
           addr_regw_out      : out std_logic_vector(5 downto 0);   --to CACHE, WB, then IF
           fwd_path_lookup    : out std_logic_vector(31 downto 0);  --to ID [FWD]
+          busWrDataMemWrite  : out std_logic_vector(31 downto 0);  --to DRAM 
           -- control signals
           clk                : in  std_logic;
           boot               : in  std_logic;
@@ -726,6 +727,7 @@ begin
              addr_regw_in       => addr_regw_3to4,
              addr_regw_out      => addr_regw_4to5,
              fwd_path_lookup    => fwd_path_lookup_4to2,
+				 busWrDataMemWrite  => busWrDataMemDC,
              clk                => clk,
              boot               => boot,
              RegWrite_in        => RegWrite_3to4,
