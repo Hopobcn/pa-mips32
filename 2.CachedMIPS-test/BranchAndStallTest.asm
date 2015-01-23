@@ -50,7 +50,7 @@ lw   R7, 4(R4)      0c                F D E E E E L C W                      <- 
 add  R5, R6, R7     10                  F F F f f D E L C W                  <- Miss IC, Stall due true dependency R7 not ready, R7 comes from fwd C to E
 addi R6, R5, 8      14                            F F F F D E L C W          <- R5 comes from a forwarding path from E unit to E
 sw   R6, 4(R4)      18                                    F D E L L L L C W
-beq  R4, R0, FINISH 1c                                      F D E L C W                  <- don't branch in M because it's not going to jump 
+beq  R4, R0, FINISH 1c                                      F D D D D E L C W            <- don't branch in M because it's not going to jump 
 addi R4, R0, 4      20                                        F F F F D E L C W          <- Miss IC
 j    LOOP           24                                                F D E L C W        <- Jump in EXE stage, put nops in IF,ID,ALU 
 sll  R0, R0, 0      28                                                  F D - - -

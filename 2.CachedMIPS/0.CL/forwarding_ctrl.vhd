@@ -35,17 +35,17 @@ begin
     fwd_aluRt <= "11" when (         exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt ) else  -- fwd from ALU to ID 
                  "10" when (         tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRt         -- fwd from LOOKUP to ID 
                             and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt)) else  -- priority for newest value(alu)
-                 "01" when (         dcaRegWrite = '1' and dcaRegisterRd /= "000000" and dcaRegisterRd = idRegisterRs
-					             and not (tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRs)
-                            and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRs)) else  -- fwd from CACHE to ID 
+                 "01" when (         dcaRegWrite = '1' and dcaRegisterRd /= "000000" and dcaRegisterRd = idRegisterRt
+					             and not (tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRt)
+                            and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt)) else  -- fwd from CACHE to ID 
                  "00";                                                                                                       -- (don't fwd) typical path
     
     fwd_alu_regmem <= "11" when (         exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt and idMemWrite = '1')  else -- fwd from ALU to ID (ALU-STORE)
                       "10" when (         tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRt and idMemWrite = '1'        
                                  and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt and idMemWrite = '1')) else -- fwd from MEM to ID (ALU-STORE from LOOKUP)
-                      "01" when (         dcaRegWrite = '1' and dcaRegisterRd /= "000000" and dcaRegisterRd = idRegisterRs and idMemWrite = '1'
-					                  and not (tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRs and idMemWrite = '1')
-                                 and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRs and idMemWrite = '1')) else  -- fwd from CACHE to ID (LOAD-STORE)
+                      "01" when (         dcaRegWrite = '1' and dcaRegisterRd /= "000000" and dcaRegisterRd = idRegisterRt and idMemWrite = '1'
+					                  and not (tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRt and idMemWrite = '1')
+                                 and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt and idMemWrite = '1')) else  -- fwd from CACHE to ID (LOAD-STORE)
                       "00";
                             
     fwd_lookup_regmem <= '1' when (tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = exeRegisterRt and exeMemWrite = '1') else -- PRODUCER(LOOKUP)-CONSUMER(ALU)in next cycle
