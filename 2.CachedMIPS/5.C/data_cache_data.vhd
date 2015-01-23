@@ -55,11 +55,11 @@ begin
                 read_data <= readCache;		  
             end if;
         else
-            if (ByteAddress = '1') then
+            if (ByteAddress = '1') then                              -- Load Byte
                 read_data <= x"000000" & busDataMem(7 downto 0); 
-            elsif (ByteAddress = '0' and WordAddress = '1') then
+            elsif (ByteAddress = '0' and WordAddress = '0') then     -- Load Half
                 read_data <= x"0000" & busDataMem(15 downto 0);
-            else
+            else                                                     -- Load Word
                 read_data <= busDataMem(31 downto 0);		  
             end if;
         end if;
