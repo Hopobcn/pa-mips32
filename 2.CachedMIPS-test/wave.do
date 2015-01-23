@@ -14,6 +14,8 @@ add wave -noupdate -group {Hazard Control} -label {Interrupt [in]} /cachedmips32
 add wave -noupdate -group {Hazard Control} -label {Interrupt_to_Exception_ctrl [out]} /cachedmips32test/processor/hazard_contol_logic/Interrupt_to_Exception_ctrl
 add wave -noupdate -group {Hazard Control} -label {Inst Cache Ready [in]} /cachedmips32test/processor/hazard_contol_logic/IC_Ready
 add wave -noupdate -group {Hazard Control} -label {Data Cache Ready [in]} /cachedmips32test/processor/hazard_contol_logic/DC_Ready
+add wave -noupdate -group {Hazard Control} -label {Ready (ROB)} /cachedmips32test/processor/hazard_contol_logic/ROB_Ready
+add wave -noupdate -group {Hazard Control} -label {Update (ROB)} /cachedmips32test/processor/hazard_contol_logic/ROB_Update
 add wave -noupdate -group {Hazard Control} -label {Stall PC [out]} /cachedmips32test/processor/hazard_contol_logic/Stall_PC
 add wave -noupdate -group {Hazard Control} -label {Stall IF_ID [out]} /cachedmips32test/processor/hazard_contol_logic/Stall_IF_ID
 add wave -noupdate -group {Hazard Control} -label {Stall ID_EXE [out]} /cachedmips32test/processor/hazard_contol_logic/Stall_ID_EXE
@@ -67,6 +69,9 @@ add wave -noupdate -group {ReOrder Buffer} -label {Register rf value} /cachedmip
 add wave -noupdate -group {ReOrder Buffer} -label {New Entry flag} /cachedmips32test/processor/rob_control_logic/newentry_flag
 add wave -noupdate -group {ReOrder Buffer} -label {New Entry store} /cachedmips32test/processor/rob_control_logic/newentry_store
 add wave -noupdate -group {ReOrder Buffer} -label Ready /cachedmips32test/processor/rob_control_logic/ready
+add wave -noupdate -group {ReOrder Buffer} -label {(internal) HEAD} /cachedmips32test/processor/rob_control_logic/i_head
+add wave -noupdate -group {ReOrder Buffer} -label {(internal) TAIL} /cachedmips32test/processor/rob_control_logic/i_tail
+add wave -noupdate -group {ReOrder Buffer} -label DATA -radix hexadecimal 
 add wave -noupdate -group {ReOrder Buffer} -label Tail /cachedmips32test/processor/rob_control_logic/tail
 add wave -noupdate -divider 0.MEM
 add wave -noupdate -label addr -radix hexadecimal /cachedmips32test/processor/DRAM/addr

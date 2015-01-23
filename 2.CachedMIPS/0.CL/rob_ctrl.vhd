@@ -32,15 +32,16 @@ entity rob_ctrl is
 end rob_ctrl;
 
 architecture Structure of rob_ctrl is
-    type ROB_DATA is array (7 downto 0) of std_logic_vector(104 downto 0);
+    type ROB_DATA is array (7 downto 0) of std_logic_vector(105 downto 0);
     -- *** Data inside the structure (each std_logic_Vector) ***
-    -- Bit 104 ValidData
-    -- Bit 103 ReadyToStore
-    -- Bit 102 Exception
-    -- Bits 101..97 Register address
-    -- Bit 96 Store bit
+    -- Bit 105 ValidData
+    -- Bit 104 ReadyToMem
+    -- Bit 103 Exception
+    -- Bit 102 Load flag
+    -- Bit 101 Store flag
+    -- Bits 100..96 Register address
     -- Bits 95..64 PC
-    -- Bits 63..32 Memory location (for stores)
+    -- Bits 63..32 Memory location (for loads/stores)
     -- Bits 31..0 Value to store
     signal data : ROB_DATA;
 
@@ -57,30 +58,37 @@ begin
           i_head <= "000";
           i_tail <= "000";
           empty <= '1';
+          rf_write <= '0';
         else
           if (except_flag = '1') then
-            data(to_integer(unsigned(except_addr)))(102) <= '1';
-          end if;          
+            data(to_integer(unsigned(except_addr)))(103) <= '1';
+          end if;
           
           if (value_flag = '1') then
-            if (data(to_integer(unsigned(value_addr)))(96) = '1') then
+            if (data(to_integer(unsigned(value_addr)))(101) = '1' OR
+                data(to_integer(unsigned(value_addr)))(102) = '1') then
               data(to_integer(unsigned(value_addr)))(63 downto 32) <= value_alu;
-              data(to_integer(unsigned(value_addr)))(103) <= '1'; -- store ready
+              data(to_integer(unsigned(value_addr)))(105) <= '1'; -- mem operation ready
             else
               data(to_integer(unsigned(value_addr)))(31 downto 0) <= value_alu;
-              data(to_integer(unsigned(value_addr)))(104) <= '1'; -- value ready
+              data(to_integer(unsigned(value_addr)))(105) <= '1'; -- value ready
             end if;
           end if;
           
           -- Here, the commit-to-register-file part
-          if (data(to_integer(unsigned(i_head)))(104) = '1') then
-            -- proceed to commit a value to the register file
-            rf_write <= '1';
-            rf_addr <= data(to_integer(unsigned(i_head)))(36 downto 32);
-            rf_val <= data(to_integer(unsigned(i_head)))(31 downto 0);
+          if (data(to_integer(unsigned(i_head)))(105) = '1') then
+            if (data(to_integer(unsigned(i_head)))(102) = '0') then
+                -- proceed to commit a value to the register file
+                rf_write <= '1';
+                rf_addr <= data(to_integer(unsigned(i_head)))(100 downto 96);
+                rf_val <= data(to_integer(unsigned(i_head)))(31 downto 0);
   
-            i_head <= std_logic_vector(unsigned(i_head) + 1);
-            if (i_head = i_tail) then
+                i_head <= std_logic_vector(unsigned(i_head) + 1);
+            end if;
+            
+            data(to_integer(unsigned(i_head)))(105 downto 0)  <= (others => '0');
+            data(to_integer(unsigned(i_head)))(99 downto 68) <= x"DEADBEEF";
+            if (std_logic_vector(unsigned(i_head) + 1) = i_tail) then
               empty <= '1';
             end if;
           else
@@ -89,7 +97,7 @@ begin
   
           -- Here, the add-a-member part
           if (newentry_flag = '1') then
-            data(to_integer(unsigned(i_tail)))(104 downto 0) <= (others => '0');
+            data(to_integer(unsigned(i_tail)))(105 downto 0)  <= (others => '0');
             i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
             empty <= '0';
           end if;
