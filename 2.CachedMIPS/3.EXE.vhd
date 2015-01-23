@@ -199,7 +199,7 @@ architecture Structure of execute is
     signal enable           : std_logic;
 begin
  
-  enable <= not Stall;
+    enable <= not Stall;
   
     -- ID/EXE Register 
     ID_EXE_register : id_exe_reg
@@ -315,7 +315,7 @@ begin
     
     sign_immed_mux <= zero_ext_reg      when SignedSrc = '0' else
                       sign_ext_reg;
-    
+ 
     alusrc_b_mux   <= rt_reg            when ALUSrc_reg = '0' else
                       sign_immed_mux;          
 
@@ -335,8 +335,10 @@ begin
              funct    => sign_ext_reg(5 downto 0),
              ALUOp    => ALUOp_control); 
     
-    fwd_path_alu <= alu_result;
-    alu_res      <= alu_result;
+    fwd_path_alu <= alu_result when NOP_to_L = '0' else 
+                    x"00000000";
+    alu_res      <= alu_result when NOP_to_L = '0' else 
+                    x"00000000";
             
         
     addr_regw   <= addr_rt_reg  when RegDst_reg = '0' else

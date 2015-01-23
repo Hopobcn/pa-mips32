@@ -25,7 +25,7 @@ architecture Structure of data_cache_lookup is
     
     component dcache_fields is
     port (-- data buses
-	       tag           : in  std_logic_vector(24 downto 0);
+	       tag           : in  std_logic_vector(22 downto 0);
           index         : in  std_logic_vector(4 downto 0);
           nextState     : in  std_logic;
           -- control signals
@@ -67,8 +67,8 @@ architecture Structure of data_cache_lookup is
 begin
 
     FIELDS : dcache_fields
-    port map(tag            => addr(31 downto 7),
-             index          => addr(6 downto 2),
+    port map(tag            => addr(31 downto 9),
+             index          => addr(8 downto 4),
              nextState      => nextState_wire,
              WriteTags      => WriteTags_wire,
              WriteState     => WriteState_wire,

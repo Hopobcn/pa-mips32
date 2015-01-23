@@ -320,13 +320,19 @@ architecture Structure of CachedMIPS32 is
     
     component main_mem is
     port (-- data buses
-          addr         : in  std_logic_vector(31 downto 0); 
-          write_data   : in  std_logic_vector(31 downto 0);
-          read_data    : out std_logic_vector(127 downto 0);
+          addrIC       : in  std_logic_vector(31 downto 0); 
+          write_dataIC : in  std_logic_vector(31 downto 0);
+          read_dataIC  : out std_logic_vector(127 downto 0);
+          addrDC       : in  std_logic_vector(31 downto 0); 
+          write_dataDC : in  std_logic_vector(31 downto 0);
+          read_dataDC  : out std_logic_vector(127 downto 0);
           -- control signals
-          Rd           : in  std_logic;
-          Wr           : in  std_logic;
-          Ready        : out std_logic;
+          busRdIC      : in  std_logic;
+          busWrIC      : in  std_logic;
+          busReadyIC   : out std_logic;
+          busRdDC      : in  std_logic;
+          busWrDC      : in  std_logic;
+          busReadyDC   : out std_logic;
           reset        : in  std_logic;
           clk          : in  std_logic);
     end component;
@@ -441,7 +447,6 @@ architecture Structure of CachedMIPS32 is
     signal addr_branch_3to4         :   std_logic_vector(31 downto 0);
     signal addr_branch_4to1         :   std_logic_vector(31 downto 0);
  
-    signal pc_1toDRAM               :   std_logic_vector(31 downto 0);
     signal pc_up_1to2               :   std_logic_vector(31 downto 0);
     signal pc_up_2to3               :   std_logic_vector(31 downto 0);
     
@@ -568,19 +573,19 @@ architecture Structure of CachedMIPS32 is
     --------------------------------
      ---     Memory Interface      --
     --------------------------------
-    signal busRdDataMem             :   std_logic_vector(127 downto 0);
-    signal busWrDataMem             :   std_logic_vector(31 downto 0);
-    signal busAddr                  :   std_logic_vector(31 downto 0);
-    signal BusRd_1toDRAM            :   std_logic;
-    signal BusRd_4toDRAM            :   std_logic;
-    signal BusRd                    :   std_logic;
-    signal BusWr_1toDRAM            :   std_logic;
-    signal BusWr_4toDRAM            :   std_logic;
-    signal BusWr                    :   std_logic;
-    signal BusReady_DRAMto1         :   std_logic;
-    signal BusReady_DRAMto5         :   std_logic;
-    signal BusReady                 :   std_logic;
-    
+    signal busRdDataMemIC           :   std_logic_vector(127 downto 0);
+    signal busWrDataMemIC           :   std_logic_vector(31 downto 0);
+    signal busAddrIC                :   std_logic_vector(31 downto 0);
+    signal BusRdIC                  :   std_logic;
+    signal BusWrIC                  :   std_logic;
+    signal BusReadyIC               :   std_logic;
+    signal busRdDataMemDC           :   std_logic_vector(127 downto 0);
+    signal busWrDataMemDC           :   std_logic_vector(31 downto 0);
+    signal busAddrDC                :   std_logic_vector(31 downto 0);
+    signal BusRdDC                  :   std_logic;
+    signal BusWrDC                  :   std_logic;
+    signal BusReadyDC               :   std_logic;
+ 
     --------------------------------
     -- All the exceptions signals --
     --------------------------------
@@ -671,10 +676,10 @@ begin
     first_stage :   instruction_fetch
     port map(addr_jump          => addr_jump_3to1,
              addr_branch        => addr_branch_4to1,
-             pc                 => pc_1toDRAM,
+             pc                 => busAddrIC,
              pc_up              => pc_up_1to2,
              instruction        => instruction_1to2,
-             busDataMem         => busRdDataMem,
+             busDataMem         => busRdDataMemIC,
              clk                => clk,
              boot               => boot,
              Jump               => Jump_3to1,
@@ -683,9 +688,9 @@ begin
              IC_Ready           => instCacheReady_1toCtrl,
              NOP_to_ID          => NOP_HazardCtrlto1,
              Stall              => Stall_HazardCtrlto1,
-             BusRd              => BusRd_1toDRAM,
-             BusWr              => BusWr_1toDRAM,
-             BusReady           => BusReady_DRAMto1,
+             BusRd              => busRdIC,
+             BusWr              => BusWrIC,
+             BusReady           => BusReadyIC,
              -- exceptions
              exception_if       => exception_if_at_if,
              Exc_BadVAddr_out   => Exc_BadVAddr_at_if,
@@ -851,9 +856,9 @@ begin
              WriteCache         => WriteCache_4to5,
              muxDataR           => muxDataR_4to5,
              muxDataW           => muxDataW_4to5,
-             BusRd              => BusRd_4toDRAM,
-             BusWr              => BusWr_4toDRAM,
-             BusReady           => BusReady_DRAMto5,
+             BusRd              => BusRdDC,
+             BusWr              => BusWrDC,
+             BusReady           => BusReadyDC,
              DC_Ready           => dataCacheReady_4toCtrl,
              NOP_to_C           => NOP_HazardCtrlto4,
              Stall              => Stall_HazardCtrlto4,
@@ -872,7 +877,8 @@ begin
              Exc_Cause_out      => Exc_Cause_at_lookup,
              Exc_EPC_in         => Exc_EPC_at_exe,
              Exc_EPC_out        => Exc_EPC_at_lookup );
-
+    busAddrDC <= alu_res_4to5; -- Alu res is the Address computed in LD/ST
+     
     fifth_stage : cache
     port map(addr               => alu_res_4to5,
              write_data_mem     => write_data_4to5, 
@@ -880,9 +886,9 @@ begin
              addr_regw_out      => addr_regw_5to6,
                 write_data_reg     => register_d_5to6,
              fwd_path_cache     => fwd_path_cache_5to2and3and4,
-             busDataMem         => busRdDataMem,
              rob_addr_in        => rob_addr_L_C,
              rob_addr_out       => rob_addr_C_WB,
+             busDataMem         => busRdDataMemDC,
              clk                => clk,
              RegWrite_in        => RegWrite_4to5,
              RegWrite_out       => RegWrite_5to6,
@@ -950,26 +956,19 @@ begin
              doinstruction  => lp_doinst,
              write_output   => lp_write_output);
 
-    -- ARBITRER SUPER BASTO (Ignorem la IC, prioritat a la DC)
-    busWrDataMem <= x"00000000";
-    busAddr <= alu_res_4to5 when (BusRd_4toDRAM = '1' or BusWr_4toDRAM = '1') else
-               pc_1toDRAM; 
-    BusRd   <= BusRd_4toDRAM when (BusRd_4toDRAM = '1' or BusWr_4toDRAM = '1') else
-               BusRd_1toDRAM;
-    BusWr   <= BusWr_4toDRAM when (BusRd_4toDRAM = '1' or BusWr_4toDRAM = '1') else
-               BusWr_1toDRAM;
-
-    BusReady_DRAMto1 <= '0' when (BusRd_4toDRAM = '1' or BusWr_4toDRAM = '1') else
-                        BusReady;
-    BusReady_DRAMto5 <= BusReady;
-     
     DRAM : main_mem
-     port map(addr               => busAddr,
-             write_data         => busWrDataMem, -- OBS: We never write Global mem, IC don't write and DC don't do refill operations
-             read_data          => busRdDataMem,
-             Rd                 => BusRd,
-             Wr                 => BusWr,
-             Ready              => BusReady,
+     port map(addrIC             => busAddrIC,
+             write_dataIC       => busWrDataMemIC, 
+             read_dataIC        => busRdDataMemIC,
+             addrDC             => busAddrDC,
+             write_dataDC       => busWrDataMemDC, 
+             read_dataDC        => busRdDataMemDC,
+             BusRdIC            => BusRdIC,
+             BusWrIC            => BusWrIC,
+             BusReadyIC         => BusReadyIC,
+             BusRdDC            => BusRdDC,
+             BusWrDC            => BusWrDC,
+             BusReadyDC         => BusReadyDC,
              reset              => boot,
              clk                => clk);
     

@@ -21,9 +21,9 @@ architecture Structure of CachedMIPS32test is
 begin
   
     clk       <= not clk after 50 ps;
-	 boot <= '1' after 25 ps, '0' after 150 ps;
+	 boot <= '1' after 5 ps, '0' after 55 ps;
 
-	 interrupt <= '0' after 20 ps, '0' after 520 ps, '0' after 620 ps;
+	 interrupt <= '0' after 20 ps, '1' after 3000 ps, '0' after 3020 ps;
   
     processor : CachedMIPS32
     port map (clk                => clk,
