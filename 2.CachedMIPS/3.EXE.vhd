@@ -88,6 +88,8 @@ architecture Structure of execute is
             addr_rd_out     :   out std_logic_vector(5 downto 0);   
             addr_jump_in    :   in  std_logic_vector(31 downto 0);  
             addr_jump_out   :   out std_logic_vector(31 downto 0);  
+            write_data_in   :   in  std_logic_vector(31 downto 0);  
+            write_data_out  :   out std_logic_vector(31 downto 0); 
             -- control signals
             RegWrite_in     :   in  std_logic;                                  
             RegWrite_out    :   out std_logic;  
@@ -139,6 +141,7 @@ architecture Structure of execute is
     signal addr_rt_reg      :   std_logic_vector(5 downto 0);       
     signal addr_rd_reg      :   std_logic_vector(5 downto 0);   
     signal addr_jump_reg    :   std_logic_vector(31 downto 0);  
+    signal write_data_reg   :   std_logic_vector(31 downto 0);
     signal RegWrite_reg     :   std_logic;  
     signal Jump_reg         :   std_logic;  
     signal Branch_reg       :   std_logic;  
@@ -216,6 +219,8 @@ begin
              addr_rd_out    => addr_rd_reg,
              addr_jump_in   => addr_jump_in,
              addr_jump_out  => addr_jump_reg,
+             write_data_in  => write_data_in,
+             write_data_out => write_data_reg,
              RegWrite_in    => RegWrite_in,
              RegWrite_out   => RegWrite_reg,
              Jump_in        => Jump_in,
@@ -273,7 +278,7 @@ begin
     addr_jump_out   <= addr_jump_reg;
     write_data_out  <= fwd_path_cache      when fwd_cache_regmem = '1' else
                        fwd_path_lookup     when fwd_lookup_regmem = '1' else
-                       write_data_in;
+                       write_data_reg;
 
     RegWrite_out    <= '0' when NOP_to_L = '1' or exception_internal = '1' else
                         RegWrite_reg;
