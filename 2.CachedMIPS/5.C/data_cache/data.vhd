@@ -28,7 +28,7 @@ begin
 					  container_128( 95 downto 64) when block_offset = "10" else
 					  container_128(127 downto 96);
 
-    data_write : process(index)
+    data_write : process(index,writeEnable,write_data)
     begin
         if (writeEnable = '1') then
             mem_data(to_integer(unsigned(index)))(31 downto 0) <= write_data;

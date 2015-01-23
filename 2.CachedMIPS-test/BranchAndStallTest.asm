@@ -38,24 +38,23 @@ FINISH:
 #########################################
 #########################################
 #########################################  CachedMIPS :
------------------CPI_loop = 15 cyles / 8 inst = 1,875 -----------------
+-----------------CPI_loop = 18 cyles / 8 inst = 2.25 -----------------
 
                                            10  12  14  16  17  18
                     PC    1 2 3 4 5 6 7 8 9  11  13  15  18  19  20
-addi R4, R0, 4      00    F F F D E L C W                                 <- Miss IC
-addi R5, R0, 0      04          F D E L C W                               <- Hit IC
+addi R4, R0, 4      00    F F F F D E L C W                                  <- Miss IC
+addi R5, R0, 0      04            F D E L C W                                <- Hit IC
 ------------------------------------------------------------------#LOOP
-lw   R6, 0(R4)      08            F D E L L L  C W                        <- Hit IC, Miss DC, R4 comes from a forwarding path from L unit to E
-lw   R7, 4(R4)      0c              F D E  E E L C W                      <- Hit IC, Hit DC, R4 comes from a forwarding path from C unit to E
-add  R5, R6, R7     10                F F D D D E L C W                   <- Miss IC, Stall due true dependency R7 not ready, R7 comes from fwd C to E
-addi R6, R5, 8      14                    F F F D E L C W               <- R5 comes from a forwarding path from E unit to E
-                       
-sw   R6, 4(R4)      18                  F D E M W
-beq  R4, R0, FINISH 1c                    F D E M W                     <- don't branch in M because it's not going to jump 
-addi R4, R0, 4      20                      F D E M W
-j    LOOP           24                        F D E M W                 <- Jump in EXE stage, put nops in IF,ID,ALU 
-sll  R0, R0, 0      28                          F D - - -
--                   2C                            F - - - -
+lw   R6, 0(R4)      08              F D E L L L L C W                        <- Hit IC, Miss DC, R4 comes from a forwarding path from L unit to E
+lw   R7, 4(R4)      0c                F D E E E E L C W                      <- Hit IC, Hit DC, R4 comes from a forwarding path from C unit to E
+add  R5, R6, R7     10                  F F F f f D E L C W                  <- Miss IC, Stall due true dependency R7 not ready, R7 comes from fwd C to E
+addi R6, R5, 8      14                            F F F F D E L C W          <- R5 comes from a forwarding path from E unit to E
+sw   R6, 4(R4)      18                                    F D E L L L L C W
+beq  R4, R0, FINISH 1c                                      F D E L C W                  <- don't branch in M because it's not going to jump 
+addi R4, R0, 4      20                                        F F F F D E L C W          <- Miss IC
+j    LOOP           24                                                F D E L C W        <- Jump in EXE stage, put nops in IF,ID,ALU 
+sll  R0, R0, 0      28                                                  F D - - -
+-                   2C                                                    F - - - -
 ----------------------------------------------------------------------    
 lw R6, O(R4)        08                              F D E M W           <- Jump resolved with a PC=0008
 #########################################
@@ -70,9 +69,8 @@ addi R5, R0, 0      04      F D E M W
 ------------------------------------------------------------------#LOOP
 lw   R6, 0(R4)      08        F D E M W                                 <- R4 comes from a forwarding path from M unit to E
 lw   R7, 4(R4)      0c          F D E M W              
-add  R5, R6, R7     10            F D - - -                             <- Stall due true dependency R7 not ready
-addi R6, R5, 8      14              F D E M W
-                    14                F D E M W                         <- R5 comes from a forwarding path from E unit to E
+add  R5, R6, R7     10            F D D E M W                           <- Stall due true dependency R7 not ready
+addi R6, R5, 8      14              F F D E M W                         <- R5 comes from a forwarding path from E unit to E                   
 sw   R6, 4(R4)      18                  F D E M W
 beq  R4, R0, FINISH 1c                    F D E M W                     <- don't branch in M because it's not going to jump 
 addi R4, R0, 4      20                      F D E M W

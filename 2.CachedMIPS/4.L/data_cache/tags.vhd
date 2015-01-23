@@ -20,7 +20,7 @@ begin
     
     tagRead <= mem_tags(to_integer(unsigned(index)));
 
-    write_tags : process(index,tagWrite,WriteEnable)
+    write_tags : process(index,WriteEnable)
     begin
         if (WriteEnable = '1') then
             mem_tags(to_integer(unsigned(index))) <= tagWrite;
