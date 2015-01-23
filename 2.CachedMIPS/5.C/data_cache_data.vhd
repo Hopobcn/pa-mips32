@@ -21,7 +21,7 @@ architecture Structure of data_cache_data is
     component ddata is
     port (-- data buses
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
-          block_offset  : in  std_logic_vector(1 downto 0); -- offset inside a container (1 container == 4 words)
+          block_offset  : in  std_logic_vector(3 downto 0); -- offset inside a container (1 container == 4 words)
           write_data    : in  std_logic_vector(31 downto 0);
           fill          : in  std_logic_vector(127 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
@@ -36,8 +36,8 @@ architecture Structure of data_cache_data is
 begin
 
     DATA : ddata
-    port map(index        => addr(6 downto 2),
-             block_offset => addr(1 downto 0),
+    port map(index        => addr(8 downto 4),
+             block_offset => addr(3 downto 0),
              write_data   => write_data,
 				 fill         => busDataMem,
              read_data    => readCache,

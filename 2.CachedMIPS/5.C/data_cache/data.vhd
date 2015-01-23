@@ -7,7 +7,7 @@ use ieee.std_logic_unsigned.all;
 entity ddata is
     port (-- data buses
           index         : in  std_logic_vector(4 downto 0); -- 32 containers == 5 bits of index
-          block_offset  : in  std_logic_vector(1 downto 0); -- offset inside a container (1 container == 4 words)
+          block_offset  : in  std_logic_vector(3 downto 0); -- offset inside a container (1 container == 4 words)
           write_data    : in  std_logic_vector(31 downto 0);
           fill          : in  std_logic_vector(127 downto 0);
           read_data     : out std_logic_vector(31 downto 0);
@@ -25,10 +25,10 @@ begin
     
     container_128 <= mem_data(to_integer(unsigned(index)));
 
-    read_data <= container_128( 31 downto  0) when block_offset = "00" else
-	              container_128( 63 downto 32) when block_offset = "01" else
-					  container_128( 95 downto 64) when block_offset = "10" else
-					  container_128(127 downto 96);
+    read_data <= container_128( 31 downto  0) when block_offset = "0000" else -- ALIGNED CASES
+                 container_128( 63 downto 32) when block_offset = "0010" else
+                 container_128( 95 downto 64) when block_offset = "0100" else
+                 container_128(127 downto 96); --  block_offset = "1000"
 
     data_write : process(index,writeEnable,WriteOrFill)
     begin
