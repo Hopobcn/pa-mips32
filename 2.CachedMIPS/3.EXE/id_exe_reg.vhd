@@ -23,6 +23,8 @@ entity id_exe_reg is
           addr_jump_out    : out std_logic_vector(31 downto 0);  
           rob_addr_in      : in  std_logic_vector(2 downto 0);
           rob_addr_out     : out std_logic_vector(2 downto 0);
+          write_data_in    : in  std_logic_vector(31 downto 0);  
+          write_data_out   : out std_logic_vector(31 downto 0); 
           -- control signals
           RegWrite_in      : in  std_logic;                                  
           RegWrite_out     : out std_logic;  
@@ -83,6 +85,7 @@ begin
                 addr_rd_out      <= addr_rd_in;
                 addr_jump_out    <= addr_jump_in;
                 rob_addr_out     <= rob_addr_in;
+                write_data_out   <= write_data_in;
                 RegWrite_out     <=  RegWrite_in;
                 Jump_out         <=  Jump_in;
                 Branch_out       <=  Branch_in;

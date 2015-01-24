@@ -7,14 +7,16 @@ entity lookup is
           addr_branch_in     : in  std_logic_vector(31 downto 0);  --from EXE
           addr_branch_out    : out std_logic_vector(31 downto 0);  --to IF
           addr_in            : in  std_logic_vector(31 downto 0);  --from EXE --named alu_res in EXE
-             addr_out           : out std_logic_vector(31 downto 0);  --to CACHE
+          addr_out           : out std_logic_vector(31 downto 0);  --to CACHE
           write_data_mem_in  : in  std_logic_vector(31 downto 0);  --from EXE
-             write_data_mem_out : out std_logic_vector(31 downto 0);  --to CACHE
+          write_data_mem_out : out std_logic_vector(31 downto 0);  --to CACHE
           addr_regw_in       : in  std_logic_vector(5 downto 0);   --from EXE
           addr_regw_out      : out std_logic_vector(5 downto 0);   --to CACHE, WB, then IF
           fwd_path_lookup    : out std_logic_vector(31 downto 0);  --to ID [FWD]
           rob_addr_in        : in  std_logic_vector(2 downto 0);   --from EXE (ReOrderBuffer-related)
           rob_addr_out       : out std_logic_vector(2 downto 0);
+          busWrDataMemWrite  : out std_logic_vector(31 downto 0);  --to DRAM
+          busAddrDC          : out std_logic_vector(31 downto 0);  --to DRAM
           -- control signals
           clk                : in  std_logic;
           boot               : in  std_logic;
@@ -24,6 +26,7 @@ entity lookup is
           BranchTaken        : out std_logic;                      --to control (identify end of branch stall)
           PCSrc              : out std_logic;                      --to ID
           MemRead            : in  std_logic;                      --from EXE
+             MemRead_out        : out std_logic;                      --to Hazard Control (we need to wait in case of a Load dependences)
           MemWrite           : in  std_logic;                      --from EXE
           ByteAddress_in     : in  std_logic;                      --from EXE
           ByteAddress_out    : out std_logic;                      --to CACHE
@@ -33,14 +36,14 @@ entity lookup is
           MemtoReg_out       : out std_logic;                      --to CACHE
           Zero               : in  std_logic;                      --from EXE
              -- interface with data_cache data
-             WriteCache         : out std_logic;                      --to CACHE
+          WriteCache         : out std_logic;                      --to CACHE
           muxDataR           : out std_logic;                      --to CACHE
           muxDataW           : out std_logic;                      --to CACHE 
           BusRd              : out std_logic;                      --to Main Memory
           BusWr              : out std_logic;                      --to Main Memory
           BusReady           : in  std_logic;                      --from Main Memory
              -- interface with Hazard Control
-             DC_Ready           : out std_logic;                      --to Hazard Ctrl
+          DC_Ready           : out std_logic;                      --to Hazard Ctrl
           NOP_to_C           : in  std_logic;                      --from Hazard Control
           Stall              : in  std_logic;                      --from Hazard Control
           -- exception bits
@@ -129,6 +132,7 @@ architecture Structure of lookup is
     
     component data_cache_lookup is
     port (addr        :  in  std_logic_vector(31 downto 0);
+          busAddrDC   :  out std_logic_vector(31 downto 0);
           -- control signals;
           PrRd        :  in  std_logic;
           PrWr        :  in  std_logic;
@@ -214,6 +218,7 @@ begin
 
      TAGS_AND_STATE : data_cache_lookup
     port map(addr       => addr_reg,
+             busAddrDC  => busAddrDC,
              PrRd       => MemRead_reg,
              PrWr       => MemWrite_reg,
              Ready      => DC_Ready,
@@ -225,7 +230,9 @@ begin
              BusReady   => BusReady,
              clk        => clk,
              reset      => boot );
-             
+
+    busWrDataMemWrite <= write_data_mem_reg;             
+     
      -- NOP
     RegWrite_out    <= '0' when NOP_to_C = '1' or exception_internal = '1' else
                         RegWrite_reg;
@@ -236,7 +243,10 @@ begin
                        
     PCSrc           <= '0' when NOP_to_C = '1' or exception_internal = '1' else
                        Branch_reg and Zero_reg; 
-    
+                              
+    MemRead_out     <= '0' when NOP_to_C = '1' or exception_internal = '1' else
+                       MemRead_reg; 
+                              
     ByteAddress_out <= ByteAddress_reg;
     WordAddress_out <= WordAddress_reg;
     MemtoReg_out    <=  MemtoReg_reg;

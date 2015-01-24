@@ -11,7 +11,7 @@ entity execute is
           sign_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           zero_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           addr_rt_in          :   in  std_logic_vector(5 downto 0);   --from ID
-          addr_rt_out         :   out std_logic_vector(5 downto 0);   --to Hazard Ctrl
+             addr_rt_out         :   out std_logic_vector(5 downto 0);   --to FWD Control
           addr_rd             :   in  std_logic_vector(5 downto 0);   --from ID
           addr_jump_in        :   in  std_logic_vector(31 downto 0);  --from ID
           addr_jump_out       :   out std_logic_vector(31 downto 0);  --to IF
@@ -92,6 +92,8 @@ architecture Structure of execute is
             addr_jump_out   :   out std_logic_vector(31 downto 0);  
             rob_addr_in     :   in  std_logic_vector(2 downto 0);
             rob_addr_out    :   out std_logic_vector(2 downto 0);
+            write_data_in   :   in  std_logic_vector(31 downto 0);  
+            write_data_out  :   out std_logic_vector(31 downto 0); 
             -- control signals
             RegWrite_in     :   in  std_logic;                                  
             RegWrite_out    :   out std_logic;  
@@ -144,6 +146,7 @@ architecture Structure of execute is
     signal addr_rd_reg      :   std_logic_vector(5 downto 0);   
     signal addr_jump_reg    :   std_logic_vector(31 downto 0);  
     signal rob_addr_reg     :   std_logic_vector(2 downto 0);
+    signal write_data_reg   :   std_logic_vector(31 downto 0);
     signal RegWrite_reg     :   std_logic;  
     signal Jump_reg         :   std_logic;  
     signal Branch_reg       :   std_logic;  
@@ -223,6 +226,8 @@ begin
              addr_jump_out  => addr_jump_reg,
              rob_addr_in    => rob_addr_in,
              rob_addr_out   => rob_addr_reg,
+             write_data_in  => write_data_in,
+             write_data_out => write_data_reg,
              RegWrite_in    => RegWrite_in,
              RegWrite_out   => RegWrite_reg,
              Jump_in        => Jump_in,
@@ -280,7 +285,7 @@ begin
     addr_jump_out   <= addr_jump_reg;
     write_data_out  <= fwd_path_cache      when fwd_cache_regmem = '1' else
                        fwd_path_lookup     when fwd_lookup_regmem = '1' else
-                       write_data_in;
+                       write_data_reg;
                        
     rob_addr_out    <= rob_addr_reg;
 
@@ -309,7 +314,6 @@ begin
              SignedSrc  => SignedSrc,
              ShiftSrc   => ShiftSrc);
                 
-    addr_rt_out <= addr_rt_reg;
     
     shamt <= "000000000000000000000000000" & zero_ext_reg(10 downto 6);
     
@@ -339,8 +343,8 @@ begin
                     x"00000000";
     alu_res      <= alu_result when NOP_to_L = '0' else 
                     x"00000000";
-            
-        
+                          
+    addr_rt_out <= addr_rt_reg;        
     addr_regw   <= addr_rt_reg  when RegDst_reg = '0' else
                    addr_rd_reg; 
 

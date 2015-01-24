@@ -114,7 +114,7 @@ architecture Structure of CachedMIPS32 is
           sign_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           zero_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           addr_rt_in          :   in  std_logic_vector(5 downto 0);   --from ID
-          addr_rt_out         :   out std_logic_vector(5 downto 0);   --to Hazard Ctrl
+             addr_rt_out         :   out std_logic_vector(5 downto 0);   --to FWD Control
           addr_rd             :   in  std_logic_vector(5 downto 0);   --from ID
           addr_jump_in        :   in  std_logic_vector(31 downto 0);  --from ID
           addr_jump_out       :   out std_logic_vector(31 downto 0);  --to IF
@@ -183,6 +183,8 @@ architecture Structure of CachedMIPS32 is
           fwd_path_lookup    : out std_logic_vector(31 downto 0);  --to ID [FWD]
           rob_addr_in        : in  std_logic_vector(2 downto 0);   --ReOrder Buffer pipelined
           rob_addr_out       : out std_logic_vector(2 downto 0);
+          busWrDataMemWrite  : out std_logic_vector(31 downto 0);  --to DRAM 
+          busAddrDC          : out std_logic_vector(31 downto 0);  --to DRAM
           -- control signals
           clk                : in  std_logic;
           boot               : in  std_logic;
@@ -192,6 +194,7 @@ architecture Structure of CachedMIPS32 is
           BranchTaken        : out std_logic;                      --to control (identify end of branch stall)
           PCSrc              : out std_logic;                      --to ID
           MemRead            : in  std_logic;                      --from EXE
+             MemRead_out        : out std_logic;                      --to Hazard Control (we need to wait in case of a Load dependences)
           MemWrite           : in  std_logic;                      --from EXE
           ByteAddress_in     : in  std_logic;                      --from EXE
           ByteAddress_out    : out std_logic;                      --to CACHE
@@ -340,8 +343,10 @@ architecture Structure of CachedMIPS32 is
     component hazard_ctrl is
     port (idRegisterRs    : in  std_logic_vector(5 downto 0);  --consumidor
           idRegisterRt    : in  std_logic_vector(5 downto 0);  --consumidor
-          exeRegisterRt   : in  std_logic_vector(5 downto 0);  --productor (load)
+          exeRegisterRd   : in  std_logic_vector(5 downto 0);  --productor (load) in exe
+          tagRegisterRd   : in  std_logic_vector(5 downto 0);  --productor (load) in lookup
           exeMemRead      : in  std_logic;
+          tagMemRead      : in  std_logic;
           Branch          : in  std_logic;                     -- from LOOKUP stage (1=branch taken)
           Jump            : in  std_logic;                     -- from EXE stage
           Exception       : in  std_logic;                     -- from Exception Ctrl (LOOKUP stage) --wait until instruction is the oldest ``alive''
@@ -470,7 +475,7 @@ architecture Structure of CachedMIPS32 is
     
     signal addr_rs_2toCtrl          :   std_logic_vector(5 downto 0);
     signal addr_rt_2to3             :   std_logic_vector(5 downto 0);
-    signal addr_rt_3toHazardCtrl    :   std_logic_vector(5 downto 0);
+     signal addr_rt_3toCtrl          :   std_logic_vector(5 downto 0);
     signal addr_rd_2to3             :   std_logic_vector(5 downto 0);
     signal addr_regw_3to4           :   std_logic_vector(5 downto 0);
     signal addr_regw_4to5           :   std_logic_vector(5 downto 0);
@@ -512,7 +517,8 @@ architecture Structure of CachedMIPS32 is
     
     signal MemRead_2to3             :   std_logic;
     signal MemRead_3to4             :   std_logic;
-    
+    signal MemRead_4toCtrl          :   std_logic;
+     
     signal MemWrite_2to3            :   std_logic;
     signal MemWrite_3to4            :   std_logic;
     signal MemWrite_2toHazardCtrl   :   std_logic;
@@ -768,7 +774,7 @@ begin
              sign_ext           => sign_ext_2to3,
              zero_ext           => zero_ext_2to3,
              addr_rt_in         => addr_rt_2to3,
-             addr_rt_out        => addr_rt_3toHazardCtrl,
+                 addr_rt_out        => addr_rt_3toCtrl,
              addr_rd            => addr_rd_2to3,
              addr_jump_in       => addr_jump_2to3,
              addr_jump_out      => addr_jump_3to1,
@@ -837,6 +843,8 @@ begin
              fwd_path_lookup    => fwd_path_lookup_4to2,
              rob_addr_in        => rob_addr_EXE_L,
              rob_addr_out       => rob_addr_L_C,
+             busWrDataMemWrite  => busWrDataMemDC,
+             busAddrDC          => busAddrDC,
              clk                => clk,
              boot               => boot,
              RegWrite_in        => RegWrite_3to4,
@@ -845,6 +853,7 @@ begin
              BranchTaken        => BranchTaken_4toCtrl,
              PCSrc              => PCSrc_4to1,
              MemRead            => MemRead_3to4,
+                 MemRead_out        => MemRead_4toCtrl,
              MemWrite           => MemWrite_3to4,
              ByteAddress_in     => ByteAddress_3to4,
              ByteAddress_out    => ByteAddress_4to5,
@@ -877,8 +886,7 @@ begin
              Exc_Cause_out      => Exc_Cause_at_lookup,
              Exc_EPC_in         => Exc_EPC_at_exe,
              Exc_EPC_out        => Exc_EPC_at_lookup );
-    busAddrDC <= alu_res_4to5; -- Alu res is the Address computed in LD/ST
-     
+
     fifth_stage : cache
     port map(addr               => alu_res_4to5,
              write_data_mem     => write_data_4to5, 
@@ -977,8 +985,10 @@ begin
     hazard_contol_logic : hazard_ctrl
     port map(idRegisterRs       => addr_rs_2toCtrl,
              idRegisterRt       => addr_rt_2to3,
-             exeRegisterRt      => addr_rt_3toHazardCtrl, --this is addr_rt
+             exeRegisterRd      => addr_regw_3to4, 
+                 tagRegisterRd      => addr_regw_4to5,
              exeMemRead         => MemRead_3to4,
+             tagMemRead         => MemRead_4toCtrl,
              Branch             => BranchTaken_4toCtrl,
              Jump               => Jump_3toCtrl,
              Exception          => Exception_ExcepCtrlOut,
@@ -1005,7 +1015,7 @@ begin
     port map(idRegisterRs       => addr_rs_2toCtrl,
              idRegisterRt       => addr_rt_2to3,
              exeRegisterRd      => addr_regw_3to4,
-             exeRegisterRt      => addr_rt_3toHazardCtrl,
+             exeRegisterRt      => addr_rt_3toCtrl,
              tagRegisterRd      => addr_regw_4to5,
              dcaRegisterRd      => addr_regw_5to6,
              exeRegWrite        => RegWrite_3to4,

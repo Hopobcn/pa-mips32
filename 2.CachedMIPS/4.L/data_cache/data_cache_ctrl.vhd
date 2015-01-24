@@ -86,7 +86,7 @@ begin
 
     proc_output_logic : process(procCurrState,PrRd,PrWr,Hit,BusReady)
     begin
-        Ready      <= '0';
+        Ready      <= (not PrWr) and ((Hit and PrRd) or (not PrRd));
         --BusRd      <= '0';
         --BusWr      <= '0';
         WriteTags  <= '0';
@@ -129,7 +129,7 @@ begin
             if (BusReady = '1') then
                 Ready      <= '1';
                 BusRd      <= '0';
-                BusWr      <= '0';
+                BusWr      <= '1';
                 WriteTags  <= '1';
                 WriteState <= '0';
                 WriteCache <= '0';
@@ -142,7 +142,7 @@ begin
             if (BusReady = '1') then
                 Ready      <= '1';
                 BusRd      <= '0';
-                BusWr      <= '0';
+                BusWr      <= '1';
                 WriteTags  <= '0';
                 WriteState <= '0';
                 WriteCache <= '0';

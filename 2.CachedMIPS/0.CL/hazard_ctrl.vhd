@@ -5,8 +5,10 @@ use ieee.std_logic_1164.all;
 entity hazard_ctrl is
     port (idRegisterRs    : in  std_logic_vector(5 downto 0);  --consumidor
           idRegisterRt    : in  std_logic_vector(5 downto 0);  --consumidor
-          exeRegisterRt   : in  std_logic_vector(5 downto 0);  --productor (load)
+          exeRegisterRd   : in  std_logic_vector(5 downto 0);  --productor (load) in exe
+          tagRegisterRd   : in  std_logic_vector(5 downto 0);  --productor (load) in lookup
           exeMemRead      : in  std_logic;
+          tagMemRead      : in  std_logic;
           Branch          : in  std_logic;                     -- from LOOKUP stage (1=branch taken)
           Jump            : in  std_logic;                     -- from EXE stage
           Exception       : in  std_logic;                     -- from Exception Ctrl (LOOKUP stage) --wait until instruction is the oldest ``alive''
@@ -34,7 +36,7 @@ architecture Structure of hazard_ctrl is
     
 begin
                        
-    stall_logic : process(idRegisterRs,idRegisterRt,exeRegisterRt,exeMemRead,Branch,Jump,Exception,Interrupt,IC_Ready,DC_Ready)
+    stall_logic : process(idRegisterRs,idRegisterRt,exeRegisterRd,tagRegisterRd,exeMemRead,tagMemRead,Branch,Jump,Exception,Interrupt,IC_Ready,DC_Ready)
     begin
         ROB_Update      <= '1';
         Stall_LP        <= '0';
@@ -74,7 +76,7 @@ begin
             Stall_IF_ID     <= '1';
             Stall_ID_EXE    <= '1';
             Stall_EXE_LOOKUP<= '1';
-                NOP_to_C        <= '0';
+                NOP_to_C        <= '1';
         elsif (Branch = '1') then 
             ROB_Update      <= '0';
             NOP_to_LP       <= '1';
@@ -86,9 +88,11 @@ begin
             NOP_to_LP       <= '1';
             NOP_to_ID       <= '1';
             NOP_to_EXE      <= '1';
-        elsif ((idRegisterRs = exeRegisterRt or idRegisterRt = exeRegisterRt) and exeMemRead = '1') then
-              -- TODO: Rethink LOAD dependences with 6 stages! maybe we have more depenence problems
-            ROB_Update      <= '0';
+        elsif ((idRegisterRs = exeRegisterRd or idRegisterRt = exeRegisterRd) and exeMemRead = '1') then -- LOAD in exe (we need to wait until C to forward)
+            Stall_PC        <= '1';
+            Stall_IF_ID     <= '1';
+            NOP_to_EXE      <= '1';
+        elsif ((idRegisterRs = tagRegisterRd or idRegisterRt = tagRegisterRd) and tagMemRead = '1') then -- LOAD in lookup (we need to wait until C to forward)
             Stall_PC        <= '1';
             Stall_IF_ID     <= '1';
             NOP_to_LP       <= '1';
