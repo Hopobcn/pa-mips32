@@ -97,15 +97,15 @@ etc...
 -----------------CPI_loop = ...???... -----------------
 
                     PC    1 2 3 4 5 6 7 8 9  11  13  15  18  19  20
-addi R4, R0, 4      00    F F F F D E w W                                    <- Miss IC
-addi R5, R0, 0      04            F D E w W                                  <- Hit IC
+addi R4, R0, 4      00    F F F D E w W                                    <- Miss IC
+addi R5, R0, 0      04          F D E w W                                  <- Hit IC
 ------------------------------------------------------------------#LOOP
-lw   R6, 0(R4)      08              F D E L L L L C w W                      <- Hit IC, Miss DC, R4 comes from a forwarding path from L unit to E
-lw   R7, 4(R4)      0c                F D E E E E L C w W                    <- Hit IC, Hit DC, R4 comes from a forwarding path from C unit to E
-add  R5, R6, R7     10                  F F F f f D E E w W                  <- Miss IC, Stall due true dependency R7 not ready, R7 comes from fwd C to E
-                                                                                  --additionally: the write to ROB is blocked by previous instructions
-addi R6, R5, 8      14                            F F F F D E w W            <- R5 comes from a forwarding path from E unit to E
-sw   R6, 4(R4)      18                                    F D E L L L L C W  <- ???
+lw   R6, 0(R4)      08            F D E L L L L C w W                      <- Hit IC, Miss DC, R4 comes from a forwarding path from L unit to E
+lw   R7, 4(R4)      0c              F D E E E E L C w W                    <- Hit IC, Hit DC, R4 comes from a forwarding path from C unit to E
+add  R5, R6, R7     10                F F F f f D E E w W                  <- Miss IC, Stall due true dependency R7 not ready, R7 comes from fwd C to E
+                                                                                --additionally: the write to ROB is blocked by previous instructions
+addi R6, R5, 8      14                          F F F F D E w W            <- R5 comes from a forwarding path from E unit to E
+sw   R6, 4(R4)      18                                  F D E L L L L C W  <- ???
 beq  R4, R0, FINISH 1c                                      
 addi R4, R0, 4      20                                      
 j    LOOP           24                                      
