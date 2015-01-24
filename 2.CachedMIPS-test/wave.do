@@ -57,6 +57,25 @@ add wave -noupdate -group {Interrupt Control} -label {clear interrupts [in]} /ca
 add wave -noupdate -group {Interrupt Control} -label {interrupt flag [out]} /cachedmips32test/processor/interrupts_control_logic/int_flag
 add wave -noupdate -group {Interrupt Control} -label clk /cachedmips32test/processor/interrupts_control_logic/clk
 add wave -noupdate -group {Interrupt Control} -label boot /cachedmips32test/processor/interrupts_control_logic/boot
+add wave -noupdate -group {ReOrder Buffer} -label {Except Flag} /cachedmips32test/processor/rob_control_logic/except_flag
+add wave -noupdate -group {ReOrder Buffer} -label {Except Addr (in ROB)} /cachedmips32test/processor/rob_control_logic/except_addr
+add wave -noupdate -group {ReOrder Buffer} -label {Value Flag} /cachedmips32test/processor/rob_control_logic/value_flag
+add wave -noupdate -group {ReOrder Buffer} -label {Value Addr (in ROB)} /cachedmips32test/processor/rob_control_logic/value_addr
+add wave -noupdate -group {ReOrder Buffer} -label {Value (from ALU)} -radix hexadecimal /cachedmips32test/processor/rob_control_logic/value_alu
+add wave -noupdate -group {ReOrder Buffer} -label {Value (mem address)} -radix hexadecimal /cachedmips32test/processor/rob_control_logic/value_mem
+add wave -noupdate -group {ReOrder Buffer} -label {Register rf write} /cachedmips32test/processor/rob_control_logic/rf_write
+add wave -noupdate -group {ReOrder Buffer} -label {Register rf addr} /cachedmips32test/processor/rob_control_logic/rf_addr
+add wave -noupdate -group {ReOrder Buffer} -label {Register rf value} -radix hexadecimal /cachedmips32test/processor/rob_control_logic/rf_val
+add wave -noupdate -group {ReOrder Buffer} -label {New Entry flag} /cachedmips32test/processor/rob_control_logic/newentry_flag
+add wave -noupdate -group {ReOrder Buffer} -label {New Entry store} /cachedmips32test/processor/rob_control_logic/newentry_store
+add wave -noupdate -group {ReOrder Buffer} -label Ready /cachedmips32test/processor/rob_control_logic/ready
+add wave -noupdate -group {ReOrder Buffer} -label {Did push on last cycle} /cachedmips32test/processor/rob_control_logic/did_push
+add wave -noupdate -group {ReOrder Buffer} -label {Did pop on last cycle} /cachedmips32test/processor/rob_control_logic/did_pop
+add wave -noupdate -group {ReOrder Buffer} -label {Kept empty flag (recognition)} /cachedmips32test/processor/rob_control_logic/keep_empty
+add wave -noupdate -group {ReOrder Buffer} -label {(internal) HEAD} /cachedmips32test/processor/rob_control_logic/i_head
+add wave -noupdate -group {ReOrder Buffer} -label {(internal) TAIL} /cachedmips32test/processor/rob_control_logic/i_tail
+add wave -noupdate -group {ReOrder Buffer} -label DATA -radix hexadecimal -childformat {{/cachedmips32test/processor/rob_control_logic/data(7) -radix hexadecimal} {/cachedmips32test/processor/rob_control_logic/data(6) -radix hexadecimal} {/cachedmips32test/processor/rob_control_logic/data(5) -radix hexadecimal} {/cachedmips32test/processor/rob_control_logic/data(4) -radix hexadecimal} {/cachedmips32test/processor/rob_control_logic/data(3) -radix hexadecimal} {/cachedmips32test/processor/rob_control_logic/data(2) -radix hexadecimal} {/cachedmips32test/processor/rob_control_logic/data(1) -radix hexadecimal} {/cachedmips32test/processor/rob_control_logic/data(0) -radix hexadecimal}} -subitemconfig {/cachedmips32test/processor/rob_control_logic/data(7) {-height 17 -radix hexadecimal} /cachedmips32test/processor/rob_control_logic/data(6) {-height 17 -radix hexadecimal} /cachedmips32test/processor/rob_control_logic/data(5) {-height 17 -radix hexadecimal} /cachedmips32test/processor/rob_control_logic/data(4) {-height 17 -radix hexadecimal} /cachedmips32test/processor/rob_control_logic/data(3) {-height 17 -radix hexadecimal} /cachedmips32test/processor/rob_control_logic/data(2) {-height 17 -radix hexadecimal} /cachedmips32test/processor/rob_control_logic/data(1) {-height 17 -radix hexadecimal} /cachedmips32test/processor/rob_control_logic/data(0) {-height 17 -radix hexadecimal}} /cachedmips32test/processor/rob_control_logic/data
+add wave -noupdate -group {ReOrder Buffer} -label Tail /cachedmips32test/processor/rob_control_logic/tail
 add wave -noupdate -divider 0.MEM
 add wave -noupdate -group 0.MEM -label {addr IC} -radix hexadecimal /cachedmips32test/processor/DRAM/addrIC
 add wave -noupdate -group 0.MEM -label {addr DC} -radix hexadecimal /cachedmips32test/processor/DRAM/addrDC
