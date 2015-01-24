@@ -38,25 +38,36 @@ FINISH:
 #########################################
 #########################################
 #########################################  CachedMIPS :
------------------CPI_loop = 18 cyles / 8 inst = 2.25 -----------------
+-----------------CPI_loop = 37 cyles / 16 inst = 2.31 -----------------
 
-                                           10  12  14  16  18  20
-                    PC    1 2 3 4 5 6 7 8 9  11  13  15  17  19  21
-addi R4, R0, 4      00    F F F D E L C W                                  <- Miss IC
-addi R5, R0, 0      04          F D E L C W                                <- Hit IC
-------------------------------------------------------------------#LOOP
-lw   R6, 0(R4)      08            F D E L L L L C W                        <- Hit IC, Miss DC, R4 comes from a forwarding path from L unit to E
-lw   R7, 4(R4)      0c              F D E E E E L C W                      <- Hit IC, Hit DC, R4 comes from a forwarding path from C unit to E
-add  R5, R6, R7     10                F F F f f f D E L C W                <- Miss IC, Stall due true dependency R7 not ready, R7 comes from fwd C to E
-addi R6, R5, 8      14                              F D E L C W              <- R5 comes from a forwarding path from E unit to E
-sw   R6, 4(R4)      18                                F D E L L L L C W
-beq  R4, R0, FINISH 1c                                  F D D D D D E L C W            <- don't branch in M because it's not going to jump 
-addi R4, R0, 4      20                                        F F F F F D E L C W          <- Miss IC
-j    LOOP           24                                                  F D E L C W        <- Jump in EXE stage, put nops in IF,ID,ALU 
-sll  R0, R0, 0      28                                                    F D - - -
--                   2C                                                      F - - - -
-----------------------------------------------------------------------    
-lw R6, O(R4)        08                              F D E M W           <- Jump resolved with a PC=0008
+                                           10  12  14  16  18  20  22  24  26  28  30  32  34  36  38  40
+                    PC    1 2 3 4 5 6 7 8 9  11  13  15  17  19  21  23  25  27  29  31  33  35  37  39
+addi R4, R0, 4      00    F F F D E L C W                                                       <- Miss IC
+addi R5, R0, 0      04          F D E L C W                                                     <- Hit IC
+------------------------------------------------------------------#LOOP it 0
+lw   R6, 0(R4)      08            F D E L L L L C W                                                   <- Hit IC, Miss DC, R4 comes from a forwarding path from L unit to E
+lw   R7, 4(R4)      0c              F D E E E E L C W                                                 <- Hit IC, Hit DC, R4 comes from a forwarding path from C unit to E
+add  R5, R6, R7     10                F F F f f f D E L C W                                           <- Miss IC, Stall due true dependency R7 not ready, R7 comes from fwd C to E
+addi R6, R5, 8      14                            F D E L C W                                         <- Hit IC, R5 comes from a forwarding path from E unit to E
+sw   R6, 4(R4)      18                              F D E L L L L C W                                 <- Hit IC, Store in Cache & Main_Mem
+beq  R4, R0, FINISH 1c                                F D E E E E L C W                               <- Hit IC, don't branch in M because it's not going to jump 
+addi R4, R0, -4     20                                  F F F f f f D E L C W                         <- Miss IC,
+j    LOOP           24                                              F D E L C W                       <- Hit IC, Jump in EXE stage, put nops in IF,ID,ALU 
+sll  R0, R0, 0      28                                                F D - - -                       <- Hit IC
+-                   2C                                                  F - - - -                     <- Hit IC
+------------------------------------------------------------------#LOOP it 0
+lw   R6, O(R4)      08                                                    F D E L C W                 <- Hit IC, Jump resolved with a PC=0008, Hit in DC.
+lw   R7, 4(R4)      0c                                                      F D E L C W               <- Hit IC, Hit DC
+add  R5, R6, R7     10                                                        F D D D E L C W         <- Hit IC, Stall due true dependency R7 not ready, R7 comes from fwd C to E
+addi R6, R5, 8      14                                                          F F F D E L C W       <- Hit IC, R5 comes from a forwarding path from E unit to E
+sw   R6, 4(R4)      18                                                                F D E L L L C W    <- Hit IC, Store in Cache & Main_Mem
+beq  R4, R0, FINISH 1c                                                                  F D E E E L C W  <- Hit IC, Cicle-37 BranchTaken branch to PC=28
+addi R4, R0, -4     20                                                                    F D D D E - -
+j    LOOP           24                                                                      F F F D - -
+sll  R0, R0, 0      28                                                                            F - -
+-------------------------------------------------------------------
+sll  R0, R0, 0      28                                                                              F D E ... <- branch to PC=28 oops we branched to the same position xd
+-                   2C
 #########################################
 #########################################
 #########################################  PipelinedMIPS :

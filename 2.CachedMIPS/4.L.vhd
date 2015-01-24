@@ -24,6 +24,7 @@ entity lookup is
           BranchTaken        : out std_logic;                      --to control (identify end of branch stall)
           PCSrc              : out std_logic;                      --to ID
           MemRead            : in  std_logic;                      --from EXE
+			 MemRead_out        : out std_logic;                      --to Hazard Control (we need to wait in case of a Load dependences)
           MemWrite           : in  std_logic;                      --from EXE
           ByteAddress_in     : in  std_logic;                      --from EXE
           ByteAddress_out    : out std_logic;                      --to CACHE
@@ -222,7 +223,7 @@ begin
              clk        => clk,
              reset      => boot );
 
-    busWrDataMemWrite <= addr_reg;			 
+    busWrDataMemWrite <= write_data_mem_reg;			 
 	 
 	 -- NOP
     RegWrite_out    <= '0' when NOP_to_C = '1' or exception_internal = '1' else
@@ -234,7 +235,10 @@ begin
                        
     PCSrc           <= '0' when NOP_to_C = '1' or exception_internal = '1' else
                        Branch_reg and Zero_reg; 
-    
+							  
+    MemRead_out     <= '0' when NOP_to_C = '1' or exception_internal = '1' else
+                       MemRead_reg; 
+							  
     ByteAddress_out <= ByteAddress_reg;
     WordAddress_out <= WordAddress_reg;
     MemtoReg_out    <=  MemtoReg_reg;

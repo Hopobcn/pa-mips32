@@ -11,7 +11,7 @@ entity execute is
           sign_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           zero_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           addr_rt_in          :   in  std_logic_vector(5 downto 0);   --from ID
-          addr_rt_out         :   out std_logic_vector(5 downto 0);   --to Hazard Ctrl
+			 addr_rt_out         :   out std_logic_vector(5 downto 0);   --to FWD Control
           addr_rd             :   in  std_logic_vector(5 downto 0);   --from ID
           addr_jump_in        :   in  std_logic_vector(31 downto 0);  --from ID
           addr_jump_out       :   out std_logic_vector(31 downto 0);  --to IF
@@ -305,7 +305,6 @@ begin
              SignedSrc  => SignedSrc,
              ShiftSrc   => ShiftSrc);
                 
-    addr_rt_out <= addr_rt_reg;
     
     shamt <= "000000000000000000000000000" & zero_ext_reg(10 downto 6);
     
@@ -335,8 +334,8 @@ begin
                     x"00000000";
     alu_res      <= alu_result when NOP_to_L = '0' else 
                     x"00000000";
-            
-        
+						  
+    addr_rt_out <= addr_rt_reg;        
     addr_regw   <= addr_rt_reg  when RegDst_reg = '0' else
                    addr_rd_reg; 
 

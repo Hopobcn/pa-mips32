@@ -94,7 +94,8 @@ begin
               clk           => clk,
               reset         => reset);
      
-     -- Ask for the CacheLine not another thing!
-     BusAddrDC <= addr(31 downto 4) & "0000";
+     -- Ask for the CacheLine or pass the addres for writing into mem
+     BusAddrDC <= addr(31 downto 4) & "0000" when PrRd = '1' else
+                  addr;
                        
 end Structure;
