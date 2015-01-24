@@ -12,7 +12,7 @@ entity rob_ctrl is
 
       -- The value flag, for storing an intermediate value
       value_flag : in std_logic;
-      value_addr : in std_logic_vector(2 downto 0);   -- BUG Nº2 this isn't the register address in the Register file. It's the position on the ROB
+      value_robid : in std_logic_vector(2 downto 0);
       value_alu  : in std_logic_vector(31 downto 0);
       -- ... and the memory address for stores
       value_mem  : in std_logic_vector(31 downto 0);  -- BUG Nº1 value_mem not used
@@ -25,6 +25,8 @@ entity rob_ctrl is
       -- New entries (from decode stage)
       newentry_flag  : in std_logic; -- UB if using this while full
       newentry_store : in std_logic;
+      newentry_load  : in std_logic; -- mutually exclusive with store
+      newentry_regaddr : in std_logic_vector(4 downto 0);
 
       ready : out std_logic;  -- If head == tail and !empty, then we are full
       tail  : out std_logic_vector(2 downto 0)
@@ -32,9 +34,10 @@ entity rob_ctrl is
 end rob_ctrl;
 
 architecture Structure of rob_ctrl is
-    type ROB_DATA is array (7 downto 0) of std_logic_vector(105 downto 0);
+    type ROB_DATA is array (7 downto 0) of std_logic_vector(106 downto 0);
     -- *** Data inside the structure (each std_logic_Vector) ***
-    -- Bit 105 ValidData
+    -- Bit 106 ValidData
+    -- Bit 105 WorkInProgress
     -- Bit 104 ReadyToMem
     -- Bit 103 Exception
     -- Bit 102 Load flag
@@ -77,28 +80,28 @@ begin
           end if;
           
           if (value_flag = '1') then
-            if (data(to_integer(unsigned(value_addr)))(101) = '1' OR
-                data(to_integer(unsigned(value_addr)))(102) = '1') then
-              data(to_integer(unsigned(value_addr)))(63 downto 32) <= value_alu;
-              data(to_integer(unsigned(value_addr)))(105) <= '1'; -- mem operation ready
+            if (data(to_integer(unsigned(value_robid)))(101) = '1' OR
+                data(to_integer(unsigned(value_robid)))(102) = '1') then
+              data(to_integer(unsigned(value_robid)))(63 downto 32) <= value_alu;
+              data(to_integer(unsigned(value_robid)))(104) <= '1'; -- mem operation ready
             else
-              data(to_integer(unsigned(value_addr)))(31 downto 0) <= value_alu;
-              data(to_integer(unsigned(value_addr)))(105) <= '1'; -- value ready
+              data(to_integer(unsigned(value_robid)))(31 downto 0) <= value_alu;
+              data(to_integer(unsigned(value_robid)))(106) <= '1'; -- value ready
             end if;
           end if;
           
           -- Here, the commit-to-register-file part
-          if (data(to_integer(unsigned(i_head)))(105) = '1') then
+          if (data(to_integer(unsigned(i_head)))(106) = '1') then
             if (data(to_integer(unsigned(i_head)))(102) = '0') then
                 -- proceed to commit a value to the register file
                 rf_write <= '1';
-                rf_addr <= data(to_integer(unsigned(i_head)))(100 downto 96); -- BUG 3: Bits 100 downto 96 never initialized!!! This bug prevents any write to RegisterFIle to be successful 
+                rf_addr <= data(to_integer(unsigned(i_head)))(100 downto 96);
                 rf_val <= data(to_integer(unsigned(i_head)))(31 downto 0);
   
                 i_head <= std_logic_vector(unsigned(i_head) + 1);
             end if;
             
-            data(to_integer(unsigned(i_head)))(105 downto 0)  <= (others => '0');
+            data(to_integer(unsigned(i_head)))(106 downto 0)  <= (others => '0');
             data(to_integer(unsigned(i_head)))(99 downto 68) <= x"DEADBEEF";
             did_pop <= '1';
             keep_empty <= '1';
@@ -108,7 +111,11 @@ begin
   
           -- Here, the add-a-member part
           if (newentry_flag = '1') then
-            data(to_integer(unsigned(i_tail)))(105 downto 0)  <= (others => '0');
+            data(to_integer(unsigned(i_tail)))(106 downto 0)  <= (others => '0');
+            data(to_integer(unsigned(i_tail)))(100 downto 96) <= newentry_regaddr;
+            data(to_integer(unsigned(i_tail)))(105) <= '1';
+            data(to_integer(unsigned(i_tail)))(101) <= newentry_store;
+            data(to_integer(unsigned(i_tail)))(102) <= newentry_load;
             i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
             did_push <= '1';
             keep_empty <= '0';

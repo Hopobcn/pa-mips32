@@ -426,7 +426,7 @@ architecture Structure of CachedMIPS32 is
 
       -- The value flag, for storing an intermediate value
       value_flag : in std_logic;
-      value_addr : in std_logic_vector(2 downto 0);
+      value_robid : in std_logic_vector(2 downto 0);
       value_alu  : in std_logic_vector(31 downto 0);
       -- ... and the memory address for stores
       value_mem  : in std_logic_vector(31 downto 0);
@@ -439,6 +439,8 @@ architecture Structure of CachedMIPS32 is
       -- New entries (from decode stage)
       newentry_flag  : in std_logic; -- UB if using this while full
       newentry_store : in std_logic;
+      newentry_load  : in std_logic; -- mutually exclusive with store
+      newentry_regaddr : in std_logic_vector(4 downto 0);
 
       ready : out std_logic;  -- If head == tail and !empty, then we are full
       tail  : out std_logic_vector(2 downto 0)
@@ -655,14 +657,14 @@ architecture Structure of CachedMIPS32 is
     signal ROB_except_flag          :   std_logic;
     signal ROB_except_addr          :   std_logic_vector(2 downto 0);
     signal ROB_value_flag           :   std_logic;
-    signal ROB_value_addr           :   std_logic_vector(2 downto 0);
+    signal ROB_value_robid          :   std_logic_vector(2 downto 0);
     signal ROB_value_alu            :   std_logic_vector(31 downto 0);
     signal ROB_value_mem            :   std_logic_vector(31 downto 0);
     signal ROB_rf_write             :   std_logic;
     signal ROB_rf_addr              :   std_logic_vector(4 downto 0);
     signal ROB_rf_val               :   std_logic_vector(31 downto 0);
     signal ROB_newentry_flag        :   std_logic;
-    signal ROB_newentry_store       :   std_logic;
+    signal ROB_newentry_regaddr     :   std_logic_vector(4 downto 0);
 
   
     -- The signals from exception_ctrl to writeback
@@ -1046,7 +1048,7 @@ begin
                       '1' when RegWrite_3to4 = '1' AND addr_regw_3to4/= "000000" else
                       '1' when MemWrite_3to4 = '1' else
                       '0';
-    ROB_value_addr <= rob_addr_EXE_L when RegWrite_3to4 = '1' OR MemWrite_3to4 = '1' else
+    ROB_value_robid <= rob_addr_EXE_L when RegWrite_3to4 = '1' OR MemWrite_3to4 = '1' else
                       rob_addr_fromLP;
     ROB_value_alu <=  alu_res_3to4 when RegWrite_3to4 = '1' OR MemWrite_3to4 = '1' else
                       lp_write_data_out;
@@ -1057,6 +1059,9 @@ begin
         ((addr_rt_2to3 /= "000000" and RegDst_2to3 = '0') OR  
          (addr_rd_2to3 /= "000000" and RegDst_2to3 = '1')) else
                          '0';
+                         
+    ROB_newentry_regaddr <= addr_rt_2to3(4 downto 0) when RegDst_2to3 = '0' else
+                            addr_rd_2to3(4 downto 0);
        
     rob_control_logic : rob_ctrl
     port map (clk   => clk,
@@ -1064,14 +1069,16 @@ begin
           except_flag => ROB_except_flag,
           except_addr => ROB_except_addr,
           value_flag => ROB_value_flag,
-          value_addr => ROB_value_addr,
+          value_robid => ROB_value_robid,
           value_alu  => ROB_value_alu,
           value_mem  => ROB_value_mem,
           rf_write   => ROB_rf_write,
           rf_addr    => ROB_rf_addr,
           rf_val     => ROB_rf_val,
           newentry_flag  => ROB_newentry_flag,
-          newentry_store => ROB_newentry_store,
+          newentry_store => MemWrite_2to3,
+          newentry_load  => MemRead_2to3,
+          newentry_regaddr => ROB_newentry_regaddr,
           ready => ROB_Ready_FromROB,
           tail  => ROB_tail);
 
