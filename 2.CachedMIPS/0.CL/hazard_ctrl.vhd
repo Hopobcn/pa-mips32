@@ -63,7 +63,7 @@ begin
             Stall_IF_ID     <= '1';
             Stall_ID_EXE    <= '1';
             Stall_EXE_LOOKUP<= '1';
-				NOP_to_C        <= '0';
+				NOP_to_C        <= '1';
         elsif (Branch = '1') then 
             NOP_to_ID       <= '1';
             NOP_to_EXE      <= '1';

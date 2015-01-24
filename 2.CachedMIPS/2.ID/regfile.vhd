@@ -45,7 +45,7 @@ begin
     --  end if;
     --end process register_file_read;
     
-    register_file_write : process(clk)
+    register_file_write : process(clk,RegWrite)
     begin
         if (falling_edge(clk)) then
             if (RegWrite = '1' and addr_rd /= "00000") then

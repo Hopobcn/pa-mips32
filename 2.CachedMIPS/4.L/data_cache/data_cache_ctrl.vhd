@@ -86,7 +86,7 @@ begin
 
     proc_output_logic : process(procCurrState,PrRd,PrWr,Hit,BusReady)
     begin
-        Ready      <= '0';
+        Ready      <= (not PrWr) and ((Hit and PrRd) or (not PrRd));
         --BusRd      <= '0';
         --BusWr      <= '0';
         WriteTags  <= '0';
