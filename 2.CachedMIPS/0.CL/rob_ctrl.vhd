@@ -48,7 +48,10 @@ architecture Structure of rob_ctrl is
     signal i_head : std_logic_vector(2 downto 0);
     signal i_tail : std_logic_vector(2 downto 0);
 
-    signal empty : std_logic;
+    signal did_push : std_logic;
+    signal did_pop  : std_logic;
+    signal keep_empty : std_logic;
+    
 begin
     -- Do logic on clk edge
     basic_logic : process(clk, boot)
@@ -57,9 +60,18 @@ begin
         if (boot = '1') then
           i_head <= "000";
           i_tail <= "000";
-          empty <= '1';
+          keep_empty <= '1';
           rf_write <= '0';
+          data(0)(105 downto 0) <= (others => '0');
+          data(0)(99 downto 68) <= x"DABBAD00";
         else
+          if (did_pop = '1' AND i_head = i_tail) then
+            keep_empty <= '1';
+          end if;
+          
+          did_push <= '0';
+          did_pop  <= '0';
+          
           if (except_flag = '1') then
             data(to_integer(unsigned(except_addr)))(103) <= '1';
           end if;
@@ -88,9 +100,8 @@ begin
             
             data(to_integer(unsigned(i_head)))(105 downto 0)  <= (others => '0');
             data(to_integer(unsigned(i_head)))(99 downto 68) <= x"DEADBEEF";
-            if (std_logic_vector(unsigned(i_head) + 1) = i_tail) then
-              empty <= '1';
-            end if;
+            did_pop <= '1';
+            keep_empty <= '1';
           else
             rf_write <= '0';
           end if;
@@ -99,14 +110,15 @@ begin
           if (newentry_flag = '1') then
             data(to_integer(unsigned(i_tail)))(105 downto 0)  <= (others => '0');
             i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
-            empty <= '0';
+            did_push <= '1';
+            keep_empty <= '0';
           end if;
         end if;
     end if;
     end process;
-
+    
     ready <= '1' when i_head /= i_tail else
-             '1' when empty = '1' else
+             '1' when keep_empty = '1' else
              '0';
 
     tail <= i_tail;

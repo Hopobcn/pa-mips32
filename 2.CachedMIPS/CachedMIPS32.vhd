@@ -1032,7 +1032,8 @@ begin
              wbexc_writeBadVAddr => writeBadVAddr_to_wb,
              wbexc_writeCause    => writeCause_to_wb); 
              
-    ROB_value_flag <= '1' when RegWrite_3to4 = '1' AND addr_regw_3to4/= "000000" else
+    ROB_value_flag <= '0' when Stall_HazardCtrlto4 = '1' else
+                      '1' when RegWrite_3to4 = '1' AND addr_regw_3to4/= "000000" else
                       '1' when MemWrite_3to4 = '1' else
                       '0';
     ROB_value_addr <= rob_addr_EXE_L when RegWrite_3to4 = '1' OR MemWrite_3to4 = '1' else
@@ -1041,7 +1042,8 @@ begin
                       lp_write_data_out;
                       
     
-    ROB_newentry_flag <= '1' when ROB_Update_ToROB = '1' AND 
+    ROB_newentry_flag <= '0' when Stall_HazardCtrlto3 = '1' else
+                         '1' when ROB_Update_ToROB = '1' AND 
         ((addr_rt_2to3 /= "000000" and RegDst_2to3 = '0') OR  
          (addr_rd_2to3 /= "000000" and RegDst_2to3 = '1')) else
                          '0';
