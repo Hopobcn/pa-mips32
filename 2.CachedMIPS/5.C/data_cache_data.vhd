@@ -31,8 +31,7 @@ architecture Structure of data_cache_data is
     end component;
 	 
     signal readCache        : std_logic_vector(31 downto 0);
-	 
-	 signal readByte         : std_logic_vector(31 downto 0);
+    signal readByte         : std_logic_vector(31 downto 0);
 begin
 
     DATA : ddata
@@ -42,26 +41,17 @@ begin
 				 fill         => busDataMem,
              read_data    => readCache,
 				 WriteOrFill  => muxDataW, -- '0' write from Processor, '1' fill from memory
-             WriteEnable  => WriteEnable);
-            
+             WriteEnable  => WriteEnable);     
+					  
     mux_word_half_byte : process(readCache,busDataMem,ByteAddress,WordAddress)
     begin
-	     if (muxDataR = '0') then
-            if (ByteAddress = '1') then
-                read_data <= x"000000" & readCache(7 downto 0); 
-            elsif (ByteAddress = '0' and WordAddress = '1') then
-                read_data <= x"0000" & readCache(15 downto 0);
-            else
-                read_data <= readCache;		  
-            end if;
+        -- muxDataR was used to read data from bus while Cache was still writing but not used now, (simpler code)
+        if (ByteAddress = '1') then
+            read_data <= x"000000" & readCache(7 downto 0); 
+        elsif (ByteAddress = '0' and WordAddress = '0') then
+            read_data <=   x"0000" & readCache(15 downto 0);
         else
-            if (ByteAddress = '1') then                              -- Load Byte
-                read_data <= x"000000" & busDataMem(7 downto 0); 
-            elsif (ByteAddress = '0' and WordAddress = '0') then     -- Load Half
-                read_data <= x"0000" & busDataMem(15 downto 0);
-            else                                                     -- Load Word
-                read_data <= busDataMem(31 downto 0);		  
-            end if;
+            read_data <=             readCache;		  
         end if;
     end process mux_word_half_byte;				
 						

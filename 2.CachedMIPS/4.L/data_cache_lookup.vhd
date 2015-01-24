@@ -5,6 +5,7 @@ use ieee.std_logic_unsigned.all;
 
 entity data_cache_lookup is
     port (addr        :  in  std_logic_vector(31 downto 0);
+          busAddrDC   :  out std_logic_vector(31 downto 0);
           -- control signals;
           PrRd        :  in  std_logic;
           PrWr        :  in  std_logic;
@@ -73,7 +74,7 @@ begin
              WriteTags      => WriteTags_wire,
              WriteState     => WriteState_wire,
              Hit            => Hit_wire,
-				 State          => State_wire);
+             State          => State_wire);
      
      CONTROLLER : dcache_controller
      port map(PrRd          => PrRd,
@@ -93,5 +94,7 @@ begin
               clk           => clk,
               reset         => reset);
      
+     -- Ask for the CacheLine not another thing!
+     BusAddrDC <= addr(31 downto 4) & "0000";
                        
 end Structure;
