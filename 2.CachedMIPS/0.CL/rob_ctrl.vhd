@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-
+-- BUG 4 ? In Documentation a normal execution is: F D A Wrob Wrf  and We are doing: F D AWrob Wrf . We are doing A+Wrob in the same cycle
 entity rob_ctrl is
     port (clk : in std_logic;
       boot : in std_logic;
@@ -12,14 +12,14 @@ entity rob_ctrl is
 
       -- The value flag, for storing an intermediate value
       value_flag : in std_logic;
-      value_addr : in std_logic_vector(2 downto 0);
+      value_addr : in std_logic_vector(2 downto 0);   -- BUG Nº2 this isn't the register address in the Register file. It's the position on the ROB
       value_alu  : in std_logic_vector(31 downto 0);
       -- ... and the memory address for stores
-      value_mem  : in std_logic_vector(31 downto 0);
+      value_mem  : in std_logic_vector(31 downto 0);  -- BUG Nº1 value_mem not used
 
       -- To-RegisterFile signals
       rf_write   : out std_logic;
-      rf_addr    : out std_logic_vector(4 downto 0);
+      rf_addr    : out std_logic_vector(4 downto 0);   -- BUG Nº3 We are commiting 'rf_addr' of uninitialized values!!! Solve this and ROB will work
       rf_val     : out std_logic_vector(31 downto 0);
 
       -- New entries (from decode stage)
@@ -92,7 +92,7 @@ begin
             if (data(to_integer(unsigned(i_head)))(102) = '0') then
                 -- proceed to commit a value to the register file
                 rf_write <= '1';
-                rf_addr <= data(to_integer(unsigned(i_head)))(100 downto 96);
+                rf_addr <= data(to_integer(unsigned(i_head)))(100 downto 96); -- BUG 3: Bits 100 downto 96 never initialized!!! This bug prevents any write to RegisterFIle to be successful 
                 rf_val <= data(to_integer(unsigned(i_head)))(31 downto 0);
   
                 i_head <= std_logic_vector(unsigned(i_head) + 1);
