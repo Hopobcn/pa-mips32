@@ -1159,7 +1159,7 @@ begin
                  robMatchIdRs_out   => robMatchIdRs_out,
                  robMatchIdRt_out   => robMatchIdRt_out,
                  robMatchIdRt_mem_out => robMatchIdRt_mem_out,
-             exeRegWrite        => RegWrite_3to4,
+             exeRegWrite        => RegWrite_3toROB,
              tagRegWrite        => RegWrite_4to5,
              dcaRegWrite        => RegWrite_5to6,
                  robRegWrite0       => robRegWrite0,
