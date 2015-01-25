@@ -79,6 +79,7 @@ architecture Structure of CachedMIPS32 is
           WordAddress     :   out std_logic;                      --to EXE,LOOKUP (CACHE?)
           MemtoReg        :   out std_logic;                      --to EXE,LOOKUP,CACHE,WB
           RegDst          :   out std_logic;                      --to EXE
+          FreeSlot        :   out std_logic;                      --to EXE,LOOKUP (ROB will check in L if a store can be introduced)
           ALUOp           :   out std_logic_vector(2 downto 0);   --to EXE
           ALUSrc          :   out std_logic;                      --to EXE
           RegWrite_in     :   in  std_logic;                      --from WB   
@@ -117,7 +118,7 @@ architecture Structure of CachedMIPS32 is
           sign_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           zero_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           addr_rt_in          :   in  std_logic_vector(5 downto 0);   --from ID
-             addr_rt_out         :   out std_logic_vector(5 downto 0);   --to FWD Control
+          addr_rt_out         :   out std_logic_vector(5 downto 0);   --to FWD Control
           addr_rd             :   in  std_logic_vector(5 downto 0);   --from ID
           addr_jump_in        :   in  std_logic_vector(31 downto 0);  --from ID
           addr_jump_out       :   out std_logic_vector(31 downto 0);  --to IF
@@ -150,6 +151,8 @@ architecture Structure of CachedMIPS32 is
           MemtoReg_in         :   in  std_logic;                      --from EXE
           MemtoReg_out        :   out std_logic;                      --to LOOKUP,CACHE,WB
           RegDst              :   in  std_logic;                      --from ID
+          FreeSlot_in         :   in  std_logic;                      --from ID
+          FreeSlot_out        :   out std_logic;                      --to LOOKUP (ROB)
           ALUOp               :   in  std_logic_vector(2 downto 0);   --from ID
           ALUSrc              :   in  std_logic;                      --from ID
           Zero                :   out std_logic;                      --to LOOKUP
@@ -197,7 +200,7 @@ architecture Structure of CachedMIPS32 is
           BranchTaken        : out std_logic;                      --to control (identify end of branch stall)
           PCSrc              : out std_logic;                      --to ID
           MemRead            : in  std_logic;                      --from EXE
-             MemRead_out        : out std_logic;                      --to Hazard Control (we need to wait in case of a Load dependences)
+          MemRead_out        : out std_logic;                      --to Hazard Control (we need to wait in case of a Load dependences)
           MemWrite           : in  std_logic;                      --from EXE
           ByteAddress_in     : in  std_logic;                      --from EXE
           ByteAddress_out    : out std_logic;                      --to CACHE
@@ -205,6 +208,8 @@ architecture Structure of CachedMIPS32 is
           WordAddress_out    : out std_logic;                      --to CACHE
           MemtoReg_in        : in  std_logic;                      --from EXE
           MemtoReg_out       : out std_logic;                      --to CACHE
+          FreeSlot_in        : in  std_logic;                      --from EXE
+          FreeSlot_out       : out std_logic;                      --to (ROB)
           Zero               : in  std_logic;                      --from EXE
              -- interface with data_cache data
           WriteCache         : out std_logic;                      --to CACHE
@@ -253,6 +258,8 @@ architecture Structure of CachedMIPS32 is
           ByteAddress          : in  std_logic;                      --from LOOKUP
           WordAddress          : in  std_logic;                      --from LOOKUP
           MemtoReg             : in  std_logic;                      --from LOOKUP
+			 FreeSlot_in          : in  std_logic;                      --from LOOKUP
+			 FreeSlot_out         : out std_logic;                      --to Forward Control
           -- interface with data_cache data
           WriteCache           : in  std_logic;                      --to CACHE
           muxDataR             : in  std_logic;                      --to CACHE
@@ -405,6 +412,8 @@ architecture Structure of CachedMIPS32 is
 			 robRegWrite7      : in  std_logic;
           idMemWrite        : in  std_logic;
           exeMemWrite       : in  std_logic;
+			 FreeSlotL         : in  std_logic; -- If NO instruction is in L stage don't forward from that 
+			 FreeSlotC         : in  std_logic; -- If NO instruction is in C stage don't forward from that
           robTail           : in  std_logic_vector(2 downto 0);
           fwd_aluRs         : out std_logic_vector(2 downto 0);
           fwd_aluRt         : out std_logic_vector(2 downto 0);
@@ -488,6 +497,9 @@ architecture Structure of CachedMIPS32 is
       fwd_path_rob_rs       : out std_logic_vector(31 downto 0); 
 		fwd_path_rob_rt       : out std_logic_vector(31 downto 0);
 		fwd_path_rob_rt_mem   : out std_logic_vector(31 downto 0);
+		
+		FreeSlot  : in std_logic; -- From LOOKUP stage. (1: L stage can be populated with an Store, 0: otherwise)
+		
 		robLoadStoreDep       : out std_logic; -- To Hazard_ctrl
 		lookup_load_addr      : in  std_logic_vector(31 downto 0); -- Addres of a load in Lookup stage
 		
@@ -566,6 +578,12 @@ architecture Structure of CachedMIPS32 is
     signal BranchTaken_4toCtrl      :   std_logic;
     
     signal RegDst_2to3              :   std_logic;
+
+    signal FreeSlot_2to3            :   std_logic;
+    signal FreeSlot_3to4            :   std_logic;	 
+    signal FreeSlot_4to5_and_ROB    :   std_logic;
+    signal FreeSlot_5toForward      :   std_logic;
+
     signal ALUOp_2to3               :   std_logic_vector(2 downto 0);
     signal ALUSrc_2to3              :   std_logic;
     
@@ -824,6 +842,7 @@ begin
              WordAddress        => WordAddress_2to3,
              MemtoReg           => MemtoReg_2to3,
              RegDst             => RegDst_2to3,
+             FreeSlot           => FreeSlot_2to3,
              ALUOp              => ALUOp_2to3,
              ALUSrc             => ALUSrc_2to3,
              RegWrite_in        => ROB_rf_write,
@@ -859,7 +878,7 @@ begin
              sign_ext           => sign_ext_2to3,
              zero_ext           => zero_ext_2to3,
              addr_rt_in         => addr_rt_2to3,
-                 addr_rt_out        => addr_rt_3toCtrl,
+             addr_rt_out        => addr_rt_3toCtrl,
              addr_rd            => addr_rd_2to3,
              addr_jump_in       => addr_jump_2to3,
              addr_jump_out      => addr_jump_3to1,
@@ -891,6 +910,8 @@ begin
              MemtoReg_in        => MemtoReg_2to3,
              MemtoReg_out       => MemtoReg_3to4,
              RegDst             => RegDst_2to3,
+				 FreeSlot_in        => FreeSlot_2to3,
+             FreeSlot_out       => FreeSlot_3to4,
              ALUOp              => ALUOp_2to3,
              ALUSrc             => ALUSrc_2to3,
              Zero               => Zero_3to4,
@@ -938,7 +959,7 @@ begin
              BranchTaken        => BranchTaken_4toCtrl,
              PCSrc              => PCSrc_4to1,
              MemRead            => MemRead_3to4,
-                 MemRead_out        => MemRead_4toCtrl,
+             MemRead_out        => MemRead_4toCtrl,
              MemWrite           => MemWrite_3to4,
              ByteAddress_in     => ByteAddress_3to4,
              ByteAddress_out    => ByteAddress_4to5,
@@ -946,6 +967,8 @@ begin
              WordAddress_out    => WordAddress_4to5,
              MemtoReg_in        => MemtoReg_3to4,
              MemtoReg_out       => MemtoReg_4to5,
+				 FreeSlot_in        => FreeSlot_3to4,
+				 FreeSlot_out       => FreeSlot_4to5_and_ROB,
              Zero               => Zero_3to4,
              WriteCache         => WriteCache_4to5,
              muxDataR           => muxDataR_4to5,
@@ -977,7 +1000,7 @@ begin
              write_data_mem     => write_data_4to5, 
              addr_regw_in       => addr_regw_4to5,
              addr_regw_out      => addr_regw_5to6,
-                write_data_reg     => register_d_5to6,
+             write_data_reg     => register_d_5to6,
              fwd_path_cache     => fwd_path_cache_5to2and3and4,
              rob_addr_in        => rob_addr_L_C,
              rob_addr_out       => rob_addr_C_WB,
@@ -985,10 +1008,12 @@ begin
              clk                => clk,
              RegWrite_in        => RegWrite_4to5,
              RegWrite_out       => RegWrite_5to6,
-                ByteAddress        => ByteAddress_4to5,
+             ByteAddress        => ByteAddress_4to5,
              WordAddress        => WordAddress_4to5,
-                MemtoReg           => MemtoReg_4to5,
-                WriteCache         => WriteCache_4to5,
+             MemtoReg           => MemtoReg_4to5,
+				 FreeSlot_in        => FreeSlot_4to5_and_ROB,
+				 FreeSlot_out       => FreeSlot_5toForward,
+             WriteCache         => WriteCache_4to5,
              muxDataR           => muxDataR_4to5,
              muxDataW           => muxDataW_4to5,
              NOP_to_WB          => NOP_HazardCtrlto5,
@@ -1000,8 +1025,8 @@ begin
              exception_exe_in   => exception_exe_at_lookup,
              exception_exe_out  => exception_exe_at_cache,
              exception_lookup_in  => exception_lookup_at_lookup,
-                exception_lookup_out => exception_lookup_at_cache,
-                exception_cache    => exception_cache_at_cache,
+             exception_lookup_out => exception_lookup_at_cache,
+             exception_cache    => exception_cache_at_cache,
              -- Exception-related registers
              Exc_BadVAddr_in    => Exc_BadVAddr_at_lookup,
              Exc_BadVAddr_out   => Exc_BadVAddr_at_cache,
@@ -1050,7 +1075,7 @@ begin
              write_output   => lp_write_output);
 
     DRAM : main_mem
-     port map(addrIC             => busAddrIC,
+    port map(addrIC             => busAddrIC,
              write_dataIC       => busWrDataMemIC, 
              read_dataIC        => busRdDataMemIC,
              addrDC             => busAddrDC,
@@ -1078,7 +1103,7 @@ begin
              Jump               => Jump_3toCtrl,
              Exception          => Exception_ExcepCtrlOut,
              Interrupt          => Interrupt_InterruptCtrltoHazaardCtrl,
-                 Interrupt_to_Exception_ctrl => Interrupt_ExceptionCtrlfromHazardCtrl,
+             Interrupt_to_Exception_ctrl => Interrupt_ExceptionCtrlfromHazardCtrl,
              ROB_Ready          => ROB_Ready_FromROB,
              ROB_Update         => ROB_Update_ToROB,
 				 robLoadStoreDep    => robLoadStoreDep,
@@ -1128,6 +1153,8 @@ begin
 				 robRegWrite7       => robRegWrite7,
              idMemWrite         => MemWrite_2toHazardCtrl,
              exeMemWrite        => MemWrite_3to4,
+			    FreeSlotL          => FreeSlot_4to5_and_ROB,
+			    FreeSlotC          => FreeSlot_5toForward,
 				 robTail            => ROB_tail,
              fwd_aluRs          => fwd_aluRs_to2,
              fwd_aluRt          => fwd_aluRt_to2,
@@ -1208,6 +1235,7 @@ begin
 				 fwd_path_rob_rt_mem => fwd_path_rob_rt_mem,
 				 robLoadStoreDep    => robLoadStoreDep,
 		       lookup_load_addr   => alu_res_4to5,
+				 FreeSlot           => FreeSlot_4to5_and_ROB,
 				 ready              => ROB_Ready_FromROB,
              tail               => ROB_tail);
 

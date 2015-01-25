@@ -26,7 +26,7 @@ entity lookup is
           BranchTaken        : out std_logic;                      --to control (identify end of branch stall)
           PCSrc              : out std_logic;                      --to ID
           MemRead            : in  std_logic;                      --from EXE
-             MemRead_out        : out std_logic;                      --to Hazard Control (we need to wait in case of a Load dependences)
+          MemRead_out        : out std_logic;                      --to Hazard Control (we need to wait in case of a Load dependences)
           MemWrite           : in  std_logic;                      --from EXE
           ByteAddress_in     : in  std_logic;                      --from EXE
           ByteAddress_out    : out std_logic;                      --to CACHE
@@ -34,6 +34,8 @@ entity lookup is
           WordAddress_out    : out std_logic;                      --to CACHE
           MemtoReg_in        : in  std_logic;                      --from EXE
           MemtoReg_out       : out std_logic;                      --to CACHE
+          FreeSlot_in        : in  std_logic;                      --from EXE
+          FreeSlot_out       : out std_logic;                      --to (ROB)
           Zero               : in  std_logic;                      --from EXE
              -- interface with data_cache data
           WriteCache         : out std_logic;                      --to CACHE
@@ -92,6 +94,8 @@ architecture Structure of lookup is
           WordAddress_out  : out std_logic;
           MemtoReg_in      : in  std_logic;      
           MemtoReg_out     : out std_logic;
+			 FreeSlot_in      : in  std_logic;              
+          FreeSlot_out     : out std_logic; 
           Zero_in          : in  std_logic;
           Zero_out         : out std_logic;  
           -- register control signals
@@ -126,6 +130,7 @@ architecture Structure of lookup is
     signal ByteAddress_reg      :   std_logic;
     signal WordAddress_reg      :   std_logic;
     signal MemtoReg_reg         :   std_logic;
+    signal FreeSlot_reg         :   std_logic;
     signal Zero_reg             :   std_logic;
     
     signal WriteCache_reg       :   std_logic;
@@ -189,6 +194,8 @@ begin
              WordAddress_out=> WordAddress_reg,
              MemtoReg_in    => MemtoReg_in,
              MemtoReg_out   => MemtoReg_reg,
+				 FreeSlot_in    => FreeSlot_in,
+				 FreeSlot_out   => FreeSlot_reg,
              Zero_in        => Zero,
              Zero_out       => Zero_reg,
              enable         => enable,
@@ -251,6 +258,9 @@ begin
     WordAddress_out <= WordAddress_reg;
     MemtoReg_out    <=  MemtoReg_reg;
      
+	 FreeSlot_out    <= '1' when NOP_to_C = '1' or exception_internal = '1' else
+	                    FreeSlot_reg;
+							  
     WriteCache      <= '0' when NOP_to_C = '1' or exception_internal = '1' else
                          WriteCache_reg;
 

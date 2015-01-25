@@ -28,6 +28,8 @@ entity exe_lookup_reg is
           WordAddress_out  : out std_logic;
           MemtoReg_in      : in  std_logic;      
           MemtoReg_out     : out std_logic;
+			 FreeSlot_in      : in  std_logic;              
+          FreeSlot_out     : out std_logic;                  
           Zero_in          : in  std_logic;
           Zero_out         : out std_logic;  
           -- register control signals
@@ -69,6 +71,7 @@ begin
                 ByteAddress_out     <= ByteAddress_in;
                 WordAddress_out     <= WordAddress_in;
                 MemtoReg_out        <= MemtoReg_in;
+					 FreeSlot_out        <= FreeSlot_in;
                 Zero_out            <= Zero_in;         
                 -- forward of exception identifier bits
                 exception_if_out    <= exception_if_in;

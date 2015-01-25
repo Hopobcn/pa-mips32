@@ -33,6 +33,8 @@ entity forwarding_ctrl is
 			 robRegWrite7      : in  std_logic;
           idMemWrite        : in  std_logic;
           exeMemWrite       : in  std_logic;
+			 FreeSlotL         : in  std_logic; -- If NO instruction is in L stage don't forward from that 
+			 FreeSlotC         : in  std_logic; -- If NO instruction is in C stage don't forward from that
           robTail           : in  std_logic_vector(2 downto 0);
           fwd_aluRs         : out std_logic_vector(2 downto 0);
           fwd_aluRt         : out std_logic_vector(2 downto 0);
@@ -371,32 +373,39 @@ begin
                  "100" when (         robMatchRs = '1' 
                              and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRs)) else  -- fwd from ROB (youngest Rd=Rs) to ID
                  "110" when (         tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRs
-                             and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRs)) else  -- fwd from LOOKUP to ID 
+                             and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRs)
+									  and not (FreeSlotL = '1')                                                                 ) else  -- fwd from LOOKUP to ID 
                  "101" when (         dcaRegWrite = '1' and dcaRegisterRd /= "000000" and dcaRegisterRd = idRegisterRs
                              and not (tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRs)
-                             and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRs)) else  -- fwd from CACHE to ID 
+                             and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRs)
+									  and not (FreeSlotC = '1')                                                                 ) else  -- fwd from CACHE to ID 
                  "000";                                                                                                       -- (don't fwd) typical path 
     
     fwd_aluRt <= "111" when (         exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt ) else  -- fwd from ALU to ID 
                  "100" when (         robMatchRt = '1' 
                              and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt)) else  -- fwd from ROB (youngest Rd=Rt) to ID
                  "110" when (         tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRt         -- fwd from LOOKUP to ID 
-                             and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt)) else  -- priority for newest value(alu)
+                             and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt)
+									  and not (FreeSlotL = '1')                                                                 ) else  -- priority for newest value(alu)
                  "101" when (         dcaRegWrite = '1' and dcaRegisterRd /= "000000" and dcaRegisterRd = idRegisterRt
 					              and not (tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRt)
-                             and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt)) else  -- fwd from CACHE to ID 
+                             and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt)
+									  and not (FreeSlotC = '1')                                                                 ) else  -- fwd from CACHE to ID 
                  "000";                                                                                                       -- (don't fwd) typical path
     
     fwd_alu_regmem <= "111" when (         exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt and idMemWrite = '1')  else -- fwd from ALU to ID (ALU-STORE)
                       "100" when (         robMatchRt_mem = '1' 
                                   and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt and idMemWrite = '1')) else  -- fwd from ROB (youngest Rd=Rt-mem) to ID
                       "110" when (         tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRt and idMemWrite = '1'        
-                                  and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt and idMemWrite = '1')) else -- fwd from MEM to ID (ALU-STORE from LOOKUP)
+                                  and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt and idMemWrite = '1')
+									       and not (FreeSlotL = '1')                                                                                      ) else -- fwd from L to ID (ALU-STORE from LOOKUP)
                       "101" when (         dcaRegWrite = '1' and dcaRegisterRd /= "000000" and dcaRegisterRd = idRegisterRt and idMemWrite = '1'
 					                   and not (tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = idRegisterRt and idMemWrite = '1')
-                                  and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt and idMemWrite = '1')) else  -- fwd from CACHE to ID (LOAD-STORE)
+                                  and not (exeRegWrite = '1' and exeRegisterRd /= "000000" and exeRegisterRd = idRegisterRt and idMemWrite = '1')
+									       and not (FreeSlotC = '1')                                                                                      ) else  -- fwd from C to ID (LOAD-STORE)
                       "000";
-     	  
+
+    --TODO Rethink this forward paths with ROB
     fwd_lookup_regmem <= '1' when (tagRegWrite = '1' and tagRegisterRd /= "000000" and tagRegisterRd = exeRegisterRt and exeMemWrite = '1') else -- PRODUCER(LOOKUP)-CONSUMER(ALU)in next cycle
                          '0';
     fwd_cache_regmem  <= '1' when (dcaRegWrite = '1' and dcaRegisterRd /= "000000" and dcaRegisterRd = exeRegisterRt and exeMemWrite = '1') else -- PRODUCER(CACHE)-CONSUMER(ALU)

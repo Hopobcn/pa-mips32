@@ -44,6 +44,8 @@ entity execute is
           MemtoReg_in         :   in  std_logic;                      --from EXE
           MemtoReg_out        :   out std_logic;                      --to LOOKUP,CACHE,WB
           RegDst              :   in  std_logic;                      --from ID
+          FreeSlot_in         :   in  std_logic;                      --from ID
+          FreeSlot_out        :   out std_logic;                      --to LOOKUP (ROB)
           ALUOp               :   in  std_logic_vector(2 downto 0);   --from ID
           ALUSrc              :   in  std_logic;                      --from ID
           Zero                :   out std_logic;                      --to LOOKUP
@@ -112,6 +114,8 @@ architecture Structure of execute is
             MemtoReg_in     :   in  std_logic;                          
             MemtoReg_out    :   out std_logic;  
             RegDst_in       :   in  std_logic;
+            FreeSlot_in     :   in  std_logic;                      
+            FreeSlot_out    :   out std_logic; 
             RegDst_out      :   out std_logic;
             ALUOp_in        :   in  std_logic_vector(2 downto 0);       
             ALUOp_out       :   out std_logic_vector(2 downto 0);       
@@ -246,6 +250,8 @@ begin
              MemtoReg_out   => MemtoReg_reg,
              RegDst_in      => RegDst,
              RegDst_out     => RegDst_reg,
+				 FreeSlot_in    => FreeSlot_in,
+				 FreeSlot_out   => FreeSlot_out,
              ALUOp_in       => ALUOp,
              ALUOp_out      => ALUOp_reg,
              ALUSrc_in      => ALUSrc,
@@ -353,4 +359,12 @@ begin
             
     addr_branch  <= pc_up_reg + sign_ext_sh2;       
             
+    -- Aritmetic Instructions : F D A Wrob Wrf
+	 -- Branch  Instructions :   F D A L - - (branch after L stage)
+	 -- Jump Instructions :      F D A - - - (jump after A stage)
+	 -- Load Instrucions :       F D A L C Wrob Wrf (if no Store is in ROB with equal @, Load can miss in L stage)
+	 -- Store Instructions :     F D A - - -  .. L C (Store is executed when he is the oldest instruction in pipeline)
+	 
+	 -- We should introduce NOPS in L/C stages when no LOAD/STORE is using this stages. This way we will find bugs in Hazard/Forward Control
+	 
 end Structure;

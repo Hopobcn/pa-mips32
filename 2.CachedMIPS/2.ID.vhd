@@ -40,7 +40,8 @@ entity instruction_decode is
           ByteAddress     :   out std_logic;                      --to EXE,LOOKUP (CACHE?)
           WordAddress     :   out std_logic;                      --to EXE,LOOKUP (CACHE?)
           MemtoReg        :   out std_logic;                      --to EXE,LOOKUP,CACHE,WB
-          RegDst          :   out std_logic;                      --to EXE
+          RegDst          :   out std_logic;                      --to EXE 
+          FreeSlot        :   out std_logic;                      --to EXE,LOOKUP (ROB will check in L if a store can be introduced)
           ALUOp           :   out std_logic_vector(2 downto 0);   --to EXE
           ALUSrc          :   out std_logic;                      --to EXE
           RegWrite_in     :   in  std_logic;                      --from WB   
@@ -111,6 +112,7 @@ architecture Structure of instruction_decode is
           WordAddress       :   out std_logic;
           MemtoReg          :   out std_logic;
           RegDst            :   out std_logic;  
+          FreeSlot          :   out std_logic;
           ALUOp             :   out std_logic_vector(2 downto 0);
           ALUSrc            :   out std_logic); 
     end component;
@@ -153,6 +155,7 @@ architecture Structure of instruction_decode is
     signal MemWrite_tmp     :   std_logic;
     signal MemRead_tmp      :   std_logic;
     signal RegDst_tmp       :   std_logic;
+    signal FreeSlot_tmp     :   std_logic;
     signal ALUOp_tmp        :   std_logic_vector(2 downto 0);
     signal Jump_tmp         :   std_logic;
     signal Branch_tmp       :   std_logic;
@@ -234,6 +237,7 @@ begin
             WordAddress => WordAddress,
             MemtoReg    => MemtoReg_tmp,
             RegDst      => RegDst_tmp,
+            FreeSlot    => FreeSlot_tmp,
             ALUOp       => ALUOp_tmp,
             ALUSrc      => ALUSrc);
             
@@ -264,6 +268,8 @@ begin
                        '0';
     RegDst          <= RegDst_tmp    when NOP_to_EXE = '0' and exception_internal = '0' else
                        '0';
+    FreeSlot        <= FreeSlot_tmp when NOP_to_EXE = '0' and exception_internal = '0' else -- IF WE introduce a NOP we consider it as a FreeSlot for Stores in ROB
+	                    '1';
     ALUOp           <= ALUOp_tmp     when NOP_to_EXE = '0' and exception_internal = '0' else
                        "010";                                    -- NOP = R0 = R0 OR R0
     -- the Jump only goes through when not stalling

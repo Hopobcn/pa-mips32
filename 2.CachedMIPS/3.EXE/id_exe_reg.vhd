@@ -44,6 +44,8 @@ entity id_exe_reg is
           MemtoReg_out     : out std_logic;  
           RegDst_in        : in  std_logic;
           RegDst_out       : out std_logic;
+          FreeSlot_in      : in  std_logic;                      
+          FreeSlot_out     : out std_logic;                     
           ALUOp_in         : in  std_logic_vector(2 downto 0);       
           ALUOp_out        : out std_logic_vector(2 downto 0);       
           ALUSrc_in        : in  std_logic;          
@@ -75,28 +77,29 @@ begin
     begin
         if (enable = '1') then
             if (rising_edge(clk)) then
-                pc_up_out        <=  pc_up_in;
-                opcode_out       <=  opcode_in;
+                pc_up_out        <= pc_up_in;
+                opcode_out       <= opcode_in;
                 rs_out           <= rs_in;
                 rt_out           <= rt_in;
                 sign_ext_out     <= sign_ext_in;
-                zero_ext_out     <=  zero_ext_in;
-                addr_rt_out      <=  addr_rt_in;
+                zero_ext_out     <= zero_ext_in;
+                addr_rt_out      <= addr_rt_in;
                 addr_rd_out      <= addr_rd_in;
                 addr_jump_out    <= addr_jump_in;
                 rob_addr_out     <= rob_addr_in;
                 write_data_out   <= write_data_in;
-                RegWrite_out     <=  RegWrite_in;
-                Jump_out         <=  Jump_in;
-                Branch_out       <=  Branch_in;
-                MemRead_out      <=  MemRead_in;
-                MemWrite_out     <=  MemWrite_in;
-                ByteAddress_out  <=   ByteAddress_in;
-                WordAddress_out  <=   WordAddress_in;
-                MemtoReg_out     <=  MemtoReg_in;
-                RegDst_out       <=  RegDst_in;
-                ALUOp_out        <=  ALUOp_in;
-                ALUSrc_out       <=  ALUSrc_in;
+                RegWrite_out     <= RegWrite_in;
+                Jump_out         <= Jump_in;
+                Branch_out       <= Branch_in;
+                MemRead_out      <= MemRead_in;
+                MemWrite_out     <= MemWrite_in;
+                ByteAddress_out  <= ByteAddress_in;
+                WordAddress_out  <= WordAddress_in;
+                MemtoReg_out     <= MemtoReg_in;
+                RegDst_out       <= RegDst_in;
+					 FreeSlot_out     <= FreeSlot_in;
+                ALUOp_out        <= ALUOp_in;
+                ALUSrc_out       <= ALUSrc_in;
                 -- forward of exception identifier bits
                 exception_if_out <= exception_if_in;
                 exception_id_out <= exception_id_in;

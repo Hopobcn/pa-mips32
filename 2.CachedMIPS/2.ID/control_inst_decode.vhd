@@ -18,6 +18,7 @@ entity control_inst_decode is
           WordAddress :   out std_logic;
           MemtoReg    :   out std_logic;
           RegDst      :   out std_logic;  
+			 FreeSlot    :   out std_logic;
           ALUOp       :   out std_logic_vector(2 downto 0);
           ALUSrc      :   out std_logic);
             
@@ -410,6 +411,23 @@ begin
                     --Floating-Point Instructions                   
                     '1';
 
+	 -- Aritmetic Instructions : F D A Wrob Wrf
+	 -- Branch  Instructions :   F D A L - - (branch after L stage)
+	 -- Jump Instructions :      F D A - - - (jump after A stage)
+	 -- Load Instrucions :       F D A L C Wrob Wrf (if no Store is in ROB with equal @, Load can miss in L stage)
+	 -- Store Instructions :     F D A - - -  .. L C (Store is executed when he is the oldest instruction in pipeline)
+	 
+	 -- We consider that ALL instrucions don't occupy L-C stages minus LOADS. (A branch can coexists with a Load/Store in L if we don't touch the add_branch_out bus)
+    FreeSlot <=     '0' when opcode = "100000" else -- lb (Load Byte)
+                    '0' when opcode = "100001" else -- lh (Load Half word)
+                    '0' when opcode = "100010" else -- lwl (Load word left)
+                    '0' when opcode = "100011" else -- lw
+                    '0' when opcode = "100100" else -- lbu (Load Byte unsigned)
+                    '0' when opcode = "100101" else -- lhu (Load Half word unsigned)
+                    '0' when opcode = "100110" else -- lwr (Load word right)
+						  '1';
+	 
+	 
                     --Coprocessor 0 instructions						  
     c0RegWrite <=   '0' when opcode = "010000" and opcode_extra = "0100" else -- mfc0 (Move from coprocessor 0)	
                     '1' when opcode = "010000" and opcode_extra = "0000" else -- mtc0 (Move to coprocessor 0)

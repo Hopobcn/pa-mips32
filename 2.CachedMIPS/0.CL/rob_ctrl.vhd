@@ -54,6 +54,8 @@ entity rob_ctrl is
 		robLoadStoreDep       : out std_logic; -- To Hazard_ctrl
 		lookup_load_addr      : in  std_logic_vector(31 downto 0); -- Addres of a load in Lookup stage
 		
+		FreeSlot  : in std_logic; -- From LOOKUP stage. (1: L stage can be populated with an Store, 0: otherwise)
+		
       ready : out std_logic;  -- If head == tail and !empty, then we are full
       tail  : out std_logic_vector(2 downto 0)
       );
