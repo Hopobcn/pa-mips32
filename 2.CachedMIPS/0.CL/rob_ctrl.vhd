@@ -29,6 +29,9 @@ entity rob_ctrl is
       rf_write   : out std_logic;
       rf_addr    : out std_logic_vector(4 downto 0);   
       rf_val     : out std_logic_vector(31 downto 0);
+      
+      -- Rewind because a branch is taken
+      rewind_cause_branch  : in std_logic;
 
       -- New entries (from decode stage)
       newentry_flag  : in std_logic; -- UB if using this while full
@@ -202,7 +205,7 @@ begin
                 end if;
           
                 -- Wrob first-port (Aritmetic operations(value) and LOAD/STORE(for @))
-                if (value_flag_exe = '1') then
+                if (value_flag_exe = '1' AND rewind_cause_branch = '0') then
                     if (data(to_integer(unsigned(value_robid_exe)))(102) = '1' OR    -- Store 
                         data(to_integer(unsigned(value_robid_exe)))(103) = '1') then -- Load
                         data(to_integer(unsigned(value_robid_exe)))(63 downto 32) <= value_alu;    -- STORES/LOADS this is the @
@@ -214,13 +217,13 @@ begin
                 end if;
           
                 -- Wrob second-port (LOAD value)
-                if (value_flag_cache = '1') then
+                if (value_flag_cache = '1') then  --even when rewind bit is 1
                     if (data(to_integer(unsigned(value_robid_cache)))(103) = '1') then -- Load
                         data(to_integer(unsigned(value_robid_cache)))(31 downto 0) <= value_cache; -- LOADS this is the value
                         data(to_integer(unsigned(value_robid_cache)))(107)         <= '1';       -- value ready
-				        end if;
+                        end if;
                 end if;
-					 
+                     
                 -- Wregfile
                 -- Here, the commit-to-register-file part
                 if (data(to_integer(unsigned(i_head)))(107) = '1') then -- if 'Instruction has been commited'
@@ -242,7 +245,7 @@ begin
                 end if;
   
                 -- Here, the add-a-member part
-                if (newentry_flag = '1') then
+                if (newentry_flag = '1' AND rewind_cause_branch = '0') then
                     data(to_integer(unsigned(i_tail)))(107 downto 0)  <= (others => '0');
                     data(to_integer(unsigned(i_tail)))(101 downto 96) <= newentry_regaddr;
                     data(to_integer(unsigned(i_tail)))(106)           <= '1';
@@ -251,6 +254,13 @@ begin
                     i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
                     did_push <= '1';
                     keep_empty <= '0';
+                end if;
+                
+                -- If a branch is taken, then an instruction is fixed
+                if (rewind_cause_branch = '1' AND data(to_integer(unsigned(i_tail)-1))(106) = '1') then
+                    data(to_integer(unsigned(i_tail)-1))(107 downto 0) <= (others => '0');
+                    data(to_integer(unsigned(i_tail)-1))(99 downto 68) <= x"BAADF00D";
+                    i_tail <= std_logic_vector(unsigned(i_tail) - 1 );
                 end if;
             end if;
         end if;
