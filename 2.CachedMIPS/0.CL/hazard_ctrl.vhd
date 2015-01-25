@@ -30,14 +30,16 @@ entity hazard_ctrl is
           NOP_to_EXE      : out std_logic;
           NOP_to_L        : out std_logic;
           NOP_to_C        : out std_logic;
-          NOP_to_WB       : out std_logic);
+          NOP_to_WB       : out std_logic;
+          -- asynchronous dependence with boot signal
+          boot            : in  std_logic);
 end hazard_ctrl;
 
 architecture Structure of hazard_ctrl is
     
 begin
                        
-    stall_logic : process(idRegisterRs,idRegisterRt,exeRegisterRd,tagRegisterRd,exeMemRead,tagMemRead,Branch,Jump,Exception,Interrupt,IC_Ready,DC_Ready)
+    stall_logic : process(boot, idRegisterRs,idRegisterRt,exeRegisterRd,tagRegisterRd,exeMemRead,tagMemRead,Branch,Jump,Exception,Interrupt,IC_Ready,DC_Ready)
     begin
         ROB_Update      <= '1';
         Stall_PC        <= '0';
@@ -52,7 +54,21 @@ begin
         NOP_to_C        <= '0';
         NOP_to_WB       <= '0';
         Interrupt_to_Exception_ctrl <= '0';
-        if (Exception = '1') then
+        if (boot = '1') then
+            ROB_Update      <= '0';
+            Stall_PC        <= '0';
+            Stall_IF_ID     <= '0';
+            Stall_ID_EXE    <= '0';
+            Stall_LP        <= '0';
+            Stall_EXE_LOOKUP<= '0';
+            NOP_to_ID       <= '1';
+            NOP_to_EXE      <= '1';
+            NOP_to_LP       <= '1';
+            NOP_to_L        <= '1';
+            NOP_to_C        <= '1';
+            NOP_to_WB       <= '1';
+            Interrupt_to_Exception_ctrl <= '0';
+        elsif (Exception = '1') then
             ROB_Update      <= '0';
             NOP_to_ID       <= '1';
             NOP_to_EXE      <= '1';
@@ -90,11 +106,11 @@ begin
             NOP_to_EXE      <= '1';
             NOP_to_LP       <= '1';
         elsif (robLoadStoreDep = '1') then -- LOAD in lookup, STORE in ROB, @ match
-		      Stall_PC        <= '1';
-				Stall_IF_ID     <= '1';
-				Stall_ID_EXE    <= '1';
-				Stall_EXE_LOOKUP<= '1';
-				NOP_to_C        <= '1'; -- NOT shure if this is necessary
+              Stall_PC        <= '1';
+                Stall_IF_ID     <= '1';
+                Stall_ID_EXE    <= '1';
+                Stall_EXE_LOOKUP<= '1';
+                NOP_to_C        <= '1'; -- NOT shure if this is necessary
         elsif ((idRegisterRs = exeRegisterRd or idRegisterRt = exeRegisterRd) and exeMemRead = '1') then -- LOAD in exe (we need to wait until C to forward)
             Stall_PC        <= '1';
             Stall_IF_ID     <= '1';
@@ -111,7 +127,7 @@ begin
             NOP_to_LP       <= '1';
             NOP_to_EXE      <= '1';
         elsif (not IC_Ready = '1') then
-            ROB_Update      <= '0';
+            ROB_Update      <= '1';
             Stall_PC        <= '1';
             NOP_to_ID       <= '1';
         end if;

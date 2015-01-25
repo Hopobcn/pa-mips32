@@ -145,7 +145,7 @@ architecture Structure of CachedMIPS32 is
           MemRead_out         :   out std_logic;                      --to LOOKUP
           MemWrite_in         :   in  std_logic;                      --from ID  
           MemWrite_out        :   out std_logic;                      --to LOOKUP 
-          MemWrite_rob        :   out std_logic;                      --to ROB	  
+          MemWrite_rob        :   out std_logic;                      --to ROB    
           ByteAddress_in      :   in  std_logic;                      --from ID
           ByteAddress_out     :   out std_logic;                      --from LOOKUP
           WordAddress_in      :   in  std_logic;                      --from ID
@@ -260,8 +260,8 @@ architecture Structure of CachedMIPS32 is
           ByteAddress          : in  std_logic;                      --from LOOKUP
           WordAddress          : in  std_logic;                      --from LOOKUP
           MemtoReg             : in  std_logic;                      --from LOOKUP
-			 FreeSlot_in          : in  std_logic;                      --from LOOKUP
-			 FreeSlot_out         : out std_logic;                      --to Forward Control
+             FreeSlot_in          : in  std_logic;                      --from LOOKUP
+             FreeSlot_out         : out std_logic;                      --to Forward Control
           -- interface with data_cache data
           WriteCache           : in  std_logic;                      --to CACHE
           muxDataR             : in  std_logic;                      --to CACHE
@@ -368,7 +368,7 @@ architecture Structure of CachedMIPS32 is
           DC_Ready        : in  std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
           ROB_Ready       : in  std_logic;                     -- from ROB, indicating not-full state
           ROB_Update      : out std_logic;                     -- to ROB, when we are not stalling ID
-			 robLoadStoreDep : in  std_logic;
+             robLoadStoreDep : in  std_logic;
           -- control signals
           Stall_LP        : out std_logic;
           Stall_PC        : out std_logic;
@@ -380,7 +380,9 @@ architecture Structure of CachedMIPS32 is
           NOP_to_EXE      : out std_logic;
           NOP_to_L        : out std_logic;
           NOP_to_C        : out std_logic;
-          NOP_to_WB       : out std_logic);
+          NOP_to_WB       : out std_logic;
+          -- asynchronous dependence with boot signal
+          boot            : in  std_logic);
     end component;
     
     component forwarding_ctrl is
@@ -389,7 +391,7 @@ architecture Structure of CachedMIPS32 is
           exeRegisterRd     : in  std_logic_vector(5 downto 0);  --producer
           exeRegisterRt     : in  std_logic_vector(5 downto 0);  --producer
           tagRegisterRd     : in  std_logic_vector(5 downto 0);  --producer "tag -> LOOKUP stage"
-			 dcaRegisterRd     : in  std_logic_vector(5 downto 0);  --producer "dca == data cache -> CACHE stage"
+             dcaRegisterRd     : in  std_logic_vector(5 downto 0);  --producer "dca == data cache -> CACHE stage"
           robRegisterRd0    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 0 
           robRegisterRd1    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 1 
           robRegisterRd2    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 2 
@@ -398,30 +400,30 @@ architecture Structure of CachedMIPS32 is
           robRegisterRd5    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 5 
           robRegisterRd6    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 6 
           robRegisterRd7    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 7 
-			 robMatchIdRs_out  : out std_logic_vector(2 downto 0);
-			 robMatchIdRt_out  : out std_logic_vector(2 downto 0);
-			 robMatchIdRt_mem_out : out std_logic_vector(2 downto 0);
+             robMatchIdRs_out  : out std_logic_vector(2 downto 0);
+             robMatchIdRt_out  : out std_logic_vector(2 downto 0);
+             robMatchIdRt_mem_out : out std_logic_vector(2 downto 0);
           exeRegWrite       : in  std_logic;
           tagRegWrite       : in  std_logic;
-			 dcaRegWrite       : in  std_logic;
-			 robRegWrite0      : in  std_logic;
-			 robRegWrite1      : in  std_logic;
-			 robRegWrite2      : in  std_logic;
-			 robRegWrite3      : in  std_logic;
-			 robRegWrite4      : in  std_logic;
-			 robRegWrite5      : in  std_logic;
-			 robRegWrite6      : in  std_logic;
-			 robRegWrite7      : in  std_logic;
+             dcaRegWrite       : in  std_logic;
+             robRegWrite0      : in  std_logic;
+             robRegWrite1      : in  std_logic;
+             robRegWrite2      : in  std_logic;
+             robRegWrite3      : in  std_logic;
+             robRegWrite4      : in  std_logic;
+             robRegWrite5      : in  std_logic;
+             robRegWrite6      : in  std_logic;
+             robRegWrite7      : in  std_logic;
           idMemWrite        : in  std_logic;
           exeMemWrite       : in  std_logic;
-			 FreeSlotL         : in  std_logic; -- If NO instruction is in L stage don't forward from that 
-			 FreeSlotC         : in  std_logic; -- If NO instruction is in C stage don't forward from that
+             FreeSlotL         : in  std_logic; -- If NO instruction is in L stage don't forward from that 
+             FreeSlotC         : in  std_logic; -- If NO instruction is in C stage don't forward from that
           robTail           : in  std_logic_vector(2 downto 0);
           fwd_aluRs         : out std_logic_vector(2 downto 0);
           fwd_aluRt         : out std_logic_vector(2 downto 0);
           fwd_alu_regmem    : out std_logic_vector(2 downto 0);
           fwd_lookup_regmem : out std_logic;
-			 fwd_cache_regmem  : out std_logic); 
+             fwd_cache_regmem  : out std_logic); 
     end component;
     
     component exception_ctrl is
@@ -459,19 +461,19 @@ architecture Structure of CachedMIPS32 is
       except_flag : in std_logic;
       except_addr : in std_logic_vector(2 downto 0);
 
-		-- 2 WRITE PORTS to allow this:
-		--   LOAD :  F D E L C    Wrob   <- Write from cache
-		--   arit      F D E Wrob 
-		--   arit        F D E    Wrob   <- write from ALU
-		
+        -- 2 WRITE PORTS to allow this:
+        --   LOAD :  F D E L C    Wrob   <- Write from cache
+        --   arit      F D E Wrob 
+        --   arit        F D E    Wrob   <- write from ALU
+        
       -- FIRST PORT
       value_flag_exe   : in std_logic;
       value_robid_exe  : in std_logic_vector(2 downto 0);
       value_alu        : in std_logic_vector(31 downto 0); -- Value from alu when commiting an Aritmetic operation
-		
-		-- SECOND PORT
-		value_flag_cache  : in std_logic;
-		value_robid_cache : in std_logic_vector(2 downto 0);
+        
+        -- SECOND PORT
+        value_flag_cache  : in std_logic;
+        value_robid_cache : in std_logic_vector(2 downto 0);
       value_cache       : in std_logic_vector(31 downto 0);  -- Value from Cache when commiting a LOAD operation 
 
       -- To-RegisterFile signals
@@ -493,26 +495,26 @@ architecture Structure of CachedMIPS32 is
       robRegisterRd5        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 5 
       robRegisterRd6        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 6 
       robRegisterRd7        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 7 
-		robMatchIdRs_in       : in std_logic_vector(2 downto 0);
-		robMatchIdRt_in       : in std_logic_vector(2 downto 0);
-		robMatchIdRt_mem_in   : in std_logic_vector(2 downto 0);
-		robRegWrite0          : out  std_logic;
-		robRegWrite1          : out  std_logic;
-		robRegWrite2          : out  std_logic;
-		robRegWrite3          : out  std_logic;
-		robRegWrite4          : out  std_logic;
-		robRegWrite5          : out  std_logic;
-		robRegWrite6          : out  std_logic;
-		robRegWrite7          : out  std_logic;
+        robMatchIdRs_in       : in std_logic_vector(2 downto 0);
+        robMatchIdRt_in       : in std_logic_vector(2 downto 0);
+        robMatchIdRt_mem_in   : in std_logic_vector(2 downto 0);
+        robRegWrite0          : out  std_logic;
+        robRegWrite1          : out  std_logic;
+        robRegWrite2          : out  std_logic;
+        robRegWrite3          : out  std_logic;
+        robRegWrite4          : out  std_logic;
+        robRegWrite5          : out  std_logic;
+        robRegWrite6          : out  std_logic;
+        robRegWrite7          : out  std_logic;
       fwd_path_rob_rs       : out std_logic_vector(31 downto 0); 
-		fwd_path_rob_rt       : out std_logic_vector(31 downto 0);
-		fwd_path_rob_rt_mem   : out std_logic_vector(31 downto 0);
-		
-		FreeSlot  : in std_logic; -- From LOOKUP stage. (1: L stage can be populated with an Store, 0: otherwise)
-		
-		robLoadStoreDep       : out std_logic; -- To Hazard_ctrl
-		lookup_load_addr      : in  std_logic_vector(31 downto 0); -- Addres of a load in Lookup stage
-		
+        fwd_path_rob_rt       : out std_logic_vector(31 downto 0);
+        fwd_path_rob_rt_mem   : out std_logic_vector(31 downto 0);
+        
+        FreeSlot  : in std_logic; -- From LOOKUP stage. (1: L stage can be populated with an Store, 0: otherwise)
+        
+        robLoadStoreDep       : out std_logic; -- To Hazard_ctrl
+        lookup_load_addr      : in  std_logic_vector(31 downto 0); -- Addres of a load in Lookup stage
+        
       ready : out std_logic;  -- If head == tail and !empty, then we are full
       tail  : out std_logic_vector(2 downto 0)
     );
@@ -561,7 +563,7 @@ architecture Structure of CachedMIPS32 is
     signal fwd_path_rob_rs             :   std_logic_vector(31 downto 0);
     signal fwd_path_rob_rt             :   std_logic_vector(31 downto 0);
     signal fwd_path_rob_rt_mem         :   std_logic_vector(31 downto 0);
-	 
+     
     signal instCacheReady_1toCtrl   :   std_logic;
     signal dataCacheReady_4toCtrl   :   std_logic;
     
@@ -591,7 +593,7 @@ architecture Structure of CachedMIPS32 is
     signal RegDst_2to3              :   std_logic;
 
     signal FreeSlot_2to3            :   std_logic;
-    signal FreeSlot_3to4            :   std_logic;	 
+    signal FreeSlot_3to4            :   std_logic;   
     signal FreeSlot_4to5_and_ROB    :   std_logic;
     signal FreeSlot_5toForward      :   std_logic;
 
@@ -648,10 +650,10 @@ architecture Structure of CachedMIPS32 is
     signal muxDataW_4to5            :   std_logic;
     
     --------------------------------
-	 ------- FWD <--> ROB  ----------
+     ------- FWD <--> ROB  ----------
     --------------------------------
-	 
-	 signal robRegisterRd0           : std_logic_vector(5 downto 0);  --producer ROB entrada 0 
+     
+     signal robRegisterRd0           : std_logic_vector(5 downto 0);  --producer ROB entrada 0 
     signal robRegisterRd1           : std_logic_vector(5 downto 0);  --producer ROB entrada 1 
     signal robRegisterRd2           : std_logic_vector(5 downto 0);  --producer ROB entrada 2 
     signal robRegisterRd3           : std_logic_vector(5 downto 0);  --producer ROB entrada 3 
@@ -659,9 +661,9 @@ architecture Structure of CachedMIPS32 is
     signal robRegisterRd5           : std_logic_vector(5 downto 0);  --producer ROB entrada 5 
     signal robRegisterRd6           : std_logic_vector(5 downto 0);  --producer ROB entrada 6 
     signal robRegisterRd7           : std_logic_vector(5 downto 0);  --producer ROB entrada 7 
-	 signal robMatchIdRs_out         : std_logic_vector(2 downto 0);
-	 signal robMatchIdRt_out         : std_logic_vector(2 downto 0);
-	 signal robMatchIdRt_mem_out     : std_logic_vector(2 downto 0);
+     signal robMatchIdRs_out         : std_logic_vector(2 downto 0);
+     signal robMatchIdRt_out         : std_logic_vector(2 downto 0);
+     signal robMatchIdRt_mem_out     : std_logic_vector(2 downto 0);
     signal exeRegWrite              : std_logic;
     signal tagRegWrite              : std_logic;
     signal dcaRegWrite              : std_logic;
@@ -673,8 +675,8 @@ architecture Structure of CachedMIPS32 is
     signal robRegWrite5             : std_logic;
     signal robRegWrite6             : std_logic;
     signal robRegWrite7             : std_logic;
-			 
-	 signal robLoadStoreDep          : std_logic;
+             
+     signal robLoadStoreDep          : std_logic;
     --------------------------------
     ---    Long Pipe Signals     ---
     --------------------------------
@@ -769,8 +771,8 @@ architecture Structure of CachedMIPS32 is
     signal ROB_value_flag_exe       :   std_logic;
     signal ROB_value_robid_exe      :   std_logic_vector(2 downto 0);
     signal ROB_value_alu            :   std_logic_vector(31 downto 0);
-	 signal ROB_value_flag_cache     :   std_logic;
-	 signal ROB_value_robid_cache    :   std_logic_vector(2 downto 0);
+     signal ROB_value_flag_cache     :   std_logic;
+     signal ROB_value_robid_cache    :   std_logic_vector(2 downto 0);
     signal ROB_value_cache          :   std_logic_vector(31 downto 0);
     signal ROB_rf_write             :   std_logic;
     signal ROB_rf_addr              :   std_logic_vector(4 downto 0);
@@ -836,7 +838,7 @@ begin
              fwd_path_alu       => fwd_path_alu_3to2,
              fwd_path_lookup    => fwd_path_lookup_4to2,
              fwd_path_cache     => fwd_path_cache_5to2and3and4,
-				 fwd_path_rob_rs    => fwd_path_rob_rs,
+                 fwd_path_rob_rs    => fwd_path_rob_rs,
              fwd_path_rob_rt    => fwd_path_rob_rt,
              fwd_path_rob_rt_mem => fwd_path_rob_rt_mem,
              -- the long pipe, a bit special
@@ -926,7 +928,7 @@ begin
              MemtoReg_in        => MemtoReg_2to3,
              MemtoReg_out       => MemtoReg_3to4,
              RegDst             => RegDst_2to3,
-				 FreeSlot_in        => FreeSlot_2to3,
+                 FreeSlot_in        => FreeSlot_2to3,
              FreeSlot_out       => FreeSlot_3to4,
              ALUOp              => ALUOp_2to3,
              ALUSrc             => ALUSrc_2to3,
@@ -983,8 +985,8 @@ begin
              WordAddress_out    => WordAddress_4to5,
              MemtoReg_in        => MemtoReg_3to4,
              MemtoReg_out       => MemtoReg_4to5,
-				 FreeSlot_in        => FreeSlot_3to4,
-				 FreeSlot_out       => FreeSlot_4to5_and_ROB,
+                 FreeSlot_in        => FreeSlot_3to4,
+                 FreeSlot_out       => FreeSlot_4to5_and_ROB,
              Zero               => Zero_3to4,
              WriteCache         => WriteCache_4to5,
              muxDataR           => muxDataR_4to5,
@@ -1027,8 +1029,8 @@ begin
              ByteAddress        => ByteAddress_4to5,
              WordAddress        => WordAddress_4to5,
              MemtoReg           => MemtoReg_4to5,
-				 FreeSlot_in        => FreeSlot_4to5_and_ROB,
-				 FreeSlot_out       => FreeSlot_5toForward,
+                 FreeSlot_in        => FreeSlot_4to5_and_ROB,
+                 FreeSlot_out       => FreeSlot_5toForward,
              WriteCache         => WriteCache_4to5,
              muxDataR           => muxDataR_4to5,
              muxDataW           => muxDataW_4to5,
@@ -1122,7 +1124,7 @@ begin
              Interrupt_to_Exception_ctrl => Interrupt_ExceptionCtrlfromHazardCtrl,
              ROB_Ready          => ROB_Ready_FromROB,
              ROB_Update         => ROB_Update_ToROB,
-				 robLoadStoreDep    => robLoadStoreDep,
+                 robLoadStoreDep    => robLoadStoreDep,
              IC_Ready           => instCacheReady_1toCtrl,
              DC_Ready           => dataCacheReady_4toCtrl,
              Stall_LP           => Stall_HazardCtrltoLP,
@@ -1135,9 +1137,10 @@ begin
              NOP_to_EXE         => NOP_HazardCtrlto2,
              NOP_to_L           => NOP_HazardCtrlto3,
              NOP_to_C           => NOP_HazardCtrlto4,
-             NOP_to_WB          => NOP_HazardCtrlto5);
+             NOP_to_WB          => NOP_HazardCtrlto5,
+             boot               => boot);
 
-			 
+             
     forwarding_control_logic : forwarding_ctrl 
     port map(idRegisterRs       => addr_rs_2toCtrl,
              idRegisterRt       => addr_rt_2to3,
@@ -1145,40 +1148,40 @@ begin
              exeRegisterRt      => addr_rt_3toCtrl,
              tagRegisterRd      => addr_regw_4to5,
              dcaRegisterRd      => addr_regw_5to6,
-				 robRegisterRd0     => robRegisterRd0,
-				 robRegisterRd1     => robRegisterRd1,
-				 robRegisterRd2     => robRegisterRd2,
-				 robRegisterRd3     => robRegisterRd3,
-				 robRegisterRd4     => robRegisterRd4,
-				 robRegisterRd5     => robRegisterRd5,
-				 robRegisterRd6     => robRegisterRd6,
-				 robRegisterRd7     => robRegisterRd7,
-				 robMatchIdRs_out   => robMatchIdRs_out,
-				 robMatchIdRt_out   => robMatchIdRt_out,
-				 robMatchIdRt_mem_out => robMatchIdRt_mem_out,
+                 robRegisterRd0     => robRegisterRd0,
+                 robRegisterRd1     => robRegisterRd1,
+                 robRegisterRd2     => robRegisterRd2,
+                 robRegisterRd3     => robRegisterRd3,
+                 robRegisterRd4     => robRegisterRd4,
+                 robRegisterRd5     => robRegisterRd5,
+                 robRegisterRd6     => robRegisterRd6,
+                 robRegisterRd7     => robRegisterRd7,
+                 robMatchIdRs_out   => robMatchIdRs_out,
+                 robMatchIdRt_out   => robMatchIdRt_out,
+                 robMatchIdRt_mem_out => robMatchIdRt_mem_out,
              exeRegWrite        => RegWrite_3to4,
              tagRegWrite        => RegWrite_4to5,
              dcaRegWrite        => RegWrite_5to6,
-				 robRegWrite0       => robRegWrite0,
-				 robRegWrite1       => robRegWrite1,
-				 robRegWrite2       => robRegWrite2,
-				 robRegWrite3       => robRegWrite3,
-				 robRegWrite4       => robRegWrite4,
-				 robRegWrite5       => robRegWrite5,
-				 robRegWrite6       => robRegWrite6,
-				 robRegWrite7       => robRegWrite7,
+                 robRegWrite0       => robRegWrite0,
+                 robRegWrite1       => robRegWrite1,
+                 robRegWrite2       => robRegWrite2,
+                 robRegWrite3       => robRegWrite3,
+                 robRegWrite4       => robRegWrite4,
+                 robRegWrite5       => robRegWrite5,
+                 robRegWrite6       => robRegWrite6,
+                 robRegWrite7       => robRegWrite7,
              idMemWrite         => MemWrite_2toHazardCtrl,
              exeMemWrite        => MemWrite_3to4,
-			    FreeSlotL          => FreeSlot_4to5_and_ROB,
-			    FreeSlotC          => FreeSlot_5toForward,
-				 robTail            => ROB_tail,
+                FreeSlotL          => FreeSlot_4to5_and_ROB,
+                FreeSlotC          => FreeSlot_5toForward,
+                 robTail            => ROB_tail,
              fwd_aluRs          => fwd_aluRs_to2,
              fwd_aluRt          => fwd_aluRt_to2,
              fwd_alu_regmem     => fwd_alu_regmem_to2,
              fwd_lookup_regmem  => fwd_lookup_regmem_4to3,
              fwd_cache_regmem   => fwd_cache_regmem_5to3); 
-				 
-				 
+                 
+                 
     exception_control_logic : exception_ctrl
     port map(exception_if       => exception_if_at_cache,
              exception_id       => exception_id_at_cache,
@@ -1195,23 +1198,24 @@ begin
     ROB_value_flag_exe <= '0' when Stall_HazardCtrlto4 = '1' else
                           '1' when RegWrite_3toROB = '1' and addr_regw_3to4/= "000000" else
                           '1' when MemWrite_3toROB = '1' else
-                          '0';	 
+                          '0';   
     ROB_value_robid_exe <= rob_addr_EXE_L when RegWrite_3toROB = '1' OR MemWrite_3toROB = '1' else
                            rob_addr_fromLP;  
     ROB_value_alu   <= alu_res_3to4 when RegWrite_3toROB = '1' OR MemWrite_3toROB = '1' else
                        lp_write_data_out;                   
     
-	 
-	 ROB_value_flag_cache <= '1' when RegWrite_5to6 = '1' and FreeSlot_5toForward = '0' else 
+     
+     ROB_value_flag_cache <= '1' when RegWrite_5to6 = '1' and FreeSlot_5toForward = '0' else 
                             '0';
     ROB_value_robid_cache <= rob_addr_C_WB;
-    ROB_value_cache       <= register_d_5to6; -- Value for Loads  		
-			
-			
+    ROB_value_cache       <= register_d_5to6; -- Value for Loads        
+            
+            
     ROB_newentry_flag <= '0' when Stall_HazardCtrlto3 = '1' else
                          '1' when ROB_Update_ToROB = '1' and 
                                  ((addr_rt_2to3 /= "000000" and RegDst_2to3 = '0') OR  
                                   (addr_rd_2to3 /= "000000" and RegDst_2to3 = '1')) else
+                         '1' when ROB_Update_ToROB = '1' and MemWrite_2to3 = '1' else
                          '0';
                          
     ROB_newentry_regaddr <= addr_rt_2to3 when RegDst_2to3 = '0' else
@@ -1235,32 +1239,32 @@ begin
              newentry_store     => MemWrite_2to3,
              newentry_load      => MemRead_2to3,
              newentry_regaddr   => ROB_newentry_regaddr,
-				 robRegisterRd0     => robRegisterRd0,
-				 robRegisterRd1     => robRegisterRd1,
-				 robRegisterRd2     => robRegisterRd2,
-				 robRegisterRd3     => robRegisterRd3,
-				 robRegisterRd4     => robRegisterRd4,
-				 robRegisterRd5     => robRegisterRd5,
-				 robRegisterRd6     => robRegisterRd6,
-				 robRegisterRd7     => robRegisterRd7,
-				 robMatchIdRs_in    => robMatchIdRs_out,
-				 robMatchIdRt_in    => robMatchIdRt_out,
-				 robMatchIdRt_mem_in => robMatchIdRt_mem_out,
-				 robRegWrite0       => robRegWrite0,
-				 robRegWrite1       => robRegWrite1,
-				 robRegWrite2       => robRegWrite2,
-				 robRegWrite3       => robRegWrite3,
-				 robRegWrite4       => robRegWrite4,
-				 robRegWrite5       => robRegWrite5,
-				 robRegWrite6       => robRegWrite6,
-				 robRegWrite7       => robRegWrite7,
+                 robRegisterRd0     => robRegisterRd0,
+                 robRegisterRd1     => robRegisterRd1,
+                 robRegisterRd2     => robRegisterRd2,
+                 robRegisterRd3     => robRegisterRd3,
+                 robRegisterRd4     => robRegisterRd4,
+                 robRegisterRd5     => robRegisterRd5,
+                 robRegisterRd6     => robRegisterRd6,
+                 robRegisterRd7     => robRegisterRd7,
+                 robMatchIdRs_in    => robMatchIdRs_out,
+                 robMatchIdRt_in    => robMatchIdRt_out,
+                 robMatchIdRt_mem_in => robMatchIdRt_mem_out,
+                 robRegWrite0       => robRegWrite0,
+                 robRegWrite1       => robRegWrite1,
+                 robRegWrite2       => robRegWrite2,
+                 robRegWrite3       => robRegWrite3,
+                 robRegWrite4       => robRegWrite4,
+                 robRegWrite5       => robRegWrite5,
+                 robRegWrite6       => robRegWrite6,
+                 robRegWrite7       => robRegWrite7,
              fwd_path_rob_rs    => fwd_path_rob_rs,
-				 fwd_path_rob_rt    => fwd_path_rob_rt,
-				 fwd_path_rob_rt_mem => fwd_path_rob_rt_mem,
-				 robLoadStoreDep    => robLoadStoreDep,
-		       lookup_load_addr   => alu_res_4to5,
-				 FreeSlot           => FreeSlot_4to5_and_ROB,
-				 ready              => ROB_Ready_FromROB,
+                 fwd_path_rob_rt    => fwd_path_rob_rt,
+                 fwd_path_rob_rt_mem => fwd_path_rob_rt_mem,
+                 robLoadStoreDep    => robLoadStoreDep,
+               lookup_load_addr   => alu_res_4to5,
+                 FreeSlot           => FreeSlot_4to5_and_ROB,
+                 ready              => ROB_Ready_FromROB,
              tail               => ROB_tail);
 
     interrupts_control_logic : interrupt_ctrl
