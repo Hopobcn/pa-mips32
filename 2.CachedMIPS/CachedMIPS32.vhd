@@ -136,6 +136,7 @@ architecture Structure of CachedMIPS32 is
           clk                 :   in  std_logic;
           RegWrite_in         :   in  std_logic;                      --from ID
           RegWrite_out        :   out std_logic;                      --to LOOKUP,CACHE,WB, then ID
+          RegWrite_rob        :   out std_logic;                      --to ROB
           Jump_in             :   in  std_logic;                      --from ID
           Jump_out            :   out std_logic;                      --to IF
           Branch_in           :   in  std_logic;                      --from ID
@@ -143,7 +144,8 @@ architecture Structure of CachedMIPS32 is
           MemRead_in          :   in  std_logic;                      --from ID 
           MemRead_out         :   out std_logic;                      --to LOOKUP
           MemWrite_in         :   in  std_logic;                      --from ID  
-          MemWrite_out        :   out std_logic;                      --to LOOKUP    
+          MemWrite_out        :   out std_logic;                      --to LOOKUP 
+          MemWrite_rob        :   out std_logic;                      --to ROB	  
           ByteAddress_in      :   in  std_logic;                      --from ID
           ByteAddress_out     :   out std_logic;                      --from LOOKUP
           WordAddress_in      :   in  std_logic;                      --from ID
@@ -457,12 +459,20 @@ architecture Structure of CachedMIPS32 is
       except_flag : in std_logic;
       except_addr : in std_logic_vector(2 downto 0);
 
-      -- The value flag, for storing an intermediate value
-      value_flag : in std_logic;
-      value_robid : in std_logic_vector(2 downto 0);
-      value_alu  : in std_logic_vector(31 downto 0);
-      -- ... and the memory address for stores
-      value_mem  : in std_logic_vector(31 downto 0);
+		-- 2 WRITE PORTS to allow this:
+		--   LOAD :  F D E L C    Wrob   <- Write from cache
+		--   arit      F D E Wrob 
+		--   arit        F D E    Wrob   <- write from ALU
+		
+      -- FIRST PORT
+      value_flag_exe   : in std_logic;
+      value_robid_exe  : in std_logic_vector(2 downto 0);
+      value_alu        : in std_logic_vector(31 downto 0); -- Value from alu when commiting an Aritmetic operation
+		
+		-- SECOND PORT
+		value_flag_cache  : in std_logic;
+		value_robid_cache : in std_logic_vector(2 downto 0);
+      value_cache       : in std_logic_vector(31 downto 0);  -- Value from Cache when commiting a LOAD operation 
 
       -- To-RegisterFile signals
       rf_write   : out std_logic;
@@ -565,6 +575,7 @@ architecture Structure of CachedMIPS32 is
     
     signal RegWrite_2to3            :   std_logic;
     signal RegWrite_3to4            :   std_logic;
+    signal RegWrite_3toROB          :   std_logic;
     signal RegWrite_4to5            :   std_logic;
     signal RegWrite_5to6            :   std_logic;
     signal RegWrite_6to2            :   std_logic;
@@ -593,6 +604,7 @@ architecture Structure of CachedMIPS32 is
      
     signal MemWrite_2to3            :   std_logic;
     signal MemWrite_3to4            :   std_logic;
+    signal MemWrite_3toROB          :   std_logic;
     signal MemWrite_2toHazardCtrl   :   std_logic;
     
     signal ByteAddress_2to3         :   std_logic;
@@ -754,10 +766,12 @@ architecture Structure of CachedMIPS32 is
     signal ROB_tail                 :   std_logic_vector(2 downto 0);
     signal ROB_except_flag          :   std_logic;
     signal ROB_except_addr          :   std_logic_vector(2 downto 0);
-    signal ROB_value_flag           :   std_logic;
-    signal ROB_value_robid          :   std_logic_vector(2 downto 0);
+    signal ROB_value_flag_exe       :   std_logic;
+    signal ROB_value_robid_exe      :   std_logic_vector(2 downto 0);
     signal ROB_value_alu            :   std_logic_vector(31 downto 0);
-    signal ROB_value_mem            :   std_logic_vector(31 downto 0);
+	 signal ROB_value_flag_cache     :   std_logic;
+	 signal ROB_value_robid_cache    :   std_logic_vector(2 downto 0);
+    signal ROB_value_cache          :   std_logic_vector(31 downto 0);
     signal ROB_rf_write             :   std_logic;
     signal ROB_rf_addr              :   std_logic_vector(4 downto 0);
     signal ROB_rf_val               :   std_logic_vector(31 downto 0);
@@ -895,6 +909,7 @@ begin
              clk                => clk,
              RegWrite_in        => RegWrite_2to3,
              RegWrite_out       => RegWrite_3to4,
+             RegWrite_rob       => RegWrite_3toROB,
              Jump_in            => Jump_2to3,
              Jump_out           => Jump_3to1,
              Branch_in          => Branch_2to3,
@@ -903,6 +918,7 @@ begin
              MemRead_out        => MemRead_3to4,
              MemWrite_in        => MemWrite_2to3,
              MemWrite_out       => MemWrite_3to4,
+             MemWrite_rob       => MemWrite_3toROB,
              ByteAddress_in     => ByteAddress_2to3,
              ByteAddress_out    => ByteAddress_3to4,
              WordAddress_in     => WordAddress_2to3,
@@ -1096,7 +1112,7 @@ begin
     port map(idRegisterRs       => addr_rs_2toCtrl,
              idRegisterRt       => addr_rt_2to3,
              exeRegisterRd      => addr_regw_3to4, 
-                 tagRegisterRd      => addr_regw_4to5,
+             tagRegisterRd      => addr_regw_4to5,
              exeMemRead         => MemRead_3to4,
              tagMemRead         => MemRead_4toCtrl,
              Branch             => BranchTaken_4toCtrl,
@@ -1176,20 +1192,26 @@ begin
              wbexc_writeBadVAddr => writeBadVAddr_to_wb,
              wbexc_writeCause    => writeCause_to_wb); 
              
-    ROB_value_flag <= '0' when Stall_HazardCtrlto4 = '1' else
-                      '1' when RegWrite_3to4 = '1' AND addr_regw_3to4/= "000000" else
-                      '1' when MemWrite_3to4 = '1' else
-                      '0';
-    ROB_value_robid <= rob_addr_EXE_L when RegWrite_3to4 = '1' OR MemWrite_3to4 = '1' else
-                      rob_addr_fromLP;
-    ROB_value_alu <=  alu_res_3to4 when RegWrite_3to4 = '1' OR MemWrite_3to4 = '1' else
-                      lp_write_data_out;
-                      
+    ROB_value_flag_exe <= '0' when Stall_HazardCtrlto4 = '1' else
+                          '1' when RegWrite_3toROB = '1' and addr_regw_3to4/= "000000" else
+                          '1' when MemWrite_3toROB = '1' else
+                          '0';	 
+    ROB_value_robid_exe <= rob_addr_EXE_L when RegWrite_3toROB = '1' OR MemWrite_3toROB = '1' else
+                           rob_addr_fromLP;  
+    ROB_value_alu   <= alu_res_3to4 when RegWrite_3toROB = '1' OR MemWrite_3toROB = '1' else
+                       lp_write_data_out;                   
     
+	 
+	 ROB_value_flag_cache <= '1' when RegWrite_5to6 = '1' and FreeSlot_5toForward = '0' else 
+                            '0';
+    ROB_value_robid_cache <= rob_addr_C_WB;
+    ROB_value_cache       <= register_d_5to6; -- Value for Loads  		
+			
+			
     ROB_newentry_flag <= '0' when Stall_HazardCtrlto3 = '1' else
-                         '1' when ROB_Update_ToROB = '1' AND 
-        ((addr_rt_2to3 /= "000000" and RegDst_2to3 = '0') OR  
-         (addr_rd_2to3 /= "000000" and RegDst_2to3 = '1')) else
+                         '1' when ROB_Update_ToROB = '1' and 
+                                 ((addr_rt_2to3 /= "000000" and RegDst_2to3 = '0') OR  
+                                  (addr_rd_2to3 /= "000000" and RegDst_2to3 = '1')) else
                          '0';
                          
     ROB_newentry_regaddr <= addr_rt_2to3 when RegDst_2to3 = '0' else
@@ -1200,10 +1222,12 @@ begin
              boot  => boot,
              except_flag        => ROB_except_flag,
              except_addr        => ROB_except_addr,
-             value_flag         => ROB_value_flag,
-             value_robid        => ROB_value_robid,
+             value_flag_exe     => ROB_value_flag_exe,
+             value_robid_exe    => ROB_value_robid_exe,
              value_alu          => ROB_value_alu,
-             value_mem          => ROB_value_mem,
+             value_flag_cache   => ROB_value_flag_cache,
+             value_robid_cache  => ROB_value_robid_cache,
+             value_cache        => ROB_value_cache,
              rf_write           => ROB_rf_write,
              rf_addr            => ROB_rf_addr,
              rf_val             => ROB_rf_val,

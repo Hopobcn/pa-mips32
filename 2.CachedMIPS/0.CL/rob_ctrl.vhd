@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
--- BUG 4 ? In Documentation a normal execution is: F D A Wrob Wrf  and We are doing: F D AWrob Wrf . We are doing A+Wrob in the same cycle
+
 entity rob_ctrl is
     port (clk : in std_logic;
       boot : in std_logic;
@@ -10,12 +10,20 @@ entity rob_ctrl is
       except_flag : in std_logic;
       except_addr : in std_logic_vector(2 downto 0);
 
-      -- The value flag, for storing an intermediate value
-      value_flag : in std_logic;
-      value_robid : in std_logic_vector(2 downto 0);
-      value_alu  : in std_logic_vector(31 downto 0);
-      -- ... and the memory address for stores
-      value_mem  : in std_logic_vector(31 downto 0);  -- BUG Nº1 value_mem not used
+		-- 2 WRITE PORTS to allow this:
+		--   LOAD :  F D E L C    Wrob   <- Write from cache
+		--   arit      F D E Wrob 
+		--   arit        F D E    Wrob   <- write from ALU
+		
+      -- FIRST PORT
+      value_flag_exe   : in std_logic;
+      value_robid_exe  : in std_logic_vector(2 downto 0);
+      value_alu        : in std_logic_vector(31 downto 0); -- Value from alu when commiting an Aritmetic operation
+		
+		-- SECOND PORT
+		value_flag_cache  : in std_logic;
+		value_robid_cache : in std_logic_vector(2 downto 0);
+      value_cache       : in std_logic_vector(31 downto 0);  -- Value from Cache when commiting a LOAD operation 
 
       -- To-RegisterFile signals
       rf_write   : out std_logic;
@@ -173,71 +181,79 @@ begin
     -- Do logic on clk edge
     basic_logic : process(clk, boot)
     begin
-      if (rising_edge(clk)) then
-        if (boot = '1') then
-          i_head <= "000";
-          i_tail <= "000";
-          keep_empty <= '1';
-          rf_write <= '0';
-          data(0)(107 downto 0) <= (others => '0'); -- Valid bit to 0
-          data(0)(99 downto 68) <= x"DABBAD00";
-        else
-          if (did_pop = '1' AND i_head = i_tail) then
-            keep_empty <= '1';
-          end if;
-          
-          did_push <= '0';
-          did_pop  <= '0';
-          
-          if (except_flag = '1') then
-            data(to_integer(unsigned(except_addr)))(104) <= '1';
-          end if;
-          
-			 -- Wrob 
-          if (value_flag = '1') then
-            if (data(to_integer(unsigned(value_robid)))(102) = '1' OR    -- Store 
-                data(to_integer(unsigned(value_robid)))(103) = '1') then -- Load
-              data(to_integer(unsigned(value_robid)))(63 downto 32) <= value_alu;
-              data(to_integer(unsigned(value_robid)))(105) <= '1'; -- mem operation ready
+        if (rising_edge(clk)) then
+            if (boot = '1') then
+                i_head <= "000";
+                i_tail <= "000";
+                keep_empty <= '1';
+                rf_write <= '0';
+                data(0)(107 downto 0) <= (others => '0'); -- Valid bit to 0
+                data(0)(99 downto 68) <= x"DABBAD00";
             else
-              data(to_integer(unsigned(value_robid)))(31 downto 0) <= value_alu;
-              data(to_integer(unsigned(value_robid)))(107) <= '1'; -- value ready
-            end if;
-          end if;
+                if (did_pop = '1' AND i_head = i_tail) then
+                    keep_empty <= '1';
+                end if;
           
-			 -- Wregfile
-          -- Here, the commit-to-register-file part
-          if (data(to_integer(unsigned(i_head)))(107) = '1') then -- if 'Instruction has been commited'
-            if (data(to_integer(unsigned(i_head)))(102) = '0') then
-                -- proceed to commit a value to the register file
-                rf_write <= '1';
-                rf_addr <= data(to_integer(unsigned(i_head)))(100 downto 96); -- ignoring bit '5' of a regular rf_addr
-                rf_val <= data(to_integer(unsigned(i_head)))(31 downto 0);
+                did_push <= '0';
+                did_pop  <= '0';
+          
+                if (except_flag = '1') then
+                    data(to_integer(unsigned(except_addr)))(104) <= '1';
+                end if;
+          
+                -- Wrob first-port (Aritmetic operations(value) and LOAD/STORE(for @))
+                if (value_flag_exe = '1') then
+                    if (data(to_integer(unsigned(value_robid_exe)))(102) = '1' OR    -- Store 
+                        data(to_integer(unsigned(value_robid_exe)))(103) = '1') then -- Load
+                        data(to_integer(unsigned(value_robid_exe)))(63 downto 32) <= value_alu;    -- STORES/LOADS this is the @
+                        data(to_integer(unsigned(value_robid_exe)))(105)          <= '1';          -- mem operation ready
+                    else
+                        data(to_integer(unsigned(value_robid_exe)))(31 downto 0) <= value_alu;     -- Value from EXE (for non LOAD/STORE inst)
+                        data(to_integer(unsigned(value_robid_exe)))(107)         <= '1';           -- value ready
+                    end if;
+                end if;
+          
+                -- Wrob second-port (LOAD value)
+                if (value_flag_cache = '1') then
+                    if (data(to_integer(unsigned(value_robid_cache)))(103) = '1') then -- Load
+                        data(to_integer(unsigned(value_robid_cache)))(31 downto 0) <= value_cache; -- LOADS this is the value
+                        data(to_integer(unsigned(value_robid_cache)))(107)         <= '1';       -- value ready
+				        end if;
+                end if;
+					 
+                -- Wregfile
+                -- Here, the commit-to-register-file part
+                if (data(to_integer(unsigned(i_head)))(107) = '1') then -- if 'Instruction has been commited'
+                    if (data(to_integer(unsigned(i_head)))(102) = '0') then
+                        -- proceed to commit a value to the register file
+                        rf_write <= '1';
+                        rf_addr  <= data(to_integer(unsigned(i_head)))(100 downto 96); -- ignoring bit '5' of a regular rf_addr
+                        rf_val   <= data(to_integer(unsigned(i_head)))(31 downto 0);
   
-                i_head <= std_logic_vector(unsigned(i_head) + 1);
-            end if;
+                        i_head   <= std_logic_vector(unsigned(i_head) + 1);
+                    end if;
             
-            data(to_integer(unsigned(i_head)))(107 downto 0)  <= (others => '0');
-            data(to_integer(unsigned(i_head)))(99 downto 68) <= x"DEADBEEF";
-            did_pop <= '1';
-            keep_empty <= '1';
-          else
-            rf_write <= '0';
-          end if;
+                    data(to_integer(unsigned(i_head)))(107 downto 0)  <= (others => '0');
+                    data(to_integer(unsigned(i_head)))(99 downto 68) <= x"DEADBEEF";
+                    did_pop <= '1';
+                    keep_empty <= '1';
+                else
+                    rf_write <= '0';
+                end if;
   
-          -- Here, the add-a-member part
-          if (newentry_flag = '1') then
-            data(to_integer(unsigned(i_tail)))(107 downto 0)  <= (others => '0');
-            data(to_integer(unsigned(i_tail)))(101 downto 96) <= newentry_regaddr;
-            data(to_integer(unsigned(i_tail)))(106) <= '1';
-            data(to_integer(unsigned(i_tail)))(102) <= newentry_store;
-            data(to_integer(unsigned(i_tail)))(103) <= newentry_load;
-            i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
-            did_push <= '1';
-            keep_empty <= '0';
-          end if;
+                -- Here, the add-a-member part
+                if (newentry_flag = '1') then
+                    data(to_integer(unsigned(i_tail)))(107 downto 0)  <= (others => '0');
+                    data(to_integer(unsigned(i_tail)))(101 downto 96) <= newentry_regaddr;
+                    data(to_integer(unsigned(i_tail)))(106)           <= '1';
+                    data(to_integer(unsigned(i_tail)))(102)           <= newentry_store;
+                    data(to_integer(unsigned(i_tail)))(103)           <= newentry_load;
+                    i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
+                    did_push <= '1';
+                    keep_empty <= '0';
+                end if;
+            end if;
         end if;
-    end if;
     end process;
     
     ready <= '1' when i_head /= i_tail else

@@ -29,6 +29,7 @@ entity execute is
           clk                 :   in  std_logic;
           RegWrite_in         :   in  std_logic;                      --from ID
           RegWrite_out        :   out std_logic;                      --to LOOKUP,CACHE,WB, then ID
+          RegWrite_rob        :   out std_logic;                      --to ROB
           Jump_in             :   in  std_logic;                      --from ID
           Jump_out            :   out std_logic;                      --to IF
           Branch_in           :   in  std_logic;                      --from ID
@@ -36,7 +37,8 @@ entity execute is
           MemRead_in          :   in  std_logic;                      --from ID 
           MemRead_out         :   out std_logic;                      --to LOOKUP
           MemWrite_in         :   in  std_logic;                      --from ID  
-          MemWrite_out        :   out std_logic;                      --to LOOKUP    
+          MemWrite_out        :   out std_logic;                      --to LOOKUP 
+          MemWrite_rob        :   out std_logic;                      --to ROB		 
           ByteAddress_in      :   in  std_logic;                      --from ID
           ByteAddress_out     :   out std_logic;                      --from LOOKUP
           WordAddress_in      :   in  std_logic;                      --from ID
@@ -160,6 +162,7 @@ architecture Structure of execute is
     signal WordAddress_reg  :   std_logic;  
     signal MemtoReg_reg     :   std_logic;  
     signal RegDst_reg       :   std_logic;
+    signal FreeSlot_reg     :   std_logic;
     signal ALUOp_reg        :   std_logic_vector(2 downto 0);       
     signal ALUSrc_reg       :   std_logic;  
     
@@ -251,7 +254,7 @@ begin
              RegDst_in      => RegDst,
              RegDst_out     => RegDst_reg,
 				 FreeSlot_in    => FreeSlot_in,
-				 FreeSlot_out   => FreeSlot_out,
+				 FreeSlot_out   => FreeSlot_reg,
              ALUOp_in       => ALUOp,
              ALUOp_out      => ALUOp_reg,
              ALUSrc_in      => ALUSrc,
@@ -295,19 +298,27 @@ begin
                        
     rob_addr_out    <= rob_addr_reg;
 
-    RegWrite_out    <= '0' when NOP_to_L = '1' or exception_internal = '1' else
+    RegWrite_out    <= '0' when NOP_to_L = '1' or exception_internal = '1' or FreeSlot_reg = '1' else
                         RegWrite_reg;
-                        
-    Jump_out        <= '0' when NOP_to_L = '1' or exception_internal = '1' else
+    RegWrite_rob    <= '0' when NOP_to_L = '1' or exception_internal = '1' else
+                        RegWrite_reg;
+								
+    Jump_out        <= '0' when NOP_to_L = '1' or exception_internal = '1' or FreeSlot_reg = '1' else
                        Jump_reg;
-    Branch_out      <= '0' when NOP_to_L = '1' or exception_internal = '1' else
+    Branch_out      <= '0' when NOP_to_L = '1' or exception_internal = '1' or FreeSlot_reg = '1' else
                        Branch_reg;
     
-    MemRead_out     <= '0' when NOP_to_L = '1' or exception_internal = '1' else
+    MemRead_out     <= '0' when NOP_to_L = '1' or exception_internal = '1' or FreeSlot_reg = '1' else
                         MemRead_reg;
                             
-    MemWrite_out    <= '0' when NOP_to_L = '1' or exception_internal = '1' else
+    MemWrite_out    <= '0' when NOP_to_L = '1' or exception_internal = '1' or FreeSlot_reg = '1' else
                         MemWrite_reg;
+    MemWrite_rob    <= '0' when NOP_to_L = '1' or exception_internal = '1' else
+                        MemWrite_reg;
+								
+    FreeSlot_out    <= '1' when NOP_to_L = '1' or exception_internal = '1' else
+	                     FreeSlot_reg;
+								
     ByteAddress_out <= ByteAddress_reg;
     WordAddress_out <= WordAddress_reg;
     MemtoReg_out    <=  MemtoReg_reg;
