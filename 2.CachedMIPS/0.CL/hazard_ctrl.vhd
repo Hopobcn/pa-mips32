@@ -106,16 +106,19 @@ begin
             NOP_to_EXE      <= '1';
             NOP_to_LP       <= '1';
         elsif (robLoadStoreDep = '1') then -- LOAD in lookup, STORE in ROB, @ match
+            ROB_Update      <= '0';
               Stall_PC        <= '1';
                 Stall_IF_ID     <= '1';
                 Stall_ID_EXE    <= '1';
                 Stall_EXE_LOOKUP<= '1';
                 NOP_to_C        <= '1'; -- NOT shure if this is necessary
         elsif ((idRegisterRs = exeRegisterRd or idRegisterRt = exeRegisterRd) and exeMemRead = '1') then -- LOAD in exe (we need to wait until C to forward)
+            ROB_Update      <= '0';
             Stall_PC        <= '1';
             Stall_IF_ID     <= '1';
             NOP_to_EXE      <= '1';
         elsif ((idRegisterRs = tagRegisterRd or idRegisterRt = tagRegisterRd) and tagMemRead = '1') then -- LOAD in lookup (we need to wait until C to forward)
+            ROB_Update      <= '0';
             Stall_PC        <= '1';
             Stall_IF_ID     <= '1';
             NOP_to_LP       <= '1';
