@@ -19,7 +19,8 @@ entity rob_ctrl is
       value_flag_exe   : in std_logic;
       value_robid_exe  : in std_logic_vector(2 downto 0);
       value_alu        : in std_logic_vector(31 downto 0); -- Value from alu when commiting an Aritmetic operation
-		
+      value_to_store   : in std_logic_vector(31 downto 0); -- Value to be stored in cache/mem
+
 		-- SECOND PORT
 		value_flag_cache  : in std_logic;
 		value_robid_cache : in std_logic_vector(2 downto 0);
@@ -29,6 +30,12 @@ entity rob_ctrl is
       rf_write   : out std_logic;
       rf_addr    : out std_logic_vector(4 downto 0);   
       rf_val     : out std_logic_vector(31 downto 0);
+
+      -- To-L-C {cache/mem}
+      mem_addr_store : out std_logic_vector(31 downto 0);
+      mem_val_store  : out std_logic_vector(31 downto 0);
+      mem_store      : out std_logic;
+      MemComplete    : in std_logic;
 
       -- New entries (from decode stage)
       newentry_flag  : in std_logic; -- UB if using this while full
@@ -107,6 +114,7 @@ architecture Structure of rob_ctrl is
 	 signal	robStoreFlag5         :  std_logic;
 	 signal	robStoreFlag6         :  std_logic;
 	 signal	robStoreFlag7         :  std_logic;
+	 signal  MemOpInProgress       :  std_logic;
 begin
 
     robRegisterRd0    <= data(0)(101 downto 96);
@@ -206,7 +214,8 @@ begin
                     if (data(to_integer(unsigned(value_robid_exe)))(102) = '1' OR    -- Store 
                         data(to_integer(unsigned(value_robid_exe)))(103) = '1') then -- Load
                         data(to_integer(unsigned(value_robid_exe)))(63 downto 32) <= value_alu;    -- STORES/LOADS this is the @
-                        data(to_integer(unsigned(value_robid_exe)))(105)          <= '1';          -- mem operation ready
+                        data(to_integer(unsigned(value_robid_exe)))(31 downto 0)  <= value_to_store; -- STORES Value to be stored in memory
+                        data(to_integer(unsigned(value_robid_exe)))(105)         <= '1';           -- ReadyToMem
                     else
                         data(to_integer(unsigned(value_robid_exe)))(31 downto 0) <= value_alu;     -- Value from EXE (for non LOAD/STORE inst)
                         data(to_integer(unsigned(value_robid_exe)))(107)         <= '1';           -- value ready
@@ -223,22 +232,48 @@ begin
 					 
                 -- Wregfile
                 -- Here, the commit-to-register-file part
+                if (data(to_integer(unsigned(i_head)))(102) = '1' and 
+                    data(to_integer(unsigned(i_head)))(105) = '1') then --STORE and Ready
+                    data(to_integer(unsigned(i_head)))(107) <= '1';
+                    
+                end if;
                 if (data(to_integer(unsigned(i_head)))(107) = '1') then -- if 'Instruction has been commited'
                     if (data(to_integer(unsigned(i_head)))(102) = '0') then
                         -- proceed to commit a value to the register file
                         rf_write <= '1';
                         rf_addr  <= data(to_integer(unsigned(i_head)))(100 downto 96); -- ignoring bit '5' of a regular rf_addr
                         rf_val   <= data(to_integer(unsigned(i_head)))(31 downto 0);
-  
+
+                        data(to_integer(unsigned(i_head)))(107 downto 0)  <= (others => '0');
+                        data(to_integer(unsigned(i_head)))(99 downto 68) <= x"DEADBEEF";
+                        did_pop <= '1';
+                        keep_empty <= '1';
+						  
                         i_head   <= std_logic_vector(unsigned(i_head) + 1);
+                    else  -- STORE
+                        -- proceed to write into cache/mem
+                        if (FreeSlot = '1') then
+                            mem_store      <= '1'; 
+                            MemOpInProgress <= '1';
+                        end if;
+								if (memOpInProgress = '1') then
+                            mem_store      <= '1'; 
+                            mem_addr_store <= data(to_integer(unsigned(i_head)))(63 downto 32);
+                            mem_val_store  <= data(to_integer(unsigned(i_head)))(31 downto 0);
+								end if;
+                        if (MemComplete = '1') then -- we should also check that didn't produce an exception
+                            data(to_integer(unsigned(i_head)))(107 downto 0)  <= (others => '0');
+                            data(to_integer(unsigned(i_head)))(99 downto 68) <= x"DEADBEEF";
+                            did_pop <= '1';
+                            keep_empty <= '1';
+						  
+                            i_head   <= std_logic_vector(unsigned(i_head) + 1);
+                        end if;
                     end if;
-            
-                    data(to_integer(unsigned(i_head)))(107 downto 0)  <= (others => '0');
-                    data(to_integer(unsigned(i_head)))(99 downto 68) <= x"DEADBEEF";
-                    did_pop <= '1';
-                    keep_empty <= '1';
                 else
                     rf_write <= '0';
+                    mem_store <= '0';
+                    MemOpInProgress <= '0';
                 end if;
   
                 -- Here, the add-a-member part

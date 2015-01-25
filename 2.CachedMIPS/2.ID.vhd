@@ -333,17 +333,19 @@ begin
                   rt_regfile;
     
     -- Long Pipe things for valid behaviour
-    lp_doinst <= LongPipe_tmp;
+    lp_doinst  <= LongPipe_tmp;
     lp_addr_rd <= instruction_reg(15 downto 11);
-    lp_rs <= fwd_path_alu     when fwd_aluRs = "11" else
-             fwd_path_lookup  when fwd_aluRs = "10" else
-             fwd_path_cache   when fwd_aluRs = "01" else
-             rs_regfile;         --fwd_aluRs = "00";
+    lp_rs      <= fwd_path_alu     when fwd_aluRs = "111" else
+                  fwd_path_lookup  when fwd_aluRs = "110" else
+                  fwd_path_cache   when fwd_aluRs = "101" else
+                  fwd_path_rob_rs  when fwd_aluRs = "100" else
+                  rs_regfile;         --fwd_aluRs = "000";
            
-    lp_rt <= fwd_path_alu     when fwd_aluRt = "11" else
-             fwd_path_lookup  when fwd_aluRt = "10" else
-             fwd_path_cache   when fwd_aluRt = "01" else
-             rt_regfile;         --fwd_aluRt = "00"
+    lp_rt      <= fwd_path_alu     when fwd_aluRt = "111" else
+                  fwd_path_lookup  when fwd_aluRt = "110" else
+                  fwd_path_cache   when fwd_aluRt = "101" else
+                  fwd_path_rob_rt  when fwd_aluRt = "100" else
+                  rt_regfile;         --fwd_aluRt = "00"
 
     sign_extend_unit    :   seu
     port map(input      => instruction_reg(15 downto 0),

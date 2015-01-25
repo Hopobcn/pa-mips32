@@ -224,6 +224,10 @@ architecture Structure of CachedMIPS32 is
           DC_Ready           : out std_logic;                      --to Hazard Ctrl
           NOP_to_C           : in  std_logic;                      --from Hazard Control
           Stall              : in  std_logic;                      --from Hazard Control
+			    -- interface with ROB
+          mem_addr_store     : in  std_logic_vector(31 downto 0);
+          mem_val_store      : in  std_logic_vector(31 downto 0);
+          mem_store          : in  std_logic;
           -- exception bits
           exception_if_in    : in  std_logic;
           exception_if_out   : out std_logic;
@@ -263,11 +267,14 @@ architecture Structure of CachedMIPS32 is
              FreeSlot_in          : in  std_logic;                      --from LOOKUP
              FreeSlot_out         : out std_logic;                      --to Forward Control
           -- interface with data_cache data
+          BusReady             : in  std_logic;                      --from L
           WriteCache           : in  std_logic;                      --to CACHE
           muxDataR             : in  std_logic;                      --to CACHE
           muxDataW             : in  std_logic;                      --to CACHE 
           -- interface with Hazard Control
           NOP_to_WB            : in  std_logic;                      --from Hazard Control
+          -- interface with ROB
+          MemComplete          : out std_logic;
           -- exception bits
           exception_if_in      : in  std_logic;
           exception_if_out     : out std_logic;
@@ -475,12 +482,19 @@ architecture Structure of CachedMIPS32 is
         value_flag_cache  : in std_logic;
         value_robid_cache : in std_logic_vector(2 downto 0);
       value_cache       : in std_logic_vector(31 downto 0);  -- Value from Cache when commiting a LOAD operation 
+      value_to_store   : in std_logic_vector(31 downto 0); -- Value to be stored in cache/mem
 
       -- To-RegisterFile signals
       rf_write   : out std_logic;
       rf_addr    : out std_logic_vector(4 downto 0);
       rf_val     : out std_logic_vector(31 downto 0);
 
+      -- To-L-C {cache/mem}
+      mem_addr_store : out std_logic_vector(31 downto 0);
+      mem_val_store  : out std_logic_vector(31 downto 0);
+      mem_store      : out std_logic;
+      MemComplete    : in std_logic;
+		
       -- New entries (from decode stage)
       newentry_flag  : in std_logic; -- UB if using this while full
       newentry_store : in std_logic;
@@ -777,6 +791,10 @@ architecture Structure of CachedMIPS32 is
     signal ROB_rf_write             :   std_logic;
     signal ROB_rf_addr              :   std_logic_vector(4 downto 0);
     signal ROB_rf_val               :   std_logic_vector(31 downto 0);
+	 signal ROB_addr_store           :   std_logic_vector(31 downto 0);
+	 signal ROB_val_store            :   std_logic_vector(31 downto 0);
+	 signal ROB_MemWrite_L           :   std_logic;
+	 signal ROB_MemWrited_C          :   std_logic;
     signal ROB_newentry_flag        :   std_logic;
     signal ROB_newentry_regaddr     :   std_logic_vector(5 downto 0);
 
@@ -985,8 +1003,8 @@ begin
              WordAddress_out    => WordAddress_4to5,
              MemtoReg_in        => MemtoReg_3to4,
              MemtoReg_out       => MemtoReg_4to5,
-                 FreeSlot_in        => FreeSlot_3to4,
-                 FreeSlot_out       => FreeSlot_4to5_and_ROB,
+             FreeSlot_in        => FreeSlot_3to4,
+             FreeSlot_out       => FreeSlot_4to5_and_ROB,
              Zero               => Zero_3to4,
              WriteCache         => WriteCache_4to5,
              muxDataR           => muxDataR_4to5,
@@ -997,6 +1015,9 @@ begin
              DC_Ready           => dataCacheReady_4toCtrl,
              NOP_to_C           => NOP_HazardCtrlto4,
              Stall              => Stall_HazardCtrlto4,
+             mem_addr_store     => ROB_addr_store,
+             mem_val_store      => ROB_val_store,
+             mem_store          => ROB_MemWrite_L,
              -- exception bits
              exception_if_in    => exception_if_at_exe,
              exception_if_out   => exception_if_at_lookup,
@@ -1029,12 +1050,14 @@ begin
              ByteAddress        => ByteAddress_4to5,
              WordAddress        => WordAddress_4to5,
              MemtoReg           => MemtoReg_4to5,
-                 FreeSlot_in        => FreeSlot_4to5_and_ROB,
-                 FreeSlot_out       => FreeSlot_5toForward,
+             FreeSlot_in        => FreeSlot_4to5_and_ROB,
+             FreeSlot_out       => FreeSlot_5toForward,
+				 BusReady           => BusReadyDC,
              WriteCache         => WriteCache_4to5,
              muxDataR           => muxDataR_4to5,
              muxDataW           => muxDataW_4to5,
              NOP_to_WB          => NOP_HazardCtrlto5,
+             MemComplete        => ROB_MemWrited_C,
                 -- exception bits
              exception_if_in    => exception_if_at_lookup,
              exception_if_out   => exception_if_at_cache,
@@ -1232,9 +1255,14 @@ begin
              value_flag_cache   => ROB_value_flag_cache,
              value_robid_cache  => ROB_value_robid_cache,
              value_cache        => ROB_value_cache,
+             value_to_store     => write_data_3to4,
              rf_write           => ROB_rf_write,
              rf_addr            => ROB_rf_addr,
              rf_val             => ROB_rf_val,
+             mem_addr_store     => ROB_addr_store,
+             mem_val_store      => ROB_val_store,
+             mem_store          => ROB_MemWrite_L,
+             MemComplete        => ROB_MemWrited_C,
              newentry_flag      => ROB_newentry_flag,
              newentry_store     => MemWrite_2to3,
              newentry_load      => MemRead_2to3,

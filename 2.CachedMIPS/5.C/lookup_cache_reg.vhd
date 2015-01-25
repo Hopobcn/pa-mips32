@@ -25,6 +25,8 @@ entity lookup_cache_reg is
           FreeSlot_in          : in  std_logic;                 
           FreeSlot_out         : out std_logic;
           -- interface with data_cache data
+			 BusReady_in          : in  std_logic;
+			 BusReady_out         : out std_logic;
           WriteCache_in        : in  std_logic;                      --to CACHE
           WriteCache_out       : out std_logic;                    
           muxDataR_in          : in  std_logic;                      --to CACHE
@@ -73,6 +75,7 @@ begin
 
 					 FreeSlot_out        <= FreeSlot_in;
 					 
+					 BusReady_out        <= BusReady_in;
                 WriteCache_out      <= WriteCache_in;                  
                 muxDataR_out        <= muxDataR_in;
                 muxDataW_out        <= muxDataW_in;

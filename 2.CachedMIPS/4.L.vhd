@@ -48,6 +48,10 @@ entity lookup is
           DC_Ready           : out std_logic;                      --to Hazard Ctrl
           NOP_to_C           : in  std_logic;                      --from Hazard Control
           Stall              : in  std_logic;                      --from Hazard Control
+			    -- interface with ROB
+          mem_addr_store     : in  std_logic_vector(31 downto 0);
+          mem_val_store      : in  std_logic_vector(31 downto 0);
+          mem_store          : in  std_logic;
           -- exception bits
           exception_if_in    : in  std_logic;
           exception_if_out   : out std_logic;
@@ -120,6 +124,7 @@ architecture Structure of lookup is
 
     signal addr_branch_reg      :   std_logic_vector(31 downto 0);  
     signal addr_reg             :   std_logic_vector(31 downto 0);  
+    signal addr_rob             :   std_logic_vector(31 downto 0);
     signal write_data_mem_reg   :   std_logic_vector(31 downto 0);
     signal addr_regw_reg        :   std_logic_vector(5 downto 0);   
     signal rob_addr_reg         :   std_logic_vector(2 downto 0);
@@ -127,6 +132,7 @@ architecture Structure of lookup is
     signal Branch_reg           :   std_logic;
     signal MemRead_reg          :   std_logic;
     signal MemWrite_reg         :   std_logic;
+	 signal MemWrite_rob         :   std_logic;
     signal ByteAddress_reg      :   std_logic;
     signal WordAddress_reg      :   std_logic;
     signal MemtoReg_reg         :   std_logic;
@@ -215,19 +221,27 @@ begin
              Exc_EPC_in        => Exc_EPC_in,
              Exc_EPC_out       => Exc_EPC_reg);
     
-    
+	 -- ROB switches for STORES
+    addr_rob <= mem_addr_store when mem_store = '1' else
+                addr_reg;
+	
+    MemWrite_rob <= mem_store when mem_store = '1' else
+                    MemWrite_reg;
+ 
     addr_branch_out    <= addr_branch_reg;
-    addr_out           <= addr_reg;
-    write_data_mem_out <= write_data_mem_reg;
+    addr_out           <= addr_rob;
+    write_data_mem_out <= mem_val_store when mem_store = '1' else -- potser no fa falta el mux, potser amb harcodejar el valor n'hi ha prou.
+                         write_data_mem_reg;
+
     addr_regw_out      <= addr_regw_reg;
     rob_addr_out       <= rob_addr_reg;
-    fwd_path_lookup    <= addr_reg; 
+    fwd_path_lookup    <= addr_rob; 
 
      TAGS_AND_STATE : data_cache_lookup
-    port map(addr       => addr_reg,
+    port map(addr       => addr_rob,
              busAddrDC  => busAddrDC,
              PrRd       => MemRead_reg,
-             PrWr       => MemWrite_reg,
+             PrWr       => MemWrite_rob,
              Ready      => DC_Ready,
              WriteCache => WriteCache_reg,
              muxDataR   => muxDataR,
@@ -238,7 +252,8 @@ begin
              clk        => clk,
              reset      => boot );
 
-    busWrDataMemWrite <= write_data_mem_reg;             
+    busWrDataMemWrite <= mem_val_store when mem_store = '1' else
+                         write_data_mem_reg;             
      
      -- NOP
     RegWrite_out    <= '0' when NOP_to_C = '1' or exception_internal = '1' else
@@ -258,7 +273,8 @@ begin
     WordAddress_out <= WordAddress_reg;
     MemtoReg_out    <=  MemtoReg_reg;
      
-	 FreeSlot_out    <= '1' when NOP_to_C = '1' or exception_internal = '1' else
+	 FreeSlot_out    <= '0' when mem_store = '1' else 
+                       '1' when NOP_to_C = '1' or exception_internal = '1' else
 	                    FreeSlot_reg;
 							  
     WriteCache      <= '0' when NOP_to_C = '1' or exception_internal = '1' else
@@ -278,7 +294,7 @@ begin
     exception_lookup  <= exception_internal when NOP_to_C = '0' else
                         '0';
     -- Output the exception registers, change when needed
-    Exc_BadVaddr_out <= addr_reg when exception_internal = '1' else
+    Exc_BadVaddr_out <= addr_rob when exception_internal = '1' else
                         Exc_BadVAddr_reg;
     Exc_EPC_out      <= Exc_EPC_reg;
     -- ToDo Appendix A-35 something better
