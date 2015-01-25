@@ -359,6 +359,7 @@ architecture Structure of CachedMIPS32 is
           DC_Ready        : in  std_logic;                     -- from MEM (means Data Cache Ready (1 when hit)
           ROB_Ready       : in  std_logic;                     -- from ROB, indicating not-full state
           ROB_Update      : out std_logic;                     -- to ROB, when we are not stalling ID
+			 robLoadStoreDep : in  std_logic;
           -- control signals
           Stall_LP        : out std_logic;
           Stall_PC        : out std_logic;
@@ -487,6 +488,8 @@ architecture Structure of CachedMIPS32 is
       fwd_path_rob_rs       : out std_logic_vector(31 downto 0); 
 		fwd_path_rob_rt       : out std_logic_vector(31 downto 0);
 		fwd_path_rob_rt_mem   : out std_logic_vector(31 downto 0);
+		robLoadStoreDep       : out std_logic; -- To Hazard_ctrl
+		lookup_load_addr      : in  std_logic_vector(31 downto 0); -- Addres of a load in Lookup stage
 		
       ready : out std_logic;  -- If head == tail and !empty, then we are full
       tail  : out std_logic_vector(2 downto 0)
@@ -641,6 +644,7 @@ architecture Structure of CachedMIPS32 is
     signal robRegWrite6             : std_logic;
     signal robRegWrite7             : std_logic;
 			 
+	 signal robLoadStoreDep          : std_logic;
     --------------------------------
     ---    Long Pipe Signals     ---
     --------------------------------
@@ -1077,6 +1081,7 @@ begin
                  Interrupt_to_Exception_ctrl => Interrupt_ExceptionCtrlfromHazardCtrl,
              ROB_Ready          => ROB_Ready_FromROB,
              ROB_Update         => ROB_Update_ToROB,
+				 robLoadStoreDep    => robLoadStoreDep,
              IC_Ready           => instCacheReady_1toCtrl,
              DC_Ready           => dataCacheReady_4toCtrl,
              Stall_LP           => Stall_HazardCtrltoLP,
@@ -1201,6 +1206,8 @@ begin
              fwd_path_rob_rs    => fwd_path_rob_rs,
 				 fwd_path_rob_rt    => fwd_path_rob_rt,
 				 fwd_path_rob_rt_mem => fwd_path_rob_rt_mem,
+				 robLoadStoreDep    => robLoadStoreDep,
+		       lookup_load_addr   => alu_res_4to5,
 				 ready              => ROB_Ready_FromROB,
              tail               => ROB_tail);
 

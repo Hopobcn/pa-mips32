@@ -11,7 +11,7 @@ entity execute is
           sign_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           zero_ext            :   in  std_logic_vector(31 downto 0);  --from ID
           addr_rt_in          :   in  std_logic_vector(5 downto 0);   --from ID
-             addr_rt_out         :   out std_logic_vector(5 downto 0);   --to FWD Control
+          addr_rt_out         :   out std_logic_vector(5 downto 0);   --to FWD Control
           addr_rd             :   in  std_logic_vector(5 downto 0);   --from ID
           addr_jump_in        :   in  std_logic_vector(31 downto 0);  --from ID
           addr_jump_out       :   out std_logic_vector(31 downto 0);  --to IF
