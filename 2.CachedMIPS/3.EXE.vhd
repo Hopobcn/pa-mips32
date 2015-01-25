@@ -302,10 +302,10 @@ begin
                         RegWrite_reg;
     RegWrite_rob    <= '0' when NOP_to_L = '1' or exception_internal = '1' else
                         RegWrite_reg;
-								
-    Jump_out        <= '0' when NOP_to_L = '1' or exception_internal = '1' or FreeSlot_reg = '1' else
+                                
+    Jump_out        <= '0' when NOP_to_L = '1' or exception_internal = '1' else --or FreeSlot_reg = '1' else --@warning, jumps jo ahead
                        Jump_reg;
-    Branch_out      <= '0' when NOP_to_L = '1' or exception_internal = '1' or FreeSlot_reg = '1' else
+    Branch_out      <= '0' when NOP_to_L = '1' or exception_internal = '1' else --or FreeSlot_reg = '1' else --@warning, branches go ahead
                        Branch_reg;
     
     MemRead_out     <= '0' when NOP_to_L = '1' or exception_internal = '1' or FreeSlot_reg = '1' else

@@ -488,6 +488,8 @@ architecture Structure of CachedMIPS32 is
       rf_write   : out std_logic;
       rf_addr    : out std_logic_vector(4 downto 0);
       rf_val     : out std_logic_vector(31 downto 0);
+      -- Rewind because a branch is taken
+      rewind_cause_branch  : in std_logic;
 
       -- To-L-C {cache/mem}
       mem_addr_store : out std_logic_vector(31 downto 0);
@@ -797,6 +799,7 @@ architecture Structure of CachedMIPS32 is
 	 signal ROB_MemWrited_C          :   std_logic;
     signal ROB_newentry_flag        :   std_logic;
     signal ROB_newentry_regaddr     :   std_logic_vector(5 downto 0);
+    signal ROB_rewind               :   std_logic;
 
   
     -- The signals from exception_ctrl to writeback
@@ -1243,6 +1246,8 @@ begin
                          
     ROB_newentry_regaddr <= addr_rt_2to3 when RegDst_2to3 = '0' else
                             addr_rd_2to3;
+    
+    ROB_rewind <= BranchTaken_4toCtrl;
        
     rob_control_logic : rob_ctrl
     port map(clk   => clk,
@@ -1259,6 +1264,7 @@ begin
              rf_write           => ROB_rf_write,
              rf_addr            => ROB_rf_addr,
              rf_val             => ROB_rf_val,
+				 rewind_cause_branch => ROB_rewind,
              mem_addr_store     => ROB_addr_store,
              mem_val_store      => ROB_val_store,
              mem_store          => ROB_MemWrite_L,
