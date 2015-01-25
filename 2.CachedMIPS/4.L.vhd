@@ -225,7 +225,7 @@ begin
     addr_rob <= mem_addr_store when mem_store = '1' else
                 addr_reg;
 	
-    MemWrite_rob <= mem_store when mem_store = '1' else
+    MemWrite_rob <= mem_store when mem_store = '1' and BusReady = '0' else
                     MemWrite_reg;
  
     addr_branch_out    <= addr_branch_reg;

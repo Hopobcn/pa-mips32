@@ -50,7 +50,7 @@ lw   R7, 4(R4)      0c              F D E E E E L C W                           
 add  R5, R6, R7     10                F F F f f f D E L C W                                           <- Miss IC, R7 comes from fwd C to E
 addi R6, R5, 8      14                            F D E L C W                                         <- Hit IC, R5 comes from a forwarding path from E unit to E
 sw   R6, 4(R4)      18                              F D E L L L L C W                                 <- Hit IC, Store in Cache & Main_Mem
-beq  R4, R0, FINISH 1c                                F D E E E E L C W                               <- Hit IC, don't branch in M because it's not going to jump 
+beq  R4, R0, FINISH 1c                                F D E E E E L C W                               <- Hit IC, don't branch in L because it's not going to jump 
 addi R4, R0, -4     20                                  F F F f f f D E L C W                         <- Miss IC,
 j    LOOP           24                                              F D E L C W                       <- Hit IC, Jump in EXE stage, put nops in IF,ID,ALU 
 sll  R0, R0, 0      28                                                F D - - -                       <- Hit IC
@@ -95,22 +95,22 @@ etc...
 #########################################
 #########################################  CachedMIPS with ReOrder Buffer :
 -----------------CPI_loop = ...???... -----------------
-                                           10  12  14  16  18  18  21
-                    PC    1 2 3 4 5 6 7 8 9  11  13  15  17  19  20  22
-addi R4, R0, 4      00    F F F D E w W                                    <- Miss IC
-addi R5, R0, 0      04          F D E w W                                  <- Hit IC
+                                           10  12  14  16  18  18  21  23  25
+                    PC    1 2 3 4 5 6 7 8 9  11  13  15  17  19  20  22  24  26
+addi R4, R0, 4      00    F F F D E w W                                           <- Miss IC
+addi R5, R0, 0      04          F D E w W                                         <- Hit IC
 ------------------------------------------------------------------#LOOP
-lw   R6, 0(R4)      08            F D E L L L L C w W                      <- Hit IC, Miss DC, R4 comes from a forwarding path from L unit to E
-lw   R7, 4(R4)      0c              F D E E E E L C w W                    <- Hit IC, Hit DC, R4 comes from a forwarding path from C unit to E
-add  R5, R6, R7     10                F F F f f f D E w W                  <- Miss IC, R6 comes from fwd ROB to E, R7 comes from fwd C to E
-addi R6, R5, 8      14                            F D E w W                <- R5 comes from a forwarding path from E unit to E
-sw   R6, 4(R4)      18                              F D E w - L L L C      <- Writes in cache/mem in cycle 21
-beq  R4, R0, FINISH 1c                                      
-addi R4, R0, 4      20                                      
-j    LOOP           24                                      
-sll  R0, R0, 0      28                                      
--                   2C                                      
-----------------------------------------------------------------------    
-lw R6, O(R4)        08                              F D E M W           <- Jump resolved with a PC=0008
+lw   R6, 0(R4)      08            F D E L L L L C w W                             <- Hit IC, Miss DC, R4 comes from a forwarding path from L unit to E
+lw   R7, 4(R4)      0c              F D E E E E L C w W                           <- Hit IC, Hit DC, R4 comes from a forwarding path from C unit to E
+add  R5, R6, R7     10                F F F f f f D E w W                         <- Miss IC, R6 comes from fwd ROB to E, R7 comes from fwd C to E
+addi R6, R5, 8      14                            F D E w W                       <- R5 comes from a forwarding path from E unit to E
+sw   R6, 4(R4)      18                              F D E w - L L L C             <- Writes in cache/mem in cycle 21
+beq  R4, R0, FINISH 1c                                F D E -                     <- Hit IC, don't branch in L. R4(4) != R0 (0) 
+addi R4, R0, -4     20                                  F F F D D D E w W         <- Miss IC,
+j    LOOP           24                                        F F F f D E         <- Per alguna rao el PC ha tardat un cicle extra a arrancar
+sll  R0, R0, 0      28                                                F D - -
+-                   2C                                                  F - -
+------------------------------------------------------------------#LOOP it 0   
+lw R6, O(R4)        08                                                    F D E M W           <- Jump resolved with a PC=0008
 #########################################
 #########################################
