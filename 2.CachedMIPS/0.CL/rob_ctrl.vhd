@@ -19,30 +19,53 @@ entity rob_ctrl is
 
       -- To-RegisterFile signals
       rf_write   : out std_logic;
-      rf_addr    : out std_logic_vector(4 downto 0);   -- BUG Nº3 We are commiting 'rf_addr' of uninitialized values!!! Solve this and ROB will work
+      rf_addr    : out std_logic_vector(4 downto 0);   
       rf_val     : out std_logic_vector(31 downto 0);
 
       -- New entries (from decode stage)
       newentry_flag  : in std_logic; -- UB if using this while full
       newentry_store : in std_logic;
       newentry_load  : in std_logic; -- mutually exclusive with store
-      newentry_regaddr : in std_logic_vector(4 downto 0);
+      newentry_regaddr : in std_logic_vector(5 downto 0);
 
+      robRegisterRd0        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 0 
+      robRegisterRd1        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 1 
+      robRegisterRd2        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 2 
+      robRegisterRd3        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 3 
+      robRegisterRd4        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 4 
+      robRegisterRd5        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 5 
+      robRegisterRd6        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 6 
+      robRegisterRd7        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 7 
+		robMatchIdRs_in       : in std_logic_vector(2 downto 0);
+		robMatchIdRt_in       : in std_logic_vector(2 downto 0);
+		robMatchIdRt_mem_in   : in std_logic_vector(2 downto 0);
+		robRegWrite0          : out  std_logic;
+		robRegWrite1          : out  std_logic;
+		robRegWrite2          : out  std_logic;
+		robRegWrite3          : out  std_logic;
+		robRegWrite4          : out  std_logic;
+		robRegWrite5          : out  std_logic;
+		robRegWrite6          : out  std_logic;
+		robRegWrite7          : out  std_logic;
+      fwd_path_rob_rs       : out std_logic_vector(31 downto 0); 
+		fwd_path_rob_rt       : out std_logic_vector(31 downto 0);
+		fwd_path_rob_rt_mem   : out std_logic_vector(31 downto 0);
+		
       ready : out std_logic;  -- If head == tail and !empty, then we are full
       tail  : out std_logic_vector(2 downto 0)
       );
 end rob_ctrl;
 
 architecture Structure of rob_ctrl is
-    type ROB_DATA is array (7 downto 0) of std_logic_vector(106 downto 0);
+    type ROB_DATA is array (7 downto 0) of std_logic_vector(107 downto 0);
     -- *** Data inside the structure (each std_logic_Vector) ***
-    -- Bit 106 ValidData
-    -- Bit 105 WorkInProgress
-    -- Bit 104 ReadyToMem
-    -- Bit 103 Exception
-    -- Bit 102 Load flag
-    -- Bit 101 Store flag
-    -- Bits 100..96 Register address
+    -- Bit 107 ValidData
+    -- Bit 106 WorkInProgress
+    -- Bit 105 ReadyToMem
+    -- Bit 104 Exception
+    -- Bit 103 Load flag
+    -- Bit 102 Store flag
+    -- Bits 101..96 Register address
     -- Bits 95..64 PC
     -- Bits 63..32 Memory location (for loads/stores)
     -- Bits 31..0 Value to store
@@ -53,9 +76,43 @@ architecture Structure of rob_ctrl is
 
     signal did_push : std_logic;
     signal did_pop  : std_logic;
-    signal keep_empty : std_logic;
+    signal keep_empty : std_logic; 
     
 begin
+
+    robRegisterRd0    <= data(0)(101 downto 96);
+    robRegisterRd1    <= data(1)(101 downto 96);
+    robRegisterRd2    <= data(2)(101 downto 96);
+    robRegisterRd3    <= data(3)(101 downto 96);
+    robRegisterRd4    <= data(4)(101 downto 96);
+    robRegisterRd5    <= data(5)(101 downto 96);
+    robRegisterRd6    <= data(6)(101 downto 96);
+    robRegisterRd7    <= data(7)(101 downto 96);
+	 
+    robRegWrite0      <= '1' when data(0)(107) = '1' else
+	                      '0';
+    robRegWrite1      <= '1' when data(1)(107) = '1' else
+	                      '0';
+    robRegWrite2      <= '1' when data(2)(107) = '1' else
+	                      '0';
+    robRegWrite3      <= '1' when data(3)(107) = '1' else
+	                      '0';
+    robRegWrite4      <= '1' when data(4)(107) = '1' else
+	                      '0';
+    robRegWrite5      <= '1' when data(5)(107) = '1' else
+	                      '0';
+    robRegWrite6      <= '1' when data(6)(107) = '1' else
+	                      '0';
+    robRegWrite7      <= '1' when data(7)(107) = '1' else
+	                      '0';
+		
+	 
+    fwd_path_rob_rs     <= data(to_integer(unsigned(robMatchIdRs_in)))(31 downto 0);
+    fwd_path_rob_rt     <= data(to_integer(unsigned(robMatchIdRt_in)))(31 downto 0);
+    fwd_path_rob_rt_mem <= data(to_integer(unsigned(robMatchIdRt_mem_in)))(31 downto 0);
+
+
+
     -- Do logic on clk edge
     basic_logic : process(clk, boot)
     begin
@@ -65,7 +122,7 @@ begin
           i_tail <= "000";
           keep_empty <= '1';
           rf_write <= '0';
-          data(0)(105 downto 0) <= (others => '0');
+          data(0)(107 downto 0) <= (others => '0'); -- Valid bit to 0
           data(0)(99 downto 68) <= x"DABBAD00";
         else
           if (did_pop = '1' AND i_head = i_tail) then
@@ -76,32 +133,34 @@ begin
           did_pop  <= '0';
           
           if (except_flag = '1') then
-            data(to_integer(unsigned(except_addr)))(103) <= '1';
+            data(to_integer(unsigned(except_addr)))(104) <= '1';
           end if;
           
+			 -- Wrob 
           if (value_flag = '1') then
-            if (data(to_integer(unsigned(value_robid)))(101) = '1' OR
-                data(to_integer(unsigned(value_robid)))(102) = '1') then
+            if (data(to_integer(unsigned(value_robid)))(102) = '1' OR    -- Store 
+                data(to_integer(unsigned(value_robid)))(103) = '1') then -- Load
               data(to_integer(unsigned(value_robid)))(63 downto 32) <= value_alu;
-              data(to_integer(unsigned(value_robid)))(104) <= '1'; -- mem operation ready
+              data(to_integer(unsigned(value_robid)))(105) <= '1'; -- mem operation ready
             else
               data(to_integer(unsigned(value_robid)))(31 downto 0) <= value_alu;
-              data(to_integer(unsigned(value_robid)))(106) <= '1'; -- value ready
+              data(to_integer(unsigned(value_robid)))(107) <= '1'; -- value ready
             end if;
           end if;
           
+			 -- Wregfile
           -- Here, the commit-to-register-file part
-          if (data(to_integer(unsigned(i_head)))(106) = '1') then
+          if (data(to_integer(unsigned(i_head)))(107) = '1') then -- if 'Instruction has been commited'
             if (data(to_integer(unsigned(i_head)))(102) = '0') then
                 -- proceed to commit a value to the register file
                 rf_write <= '1';
-                rf_addr <= data(to_integer(unsigned(i_head)))(100 downto 96);
+                rf_addr <= data(to_integer(unsigned(i_head)))(100 downto 96); -- ignoring bit '5' of a regular rf_addr
                 rf_val <= data(to_integer(unsigned(i_head)))(31 downto 0);
   
                 i_head <= std_logic_vector(unsigned(i_head) + 1);
             end if;
             
-            data(to_integer(unsigned(i_head)))(106 downto 0)  <= (others => '0');
+            data(to_integer(unsigned(i_head)))(107 downto 0)  <= (others => '0');
             data(to_integer(unsigned(i_head)))(99 downto 68) <= x"DEADBEEF";
             did_pop <= '1';
             keep_empty <= '1';
@@ -111,11 +170,11 @@ begin
   
           -- Here, the add-a-member part
           if (newentry_flag = '1') then
-            data(to_integer(unsigned(i_tail)))(106 downto 0)  <= (others => '0');
-            data(to_integer(unsigned(i_tail)))(100 downto 96) <= newentry_regaddr;
-            data(to_integer(unsigned(i_tail)))(105) <= '1';
-            data(to_integer(unsigned(i_tail)))(101) <= newentry_store;
-            data(to_integer(unsigned(i_tail)))(102) <= newentry_load;
+            data(to_integer(unsigned(i_tail)))(107 downto 0)  <= (others => '0');
+            data(to_integer(unsigned(i_tail)))(101 downto 96) <= newentry_regaddr;
+            data(to_integer(unsigned(i_tail)))(106) <= '1';
+            data(to_integer(unsigned(i_tail)))(102) <= newentry_store;
+            data(to_integer(unsigned(i_tail)))(103) <= newentry_load;
             i_tail <= std_logic_vector(unsigned(i_tail) + 1 );
             did_push <= '1';
             keep_empty <= '0';

@@ -21,6 +21,9 @@ entity instruction_decode is
           fwd_path_alu    :   in  std_logic_vector(31 downto 0);  --from ALU    [FWD]
           fwd_path_lookup :   in  std_logic_vector(31 downto 0);  --from LOOKUP [FWD]
           fwd_path_cache  :   in  std_logic_vector(31 downto 0);  --from CACHE  [FWD]
+          fwd_path_rob_rs :   in  std_logic_vector(31 downto 0);  --from ROB    [FWD]
+          fwd_path_rob_rt :   in  std_logic_vector(31 downto 0);  --from ROB    [FWD]
+          fwd_path_rob_rt_mem : in std_logic_vector(31 downto 0); --form ROB    [FWD]
           -- the long pipe, a bit special
           lp_rs           :   out std_logic_vector(31 downto 0);
           lp_rt           :   out std_logic_vector(31 downto 0);
@@ -41,9 +44,9 @@ entity instruction_decode is
           ALUOp           :   out std_logic_vector(2 downto 0);   --to EXE
           ALUSrc          :   out std_logic;                      --to EXE
           RegWrite_in     :   in  std_logic;                      --from WB   
-          fwd_aluRs       :   in  std_logic_vector(1 downto 0);   --from FWD Ctrl
-          fwd_aluRt       :   in  std_logic_vector(1 downto 0);   --from FWD Ctrl
-          fwd_alu_regmem  :   in  std_logic_vector(1 downto 0);   --from FWD Ctrl 
+          fwd_aluRs       :   in  std_logic_vector(2 downto 0);   --from FWD Ctrl
+          fwd_aluRt       :   in  std_logic_vector(2 downto 0);   --from FWD Ctrl
+          fwd_alu_regmem  :   in  std_logic_vector(2 downto 0);   --from FWD Ctrl 
           NOP_to_EXE      :   in  std_logic;                      --from Hazard Ctrl
           Stall           :   in  std_logic; 
           -- exception bits
@@ -305,33 +308,36 @@ begin
               EPC_reg      => Exc_EPC_to_regfile,
               EPC_w        => writeEPC_to_regfile);
 
-    rs  <= fwd_path_alu     when fwd_aluRs = "11" else
-           fwd_path_lookup  when fwd_aluRs = "10" else
-           fwd_path_cache   when fwd_aluRs = "01" else
+    rs  <= fwd_path_alu     when fwd_aluRs = "111" else
+           fwd_path_lookup  when fwd_aluRs = "110" else
+           fwd_path_cache   when fwd_aluRs = "101" else
+           fwd_path_rob_rs  when fwd_aluRs = "100" else
            rs_regfile;         --fwd_aluRs = "00"
             
-    rt  <= fwd_path_alu     when fwd_aluRt = "11" else
-           fwd_path_lookup  when fwd_aluRt = "10" else
-           fwd_path_cache   when fwd_aluRt = "01" else
+    rt  <= fwd_path_alu     when fwd_aluRt = "111" else
+           fwd_path_lookup  when fwd_aluRt = "110" else
+           fwd_path_cache   when fwd_aluRt = "101" else
+           fwd_path_rob_rt  when fwd_aluRt = "100" else
            rt_regfile;         --fwd_aluRt = "00"
             
-    write_data <= fwd_path_alu    when fwd_alu_regmem = "11" else
-                  fwd_path_lookup when fwd_alu_regmem = "10" else
-                  fwd_path_cache  when fwd_alu_regmem = "01" else
+    write_data <= fwd_path_alu        when fwd_alu_regmem = "111" else
+                  fwd_path_lookup     when fwd_alu_regmem = "110" else
+                  fwd_path_cache      when fwd_alu_regmem = "101" else
+                  fwd_path_rob_rt_mem when fwd_alu_regmem = "100" else
                   rt_regfile;
     
     -- Long Pipe things for valid behaviour
     lp_doinst <= LongPipe_tmp;
     lp_addr_rd <= instruction_reg(15 downto 11);
     lp_rs <= fwd_path_alu     when fwd_aluRs = "11" else
-           fwd_path_lookup  when fwd_aluRs = "10" else
-           fwd_path_cache   when fwd_aluRs = "01" else
-           rs_regfile;         --fwd_aluRs = "00";
+             fwd_path_lookup  when fwd_aluRs = "10" else
+             fwd_path_cache   when fwd_aluRs = "01" else
+             rs_regfile;         --fwd_aluRs = "00";
            
     lp_rt <= fwd_path_alu     when fwd_aluRt = "11" else
-           fwd_path_lookup  when fwd_aluRt = "10" else
-           fwd_path_cache   when fwd_aluRt = "01" else
-           rt_regfile;         --fwd_aluRt = "00"
+             fwd_path_lookup  when fwd_aluRt = "10" else
+             fwd_path_cache   when fwd_aluRt = "01" else
+             rt_regfile;         --fwd_aluRt = "00"
 
     sign_extend_unit    :   seu
     port map(input      => instruction_reg(15 downto 0),

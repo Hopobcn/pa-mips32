@@ -59,6 +59,9 @@ architecture Structure of CachedMIPS32 is
           fwd_path_alu    :   in  std_logic_vector(31 downto 0);  --from ALU    [FWD]
           fwd_path_lookup :   in  std_logic_vector(31 downto 0);  --from LOOKUP [FWD]
           fwd_path_cache  :   in  std_logic_vector(31 downto 0);  --from CACHE  [FWD]
+          fwd_path_rob_rs :   in  std_logic_vector(31 downto 0);  --from ROB    [FWD]
+          fwd_path_rob_rt :   in  std_logic_vector(31 downto 0);  --from ROB    [FWD]
+          fwd_path_rob_rt_mem : in std_logic_vector(31 downto 0); --form ROB    [FWD]
           -- the long pipe, a bit special
           lp_rs           :   out std_logic_vector(31 downto 0);
           lp_rt           :   out std_logic_vector(31 downto 0);
@@ -79,9 +82,9 @@ architecture Structure of CachedMIPS32 is
           ALUOp           :   out std_logic_vector(2 downto 0);   --to EXE
           ALUSrc          :   out std_logic;                      --to EXE
           RegWrite_in     :   in  std_logic;                      --from WB   
-          fwd_aluRs       :   in  std_logic_vector(1 downto 0);   --from FWD Ctrl
-          fwd_aluRt       :   in  std_logic_vector(1 downto 0);   --from FWD Ctrl
-          fwd_alu_regmem  :   in  std_logic_vector(1 downto 0);   --from FWD Ctrl 
+          fwd_aluRs       :   in  std_logic_vector(2 downto 0);   --from FWD Ctrl
+          fwd_aluRt       :   in  std_logic_vector(2 downto 0);   --from FWD Ctrl
+          fwd_alu_regmem  :   in  std_logic_vector(2 downto 0);   --from FWD Ctrl 
           NOP_to_EXE      :   in  std_logic;                      --from Hazard Ctrl
           Stall           :   in  std_logic; 
           -- exception bits
@@ -376,17 +379,37 @@ architecture Structure of CachedMIPS32 is
           exeRegisterRd     : in  std_logic_vector(5 downto 0);  --producer
           exeRegisterRt     : in  std_logic_vector(5 downto 0);  --producer
           tagRegisterRd     : in  std_logic_vector(5 downto 0);  --producer "tag -> LOOKUP stage"
-          dcaRegisterRd     : in  std_logic_vector(5 downto 0);  --producer "dca == data cache -> CACHE stage"
+			 dcaRegisterRd     : in  std_logic_vector(5 downto 0);  --producer "dca == data cache -> CACHE stage"
+          robRegisterRd0    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 0 
+          robRegisterRd1    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 1 
+          robRegisterRd2    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 2 
+          robRegisterRd3    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 3 
+          robRegisterRd4    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 4 
+          robRegisterRd5    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 5 
+          robRegisterRd6    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 6 
+          robRegisterRd7    : in  std_logic_vector(5 downto 0);  --producer ROB entrada 7 
+			 robMatchIdRs_out  : out std_logic_vector(2 downto 0);
+			 robMatchIdRt_out  : out std_logic_vector(2 downto 0);
+			 robMatchIdRt_mem_out : out std_logic_vector(2 downto 0);
           exeRegWrite       : in  std_logic;
           tagRegWrite       : in  std_logic;
-          dcaRegWrite       : in  std_logic;
+			 dcaRegWrite       : in  std_logic;
+			 robRegWrite0      : in  std_logic;
+			 robRegWrite1      : in  std_logic;
+			 robRegWrite2      : in  std_logic;
+			 robRegWrite3      : in  std_logic;
+			 robRegWrite4      : in  std_logic;
+			 robRegWrite5      : in  std_logic;
+			 robRegWrite6      : in  std_logic;
+			 robRegWrite7      : in  std_logic;
           idMemWrite        : in  std_logic;
           exeMemWrite       : in  std_logic;
-          fwd_aluRs         : out std_logic_vector(1 downto 0);
-          fwd_aluRt         : out std_logic_vector(1 downto 0);
-          fwd_alu_regmem    : out std_logic_vector(1 downto 0);
+          robTail           : in  std_logic_vector(2 downto 0);
+          fwd_aluRs         : out std_logic_vector(2 downto 0);
+          fwd_aluRt         : out std_logic_vector(2 downto 0);
+          fwd_alu_regmem    : out std_logic_vector(2 downto 0);
           fwd_lookup_regmem : out std_logic;
-          fwd_cache_regmem  : out std_logic); 
+			 fwd_cache_regmem  : out std_logic); 
     end component;
     
     component exception_ctrl is
@@ -440,8 +463,31 @@ architecture Structure of CachedMIPS32 is
       newentry_flag  : in std_logic; -- UB if using this while full
       newentry_store : in std_logic;
       newentry_load  : in std_logic; -- mutually exclusive with store
-      newentry_regaddr : in std_logic_vector(4 downto 0);
+      newentry_regaddr : in std_logic_vector(5 downto 0);
 
+      robRegisterRd0        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 0 
+      robRegisterRd1        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 1 
+      robRegisterRd2        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 2 
+      robRegisterRd3        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 3 
+      robRegisterRd4        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 4 
+      robRegisterRd5        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 5 
+      robRegisterRd6        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 6 
+      robRegisterRd7        : out  std_logic_vector(5 downto 0);  --producer ROB entrada 7 
+		robMatchIdRs_in       : in std_logic_vector(2 downto 0);
+		robMatchIdRt_in       : in std_logic_vector(2 downto 0);
+		robMatchIdRt_mem_in   : in std_logic_vector(2 downto 0);
+		robRegWrite0          : out  std_logic;
+		robRegWrite1          : out  std_logic;
+		robRegWrite2          : out  std_logic;
+		robRegWrite3          : out  std_logic;
+		robRegWrite4          : out  std_logic;
+		robRegWrite5          : out  std_logic;
+		robRegWrite6          : out  std_logic;
+		robRegWrite7          : out  std_logic;
+      fwd_path_rob_rs       : out std_logic_vector(31 downto 0); 
+		fwd_path_rob_rt       : out std_logic_vector(31 downto 0);
+		fwd_path_rob_rt_mem   : out std_logic_vector(31 downto 0);
+		
       ready : out std_logic;  -- If head == tail and !empty, then we are full
       tail  : out std_logic_vector(2 downto 0)
     );
@@ -486,8 +532,11 @@ architecture Structure of CachedMIPS32 is
     
     signal fwd_path_alu_3to2           :   std_logic_vector(31 downto 0);
     signal fwd_path_lookup_4to2        :   std_logic_vector(31 downto 0);
-    signal fwd_path_cache_5to2and3and4 : std_logic_vector(31 downto 0);
-    
+    signal fwd_path_cache_5to2and3and4 :   std_logic_vector(31 downto 0);
+    signal fwd_path_rob_rs             :   std_logic_vector(31 downto 0);
+    signal fwd_path_rob_rt             :   std_logic_vector(31 downto 0);
+    signal fwd_path_rob_rt_mem         :   std_logic_vector(31 downto 0);
+	 
     signal instCacheReady_1toCtrl   :   std_logic;
     signal dataCacheReady_4toCtrl   :   std_logic;
     
@@ -544,9 +593,9 @@ architecture Structure of CachedMIPS32 is
     signal Stall_HazardCtrlto3      :   std_logic;
     signal Stall_HazardCtrlto4      :   std_logic;
     
-    signal fwd_aluRs_to2            :   std_logic_vector(1 downto 0);
-    signal fwd_aluRt_to2            :   std_logic_vector(1 downto 0);
-    signal fwd_alu_regmem_to2       :   std_logic_vector(1 downto 0);
+    signal fwd_aluRs_to2            :   std_logic_vector(2 downto 0);
+    signal fwd_aluRt_to2            :   std_logic_vector(2 downto 0);
+    signal fwd_alu_regmem_to2       :   std_logic_vector(2 downto 0);
     signal fwd_lookup_regmem_4to3   :   std_logic;
     signal fwd_cache_regmem_5to3    :   std_logic;
     
@@ -565,6 +614,33 @@ architecture Structure of CachedMIPS32 is
     signal muxDataR_4to5            :   std_logic;
     signal muxDataW_4to5            :   std_logic;
     
+    --------------------------------
+	 ------- FWD <--> ROB  ----------
+    --------------------------------
+	 
+	 signal robRegisterRd0           : std_logic_vector(5 downto 0);  --producer ROB entrada 0 
+    signal robRegisterRd1           : std_logic_vector(5 downto 0);  --producer ROB entrada 1 
+    signal robRegisterRd2           : std_logic_vector(5 downto 0);  --producer ROB entrada 2 
+    signal robRegisterRd3           : std_logic_vector(5 downto 0);  --producer ROB entrada 3 
+    signal robRegisterRd4           : std_logic_vector(5 downto 0);  --producer ROB entrada 4 
+    signal robRegisterRd5           : std_logic_vector(5 downto 0);  --producer ROB entrada 5 
+    signal robRegisterRd6           : std_logic_vector(5 downto 0);  --producer ROB entrada 6 
+    signal robRegisterRd7           : std_logic_vector(5 downto 0);  --producer ROB entrada 7 
+	 signal robMatchIdRs_out         : std_logic_vector(2 downto 0);
+	 signal robMatchIdRt_out         : std_logic_vector(2 downto 0);
+	 signal robMatchIdRt_mem_out     : std_logic_vector(2 downto 0);
+    signal exeRegWrite              : std_logic;
+    signal tagRegWrite              : std_logic;
+    signal dcaRegWrite              : std_logic;
+    signal robRegWrite0             : std_logic;
+    signal robRegWrite1             : std_logic;
+    signal robRegWrite2             : std_logic;
+    signal robRegWrite3             : std_logic;
+    signal robRegWrite4             : std_logic;
+    signal robRegWrite5             : std_logic;
+    signal robRegWrite6             : std_logic;
+    signal robRegWrite7             : std_logic;
+			 
     --------------------------------
     ---    Long Pipe Signals     ---
     --------------------------------
@@ -664,7 +740,7 @@ architecture Structure of CachedMIPS32 is
     signal ROB_rf_addr              :   std_logic_vector(4 downto 0);
     signal ROB_rf_val               :   std_logic_vector(31 downto 0);
     signal ROB_newentry_flag        :   std_logic;
-    signal ROB_newentry_regaddr     :   std_logic_vector(4 downto 0);
+    signal ROB_newentry_regaddr     :   std_logic_vector(5 downto 0);
 
   
     -- The signals from exception_ctrl to writeback
@@ -724,6 +800,9 @@ begin
              fwd_path_alu       => fwd_path_alu_3to2,
              fwd_path_lookup    => fwd_path_lookup_4to2,
              fwd_path_cache     => fwd_path_cache_5to2and3and4,
+				 fwd_path_rob_rs    => fwd_path_rob_rs,
+             fwd_path_rob_rt    => fwd_path_rob_rt,
+             fwd_path_rob_rt_mem => fwd_path_rob_rt_mem,
              -- the long pipe, a bit special
              lp_rs              => lp_rs,
              lp_rt              => lp_rt,
@@ -1012,7 +1091,7 @@ begin
              NOP_to_C           => NOP_HazardCtrlto4,
              NOP_to_WB          => NOP_HazardCtrlto5);
 
-    
+			 
     forwarding_control_logic : forwarding_ctrl 
     port map(idRegisterRs       => addr_rs_2toCtrl,
              idRegisterRt       => addr_rt_2to3,
@@ -1020,17 +1099,38 @@ begin
              exeRegisterRt      => addr_rt_3toCtrl,
              tagRegisterRd      => addr_regw_4to5,
              dcaRegisterRd      => addr_regw_5to6,
+				 robRegisterRd0     => robRegisterRd0,
+				 robRegisterRd1     => robRegisterRd1,
+				 robRegisterRd2     => robRegisterRd2,
+				 robRegisterRd3     => robRegisterRd3,
+				 robRegisterRd4     => robRegisterRd4,
+				 robRegisterRd5     => robRegisterRd5,
+				 robRegisterRd6     => robRegisterRd6,
+				 robRegisterRd7     => robRegisterRd7,
+				 robMatchIdRs_out   => robMatchIdRs_out,
+				 robMatchIdRt_out   => robMatchIdRt_out,
+				 robMatchIdRt_mem_out => robMatchIdRt_mem_out,
              exeRegWrite        => RegWrite_3to4,
              tagRegWrite        => RegWrite_4to5,
              dcaRegWrite        => RegWrite_5to6,
+				 robRegWrite0       => robRegWrite0,
+				 robRegWrite1       => robRegWrite1,
+				 robRegWrite2       => robRegWrite2,
+				 robRegWrite3       => robRegWrite3,
+				 robRegWrite4       => robRegWrite4,
+				 robRegWrite5       => robRegWrite5,
+				 robRegWrite6       => robRegWrite6,
+				 robRegWrite7       => robRegWrite7,
              idMemWrite         => MemWrite_2toHazardCtrl,
              exeMemWrite        => MemWrite_3to4,
+				 robTail            => ROB_tail,
              fwd_aluRs          => fwd_aluRs_to2,
              fwd_aluRt          => fwd_aluRt_to2,
              fwd_alu_regmem     => fwd_alu_regmem_to2,
              fwd_lookup_regmem  => fwd_lookup_regmem_4to3,
              fwd_cache_regmem   => fwd_cache_regmem_5to3); 
-                
+				 
+				 
     exception_control_logic : exception_ctrl
     port map(exception_if       => exception_if_at_cache,
              exception_id       => exception_id_at_cache,
@@ -1060,27 +1160,49 @@ begin
          (addr_rd_2to3 /= "000000" and RegDst_2to3 = '1')) else
                          '0';
                          
-    ROB_newentry_regaddr <= addr_rt_2to3(4 downto 0) when RegDst_2to3 = '0' else
-                            addr_rd_2to3(4 downto 0);
+    ROB_newentry_regaddr <= addr_rt_2to3 when RegDst_2to3 = '0' else
+                            addr_rd_2to3;
        
     rob_control_logic : rob_ctrl
-    port map (clk   => clk,
-          boot  => boot,
-          except_flag => ROB_except_flag,
-          except_addr => ROB_except_addr,
-          value_flag => ROB_value_flag,
-          value_robid => ROB_value_robid,
-          value_alu  => ROB_value_alu,
-          value_mem  => ROB_value_mem,
-          rf_write   => ROB_rf_write,
-          rf_addr    => ROB_rf_addr,
-          rf_val     => ROB_rf_val,
-          newentry_flag  => ROB_newentry_flag,
-          newentry_store => MemWrite_2to3,
-          newentry_load  => MemRead_2to3,
-          newentry_regaddr => ROB_newentry_regaddr,
-          ready => ROB_Ready_FromROB,
-          tail  => ROB_tail);
+    port map(clk   => clk,
+             boot  => boot,
+             except_flag        => ROB_except_flag,
+             except_addr        => ROB_except_addr,
+             value_flag         => ROB_value_flag,
+             value_robid        => ROB_value_robid,
+             value_alu          => ROB_value_alu,
+             value_mem          => ROB_value_mem,
+             rf_write           => ROB_rf_write,
+             rf_addr            => ROB_rf_addr,
+             rf_val             => ROB_rf_val,
+             newentry_flag      => ROB_newentry_flag,
+             newentry_store     => MemWrite_2to3,
+             newentry_load      => MemRead_2to3,
+             newentry_regaddr   => ROB_newentry_regaddr,
+				 robRegisterRd0     => robRegisterRd0,
+				 robRegisterRd1     => robRegisterRd1,
+				 robRegisterRd2     => robRegisterRd2,
+				 robRegisterRd3     => robRegisterRd3,
+				 robRegisterRd4     => robRegisterRd4,
+				 robRegisterRd5     => robRegisterRd5,
+				 robRegisterRd6     => robRegisterRd6,
+				 robRegisterRd7     => robRegisterRd7,
+				 robMatchIdRs_in    => robMatchIdRs_out,
+				 robMatchIdRt_in    => robMatchIdRt_out,
+				 robMatchIdRt_mem_in => robMatchIdRt_mem_out,
+				 robRegWrite0       => robRegWrite0,
+				 robRegWrite1       => robRegWrite1,
+				 robRegWrite2       => robRegWrite2,
+				 robRegWrite3       => robRegWrite3,
+				 robRegWrite4       => robRegWrite4,
+				 robRegWrite5       => robRegWrite5,
+				 robRegWrite6       => robRegWrite6,
+				 robRegWrite7       => robRegWrite7,
+             fwd_path_rob_rs    => fwd_path_rob_rs,
+				 fwd_path_rob_rt    => fwd_path_rob_rt,
+				 fwd_path_rob_rt_mem => fwd_path_rob_rt_mem,
+				 ready              => ROB_Ready_FromROB,
+             tail               => ROB_tail);
 
     interrupts_control_logic : interrupt_ctrl
     port map(interrupt          => external_interrupt,
