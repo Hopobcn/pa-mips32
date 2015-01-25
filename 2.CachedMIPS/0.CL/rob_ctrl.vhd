@@ -240,7 +240,13 @@ begin
                     data(to_integer(unsigned(i_head)))(107) <= '1';
                     
                 end if;
-                if (data(to_integer(unsigned(i_head)))(107) = '1') then -- if 'Instruction has been commited'
+                
+                    -- the regular "valid" ROB operation
+                if (data(to_integer(unsigned(i_head)))(107) = '1' or
+                    -- consider the STORE and ready scenario
+                    (data(to_integer(unsigned(i_head)))(102) = '1' and 
+                    data(to_integer(unsigned(i_head)))(105) = '1')) then
+                        -- if 'Instruction has been commited'
                     if (data(to_integer(unsigned(i_head)))(102) = '0') then
                         -- proceed to commit a value to the register file
                         rf_write <= '1';
