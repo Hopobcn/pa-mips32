@@ -52,6 +52,7 @@ entity lookup is
           mem_addr_store     : in  std_logic_vector(31 downto 0);
           mem_val_store      : in  std_logic_vector(31 downto 0);
           mem_store          : in  std_logic;
+          MemComplete        : out std_logic;
           -- exception bits
           exception_if_in    : in  std_logic;
           exception_if_out   : out std_logic;
@@ -225,9 +226,9 @@ begin
     addr_rob <= mem_addr_store when mem_store = '1' else
                 addr_reg;
 	
-    MemWrite_rob <= mem_store when mem_store = '1' and BusReady = '0' else
-                    MemWrite_reg;
- 
+    MemWrite_rob <= mem_store;
+    MemComplete  <= '1' when mem_store = '1' and enable = '1' and BusReady = '1';
+    
     addr_branch_out    <= addr_branch_reg;
     addr_out           <= addr_rob;
     write_data_mem_out <= mem_val_store when mem_store = '1' else -- potser no fa falta el mux, potser amb harcodejar el valor n'hi ha prou.

@@ -228,6 +228,7 @@ architecture Structure of CachedMIPS32 is
           mem_addr_store     : in  std_logic_vector(31 downto 0);
           mem_val_store      : in  std_logic_vector(31 downto 0);
           mem_store          : in  std_logic;
+          MemComplete        : out std_logic;
           -- exception bits
           exception_if_in    : in  std_logic;
           exception_if_out   : out std_logic;
@@ -274,7 +275,8 @@ architecture Structure of CachedMIPS32 is
           -- interface with Hazard Control
           NOP_to_WB            : in  std_logic;                      --from Hazard Control
           -- interface with ROB
-          MemComplete          : out std_logic;
+          MemComplete_in       : in  std_logic;
+          MemComplete_out      : out std_logic;
           -- exception bits
           exception_if_in      : in  std_logic;
           exception_if_out     : out std_logic;
@@ -796,6 +798,7 @@ architecture Structure of CachedMIPS32 is
 	 signal ROB_addr_store           :   std_logic_vector(31 downto 0);
 	 signal ROB_val_store            :   std_logic_vector(31 downto 0);
 	 signal ROB_MemWrite_L           :   std_logic;
+	 signal ROB_MemWrited_LtoC       :   std_logic;
 	 signal ROB_MemWrited_C          :   std_logic;
     signal ROB_newentry_flag        :   std_logic;
     signal ROB_newentry_regaddr     :   std_logic_vector(5 downto 0);
@@ -1021,6 +1024,7 @@ begin
              mem_addr_store     => ROB_addr_store,
              mem_val_store      => ROB_val_store,
              mem_store          => ROB_MemWrite_L,
+             MemComplete        => ROB_MemWrited_LtoC,
              -- exception bits
              exception_if_in    => exception_if_at_exe,
              exception_if_out   => exception_if_at_lookup,
@@ -1055,12 +1059,13 @@ begin
              MemtoReg           => MemtoReg_4to5,
              FreeSlot_in        => FreeSlot_4to5_and_ROB,
              FreeSlot_out       => FreeSlot_5toForward,
-				 BusReady           => BusReadyDC,
+             BusReady           => BusReadyDC,
              WriteCache         => WriteCache_4to5,
              muxDataR           => muxDataR_4to5,
              muxDataW           => muxDataW_4to5,
              NOP_to_WB          => NOP_HazardCtrlto5,
-             MemComplete        => ROB_MemWrited_C,
+             MemComplete_in     => ROB_MemWrited_LtoC,
+             MemComplete_out    => ROB_MemWrited_C,
                 -- exception bits
              exception_if_in    => exception_if_at_lookup,
              exception_if_out   => exception_if_at_cache,

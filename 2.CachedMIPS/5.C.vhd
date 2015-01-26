@@ -30,7 +30,8 @@ entity cache is
           -- interface with Hazard Control
           NOP_to_WB            : in  std_logic;                      --from Hazard Control
           -- interface with ROB
-          MemComplete          : out std_logic;
+          MemComplete_in       : in  std_logic;
+          MemComplete_out      : out std_logic;
           -- exception bits
           exception_if_in      : in  std_logic;
           exception_if_out     : out std_logic;
@@ -76,6 +77,8 @@ architecture Structure of cache is
            MemtoReg_out         : out std_logic;                      --from LOOKUP
            FreeSlot_in          : in  std_logic;                 
            FreeSlot_out         : out std_logic; 
+           MemComplete_in       : in  std_logic;
+           MemComplete_out      : out std_logic;
            -- interface with data_cache data
 			 BusReady_in          : in  std_logic;
 			 BusReady_out         : out std_logic;
@@ -171,8 +174,10 @@ begin
              MemtoReg_out         => MemtoReg_reg,
              FreeSlot_in          => FreeSlot_in,
              FreeSlot_out         => FreeSlot_out,
-				 BusReady_in          => BusReady,
-				 BusReady_out         => BusReady_reg,
+             MemComplete_in       => MemComplete_in,
+             MemComplete_out      => MemComplete_out,
+             BusReady_in          => BusReady,
+             BusReady_out         => BusReady_reg,
              WriteCache_in        => WriteCache,
              WriteCache_out       => WriteCache_reg,
              muxDataR_in          => muxDataR,
@@ -222,8 +227,7 @@ begin
              muxDataR    => muxDataR_reg,
              muxDataW    => muxDataW_reg,
              WriteEnable => WriteCache_reg);
-					  
-    MemComplete <= BusReady_reg;
+
 	  
     -- Exception (to be fully implemented with virtual memory)
     exception_internal <= '0';

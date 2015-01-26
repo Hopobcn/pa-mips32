@@ -123,7 +123,7 @@ begin
                 muxDataW   <= '1';
             else
                 BusRd <= PrRd and not Hit;
-					 BusWr <= PrWr;
+					      BusWr <= PrWr;
             end if;
         when PROC_STORE_HIT_WAIT =>
             if (BusReady = '1') then
@@ -137,6 +137,9 @@ begin
                      
                 --muxDataR   <= '0';
                 muxDataW   <= '0';
+            else
+                BusRd <= PrRd and not Hit;
+					      BusWr <= PrWr;
             end if;
         when PROC_STORE_MISS_WAIT =>
             if (BusReady = '1') then
@@ -150,6 +153,9 @@ begin
                      
                 --muxDataR   <= '0';
                 --muxDataW   <= '0';
+            else
+                BusRd <= PrRd and not Hit;
+					      BusWr <= PrWr;
             end if;
         end case;
     end process proc_output_logic;

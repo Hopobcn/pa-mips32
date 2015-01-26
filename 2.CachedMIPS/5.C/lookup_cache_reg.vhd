@@ -24,9 +24,11 @@ entity lookup_cache_reg is
           MemtoReg_out         : out std_logic;
           FreeSlot_in          : in  std_logic;                 
           FreeSlot_out         : out std_logic;
+          MemComplete_in       : in  std_logic;
+          MemComplete_out      : out std_logic;
           -- interface with data_cache data
-			 BusReady_in          : in  std_logic;
-			 BusReady_out         : out std_logic;
+          BusReady_in          : in  std_logic;
+          BusReady_out         : out std_logic;
           WriteCache_in        : in  std_logic;                      --to CACHE
           WriteCache_out       : out std_logic;                    
           muxDataR_in          : in  std_logic;                      --to CACHE
@@ -73,9 +75,9 @@ begin
                 WordAddress_out     <= WordAddress_in;
                 MemtoReg_out        <= MemtoReg_in;     
 
-					 FreeSlot_out        <= FreeSlot_in;
-					 
-					 BusReady_out        <= BusReady_in;
+                FreeSlot_out        <= FreeSlot_in;
+                BusReady_out        <= BusReady_in;
+                MemComplete_out     <= MemComplete_in;
                 WriteCache_out      <= WriteCache_in;                  
                 muxDataR_out        <= muxDataR_in;
                 muxDataW_out        <= muxDataW_in;
