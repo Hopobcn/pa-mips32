@@ -34,10 +34,9 @@ architecture Structure of mem_wb_reg is
 
 begin
 
-	mem_wb_reg : process(clk)
+	mem_wb_reg : process(clk, enable)
 	begin
-		if (enable = '1') then
-			if (rising_edge(clk)) then
+		if ((enable = '1') and(rising_edge(clk))) then
 				write_data_out	<= write_data_in;
 				addr_regw_out	<= addr_regw_in;
 				RegWrite_out	<= RegWrite_in;
@@ -49,7 +48,6 @@ begin
         writeCause_out <= writeCause_in;
         writeBadVAddr_out <= writeBadVAddr_in;
         writeEPC_out <= writeEPC_in;
-			end if;
 		end if;
 	end process;	
 	

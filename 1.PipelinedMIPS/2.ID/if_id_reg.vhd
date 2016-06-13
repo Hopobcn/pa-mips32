@@ -27,10 +27,9 @@ architecture Structure of if_id_reg is
 	
 begin
 
-	if_id_register : process(clk)
+	if_id_register : process(clk, enable)
 	begin
-		if (enable = '1') then
-			if (rising_edge(clk)) then
+		if ((enable = '1') and (rising_edge(clk))) then
 				instruction_out <= instruction_in;
 				pc_up_out		 <= pc_up_in;	
 				-- forward of exception identifier bits
@@ -39,7 +38,6 @@ begin
 				Exc_EPC_out <= Exc_EPC_in;
 				Exc_Cause_out <= Exc_Cause_in;
 				Exc_BadVAddr_out <= Exc_BadVAddr_in;
-			end if;
 		end if;
 	end process;	
 	

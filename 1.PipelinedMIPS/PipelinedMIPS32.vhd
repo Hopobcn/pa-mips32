@@ -404,7 +404,6 @@ architecture Structure of PipelinedMIPS32 is
   signal Exc_BadVAddr_at_exe  : std_logic_vector(31 downto 0);
   signal Exc_BadVAddr_at_mem  : std_logic_vector(31 downto 0);
   signal Exc_BadVAddr_at_wb   : std_logic_vector(31 downto 0);
-  signal Exc_BadVAddr_to_id   : std_logic_vector(31 downto 0); -- write to register file
   
   -- Cause register
   signal Exc_Cause_at_if      : std_logic_vector(31 downto 0);
@@ -412,7 +411,6 @@ architecture Structure of PipelinedMIPS32 is
   signal Exc_Cause_at_exe     : std_logic_vector(31 downto 0);
   signal Exc_Cause_at_mem     : std_logic_vector(31 downto 0);
   signal Exc_Cause_at_wb      : std_logic_vector(31 downto 0);
-  signal Exc_Cause_to_id      : std_logic_vector(31 downto 0); -- write to register file
   
   -- EPC register
   signal Exc_EPC_at_if        : std_logic_vector(31 downto 0);
@@ -420,7 +418,6 @@ architecture Structure of PipelinedMIPS32 is
   signal Exc_EPC_at_exe       : std_logic_vector(31 downto 0);
   signal Exc_EPC_at_mem       : std_logic_vector(31 downto 0);
   signal Exc_EPC_at_wb        : std_logic_vector(31 downto 0);
-  signal Exc_EPC_to_id        : std_logic_vector(31 downto 0); -- write to register file
   
   -- The signals from exception_ctrl to writeback
   signal writeEPC_to_wb      : std_logic;
@@ -617,11 +614,11 @@ begin
 				RegWrite_out	=> RegWrite_5to2,
 				-- exception buses
 				Exc_BadVAddr_in  => Exc_BadVAddr_at_mem,
-				Exc_BadVAddr_out => Exc_BadVAddr_to_id,
+				Exc_BadVAddr_out => Exc_BadVAddr_at_wb,
 				Exc_Cause_in     => Exc_Cause_at_mem,
-				Exc_Cause_out    => Exc_Cause_to_id,
+				Exc_Cause_out    => Exc_Cause_at_wb,
 				Exc_EPC_in       => Exc_EPC_at_mem,
-				Exc_EPC_out      => Exc_EPC_to_id,
+				Exc_EPC_out      => Exc_EPC_at_wb,
 				-- write enable for exception registers
 				writeEPC_in      => writeEPC_to_wb,
 				writeEPC_out     => writeEPC_to_id,

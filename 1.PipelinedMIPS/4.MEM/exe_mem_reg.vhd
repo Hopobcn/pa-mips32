@@ -51,7 +51,7 @@ end exe_mem_reg;
 architecture Structure of exe_mem_reg is
 begin
 
-	exe_mem_reg : process(clk)
+	exe_mem_reg : process(clk, enable)
 	begin
 		if (enable = '1') then
 			if (rising_edge(clk)) then

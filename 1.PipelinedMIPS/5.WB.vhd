@@ -111,7 +111,7 @@ begin
     -- Exception signals
     Exc_BadVAddr_out <= Exc_BadVAddr_reg;
     Exc_Cause_out <= Exc_Cause_reg;
-    Exc_EPC_out <= Exc_EPC_in;
+    Exc_EPC_out <= Exc_EPC_reg;
     writeEPC_out <= writeEPC_reg;
     writeCause_out <= writeCause_reg;
     writeBadVAddr_out <= writeBadVAddr_reg;    

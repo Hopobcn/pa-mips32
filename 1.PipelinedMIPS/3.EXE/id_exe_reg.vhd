@@ -67,10 +67,9 @@ architecture Structure of id_exe_reg is
 
 begin
 	
-	id_exe_register : process(clk)
+	id_exe_register : process(clk, enable)
 	begin
-		if (enable = '1') then
-			if (rising_edge(clk)) then
+		if ((enable = '1') and (rising_edge(clk))) then
 				pc_up_out		<=	pc_up_in;
 				opcode_out		<=	opcode_in;
 				rs_out			<= rs_in;
@@ -97,8 +96,7 @@ begin
 				-- forward of registers
 				Exc_EPC_out <= Exc_EPC_in;
 				Exc_Cause_out <= Exc_Cause_in;
-				Exc_BadVAddr_out <= Exc_BadVAddr_in;        
-			end if;
+				Exc_BadVAddr_out <= Exc_BadVAddr_in;       
 		end if;
 	end process;	
 				

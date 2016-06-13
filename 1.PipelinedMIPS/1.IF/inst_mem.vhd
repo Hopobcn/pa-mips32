@@ -19,36 +19,37 @@ architecture Structure of inst_mem is
 	signal mem : INST_MEM;
 	
 	--	FIX THIS
-	procedure Load_File_DataMem(signal memory : inout INST_MEM) is
-		file 		romfile	:text open read_mode is "contingut.memoria.hexa.rom";
-		variable	lbuf		:line;
-		variable i			:integer := 0; -- x"C000" adreça inicial
-		variable	byte0		:std_logic_vector(7 downto 0);
-		variable	byte1		:std_logic_vector(7 downto 0);
-		variable	byte2		:std_logic_vector(7 downto 0);
-		variable	byte3		:std_logic_vector(7 downto 0);
-	begin
-		while i < 2**8-1 loop --not endfile(romfile) loop
-			readline(romfile, lbuf);
-			hread(lbuf, byte0);
-			hread(lbuf, byte1);
-			hread(lbuf, byte2);
-			hread(lbuf, byte3);			
-			-- Big Endian
-			--memory(i  ) <= byte0;	
-			--memory(i+1) <= byte1;	
-			--memory(i+2) <= byte2;	
-			--memory(i+3) <= byte3;
-			-- Little Endian			
-			memory(i  ) <= byte3;	
-			memory(i+1) <= byte2;	
-			memory(i+2) <= byte1;	
-			memory(i+3) <= byte0;
-			i := i+4;
-			exit when endfile(romfile);
-		end loop;
-	end procedure;
-	
+
+--	procedure Load_File_DataMem(signal memory : inout INST_MEM) is
+--		file 		romfile	:text open read_mode is "contingut.memoria.hexa.rom";
+--		variable	lbuf		:line;
+--		variable i			:integer := 0; -- x"C000" adreça inicial
+--		variable	byte0		:std_logic_vector(7 downto 0);
+--		variable	byte1		:std_logic_vector(7 downto 0);
+--		variable	byte2		:std_logic_vector(7 downto 0);
+--		variable	byte3		:std_logic_vector(7 downto 0);
+--	begin
+--		while i < 2**8-1 loop --not endfile(romfile) loop
+--			readline(romfile, lbuf);
+--			hread(lbuf, byte0);
+--			hread(lbuf, byte1);
+--			hread(lbuf, byte2);
+--			hread(lbuf, byte3);			
+--			-- Big Endian
+--			--memory(i  ) <= byte0;	
+--			--memory(i+1) <= byte1;	
+--			--memory(i+2) <= byte2;	
+--			--memory(i+3) <= byte3;
+--			-- Little Endian			
+--			memory(i  ) <= byte3;	
+--			memory(i+1) <= byte2;	
+--			memory(i+2) <= byte1;	
+--			memory(i+3) <= byte0;
+--			i := i+4;
+--			exit when endfile(romfile);
+--		end loop;
+--	end procedure;
+
 	signal addr1 : std_logic_vector(31 downto 0);
 	signal addr2 : std_logic_vector(31 downto 0);
 	signal addr3 : std_logic_vector(31 downto 0);
@@ -70,16 +71,17 @@ begin
 		end if;
 	end process instruction_mem_read;
 						
-						
-	instruction_mem_write : process(clk)
-	begin
-		if (rising_edge(clk)) then
-			if boot = '1' then
-				-- Load the instructions from a file
-				Load_File_DataMem(mem);
-			end if;
-		end if;
-	end process instruction_mem_write;
+			
+  instruction <= x"00000000";
 	
+--	instruction_mem_write : process(clk)
+--	begin
+--		if (rising_edge(clk)) then
+--			if boot = '1' then
+--				-- Load the instructions from a file
+--				Load_File_DataMem(mem);
+--			end if;
+--		end if;
+--	end process instruction_mem_write;
 	
 end Structure;
