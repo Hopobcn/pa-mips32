@@ -11,8 +11,8 @@ entity if_id_reg is
 			enable			:	in std_logic;
 			clk				:	in std_logic;
 			-- exception identifier bits
-      exception_if_in   :  in std_logic;
-      exception_if_out  : out std_logic;
+         exception_if_in   :  in std_logic;
+         exception_if_out  : out std_logic;
       -- exception registers
       Exc_EPC_in       : in std_logic_vector(31 downto 0);
       Exc_EPC_out      : out std_logic_vector(31 downto 0);

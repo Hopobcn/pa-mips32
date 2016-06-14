@@ -83,4 +83,10 @@ set_global_assignment -name VHDL_FILE 5.WB/mem_wb_reg.vhd
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_location_assignment PIN_G26 -to boot
 set_location_assignment PIN_N2 -to clk
+set_location_assignment PIN_AF23 -to exception_pin
+set_location_assignment PIN_N23 -to NOP_pin
+set_location_assignment PIN_AB21 -to Jump_pin
+set_location_assignment PIN_AC22 -to MemRead_pin
+set_location_assignment PIN_AD22 -to MemWrite_pin
+set_location_assignment PIN_AD23 -to Branch_pin
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

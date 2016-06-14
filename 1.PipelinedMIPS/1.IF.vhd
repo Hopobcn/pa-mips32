@@ -14,6 +14,7 @@ entity instruction_fetch is
             Jump            :   in std_logic;                       --from MEM
             PCSrc           :   in std_logic;                       --from MEM
             ExceptionJump   :   in std_logic;                       --from Exception Ctrl
+				NOP             :  in std_logic;                       --from INPUT PIN
             NOP_to_ID       :   in std_logic;                       --from Hazard Ctrl
             Stall           :   in std_logic;                       --from Hazard Ctrl
             -- exception bits
@@ -46,7 +47,6 @@ architecture Structure of instruction_fetch is
     signal pc_up_tmp        :   std_logic_vector(31 downto 0);
     signal pc_tmp           :   std_logic_vector(31 downto 0);
     signal instruction_read : std_logic_vector(31 downto 0);
-    signal exception_internal : std_logic;
     
     signal Jump_tmp         : std_logic;
 begin
@@ -74,23 +74,21 @@ begin
     
     pc_up <= pc_up_tmp;
     
-    -- Exception (to be fully implemented with virtual memory)
-    exception_internal <= '0';
-    
     -- Output the exception (and put exceptions through)
-    exception_if <= '0' when NOP_to_ID = '1' else
+    exception_if <= '1' when NOP_to_ID = '1' and NOP = '1' else
+	                 '0' when NOP_to_ID = '0' and NOP = '0' else
                     '0';
     
     Exc_BadVAddr_out <= pc_tmp;
-    Exc_EPC_out <= pc_tmp;
+    Exc_EPC_out      <= pc_tmp;
     -- ToDo Appendix A-35 something better
-    Exc_Cause_out <= x"00000001" when exception_internal = '1' else
-                     x"00000000";
+    Exc_Cause_out <= x"00000000";
 
     
     --NOP
-    instruction <= x"00000000" when NOP_to_ID = '1' or exception_internal = '1' else
-                   instruction_read;
+    instruction <= x"00000000"      when NOP_to_ID = '1' and NOP = '1' else
+                   instruction_read when NOP_to_ID = '0' and NOP = '0' else
+						 x"11111111";
     
     
 end Structure;

@@ -2,8 +2,14 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity PipelinedMIPS32 is
-	port(	clk	: in std_logic;
-			boot	: in std_logic);
+	port(	clk	            : in std_logic;
+			boot	            : in std_logic;
+			NOP_pin           : in std_logic;
+			exception_pin     : out std_logic;
+			Jump_pin				:	out std_logic;							
+			Branch_pin			:	out std_logic;								
+			MemRead_pin			:	out std_logic;							
+			MemWrite_pin		:	out std_logic);
 			
 end PipelinedMIPS32;
 
@@ -20,15 +26,16 @@ architecture Structure of PipelinedMIPS32 is
 			boot				:	in std_logic;
 			Jump				:	in std_logic;								--from MEM
 			PCSrc				:	in std_logic;								--from MEM
-		  ExceptionJump : in std_logic;   --from Exception Ctrl
+		   ExceptionJump  :  in std_logic;                       --from Exception Ctrl
+			NOP            :  in std_logic;                       --from INPUT PIN
 			NOP_to_ID		:  in std_logic;								--from Hazard Ctrl
 			Stall				:	in std_logic;  							--from Hazard Ctrl
 			-- exception bits
-      exception_if :   out std_logic;
-      -- Exception-related registers
-      Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
-      Exc_Cause_out    : out std_logic_vector(31 downto 0);
-      Exc_EPC_out      : out std_logic_vector(31 downto 0));
+         exception_if   :   out std_logic;
+         -- Exception-related registers
+         Exc_BadVAddr_out : out std_logic_vector(31 downto 0);
+         Exc_Cause_out    : out std_logic_vector(31 downto 0);
+         Exc_EPC_out      : out std_logic_vector(31 downto 0));
 			
 	end component;
 	
@@ -440,6 +447,7 @@ begin
 				Jump			=> Jump_3to1,
 				PCSrc			=> PCSrc_4to1,
 				ExceptionJump => Exception_ExcepCtrlOut,
+				NOP         => NOP_pin,
 				NOP_to_ID	=> NOP_HazardCtrlto1,
 				Stall			=> Stall_HazardCtrlto1,
 				
@@ -626,6 +634,21 @@ begin
 				writeBadVAddr_out=> writeBadVAddr_to_id,
 				writeCause_in    => writeCause_to_wb,
 				writeCause_out   => writeCause_to_id);
+
+   Jump_pin	      <= Jump_2to3;						
+   Branch_pin	   <= Branch_2to3;						
+	MemRead_pin		<= MemRead_2to3;			
+	MemWrite_pin	<= MemWrite_2to3;
+	exception_pin                          <= exception_if_at_if or
+	                                          exception_if_at_id or
+															exception_if_at_exe or
+															exception_if_at_mem or
+															exception_id_at_id or
+															exception_id_at_exe or
+															exception_id_at_mem or
+															exception_exe_at_exe or
+															exception_exe_at_mem or
+															exception_mem_at_mem;
 
 	Interrupt_InterruptCtrltoHazaardCtrl 	<= '0';
 	instCacheReady_1toCtrl 						<= '1'; 		--ATM is ready always, change this behaviour when implementing caches
