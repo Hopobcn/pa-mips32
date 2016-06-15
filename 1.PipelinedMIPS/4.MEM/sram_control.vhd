@@ -23,86 +23,109 @@ entity SRAMController is
 end SRAMController;
 
 architecture behavior of SRAMController is
-	--signal bus_address : std_logic_vector(15 downto 0);
-	type status is (reading,writing1,writing2);
-	signal est : status := reading;
-	signal mid : std_logic_vector (7 downto 0);
-	signal count : integer :=0;
-	signal my_dataToWrite :  std_logic_vector(15 downto 0);
-
-	--senyals guardades
-	signal my_address       : std_logic_vector(15 downto 0);
-	signal  my_byte_m       :   std_logic;
-	signal my_WR                :   std_logic;
-	signal save :  std_logic := '0';
-	signal debugcounter : std_logic_vector (15 downto 0):=(others=>'0');
+type tipusestat is (E, R1, R2, R3, W1, W2, W3);
+	--constant R1 	: integer := 0;
+	--constant R2 	: integer := 1;
+	--constant W1 	: integer := 2;
+	--constant W2 	: integer := 2;
+	signal estat : tipusestat := E;
+	
+	signal UB 	: std_logic;
+	signal LB 	: std_logic;
+	signal CE 	: std_logic := '0';
+	signal OE 	: std_logic := '0';
+	signal WE	: std_logic := '0';
+	signal dataReaded_tmp : std_logic_vector(15 downto 0) := "0000000000000000";
 begin
-
-    process(clk, count, est, address, my_address, my_byte_m, byte_m, my_WR, WR)
-    begin
-        count <= count + 1;
-        case est is
-				when writing1 =>
-					if count >= 6 then
-						est <= writing2;
+   SRAM_ADDR 	<= "000" & address(15 downto 1);
+	SRAM_UB_N 	<= not(UB);
+	SRAM_LB_N 	<= not(LB);
+	SRAM_CE_N 	<= not(CE);
+	SRAM_OE_N 	<= not(OE);
+	SRAM_WE_N	<= not(WE);
+	
+	dataReaded  <= dataReaded_tmp;
+				
+	prox_estat : process(clk)
+	begin
+		if(rising_edge(clk)) then
+			case estat is
+				when R1 =>
+					estat <= R2;
+				when R2 =>
+					estat <= R3;
+				when R3 =>
+					estat <= E;
+				when W1 =>
+					estat <= W2;
+				when W2 =>
+					estat <= W3;
+				when W3 =>
+					estat <= E;
+				when E =>
+					if (WR = '0') then
+						estat <= R1;
+					else
+						estat <= W1;
 					end if;
-            when writing2 =>
-               if address = my_address and my_byte_m = byte_m and my_WR = WR then
-               else
-						if WR = '1' then
-							est <= writing1;
-                  else
-							est <= reading;
-                  end if;
-               end if;
-            when others =>
-					if WR = '1' then
-						est <= writing1;
-                  count <= 0;
-                  my_address <= address;
-                  my_byte_m <= byte_m;
-                  my_WR <= WR;
-               else
-						est <= reading;
-               end if;
-		end case;
-    end process;
-
-    mid <=  (others=>SRAM_DQ(7)) when address(0) = '0' else
-            (others=>SRAM_DQ(15)) when address(0) = '1';
-
-    SRAM_ADDR <= "000" & (address(15 downto 1 )); -- when (address>= X"C000") else "00"&address;
-    with est select -- Signals are negated
-        SRAM_WE_N <= '1' when reading,
-                     '0' when writing1,
-                     '1' when writing2,
-                     'X' when others;
-
-        SRAM_OE_N <= '0';
-
-        SRAM_UB_N <= '0' when est=reading else
-                     '1' when (est=writing1 or est=writing2) and byte_m='1' and address(0)='0' else
-                     '0' when (est=writing1 or est=writing2) and byte_m='1' and address(0)='1' else
-                     '0' when (est=writing1 or est=writing2) and byte_m='0';
-
-        SRAM_LB_N <= '0' when est=reading else
-                     '0' when (est=writing1 or est=writing2) and byte_m='1' and address(0)='0' else
-                     '1' when (est=writing1 or est=writing2) and byte_m='1' and address(0)='1' else
-                     '0' when (est=writing1 or est=writing2) and byte_m='0';
-
-
-        dataReaded <= SRAM_DQ when byte_m='0' and est=reading else
-                         mid&SRAM_DQ(7 downto 0) when byte_m='1' and address(0)='0'and est=reading else
-                         mid&SRAM_DQ(15 downto 8)when byte_m='1' and address(0)='1'and est=reading else
-                         "0000000000000000";
-
-        my_dataToWrite <= dataToWrite(7 downto 0)&"00000000" when byte_m='1' and address(0)='1' else
-                            dataToWrite;
-
-        with est select
-            SRAM_DQ<= my_dataToWrite when writing1,
-                         my_dataToWrite when writing2,
-                         (others=>'Z') when reading,
-                         (others=>'Z') when others;
+			end case;
+		end if;
+	end process prox_estat;
+	--estat <= R1 when WR = '0' and (estat = R2 or estat = W2) else
+	--			R2 when estat = R1 										else
+	--			W1 when WR = '1' and (estat = R2 or estat = W2) else
+	--			W2 when estat = W1										else
+	--			R1;--Per aqui no hauria d'entrar perque estan tots els cassos coberts
+	
+	logica_sortida : process(clk)
+	begin
+		if(rising_edge(clk)) then
+			case estat is
+				when R1 =>
+					CE <= '1';--Activem el xip
+					WE <= '0';--Vull llegir
+					OE <= '1';--Activo l'IO
+					LB <= '1';
+					UB <= '1';
+					
+					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+				when R2 =>
+					if (byte_m = '0') then
+						dataReaded_tmp <= SRAM_DQ;
+					elsif (address(0) = '0') then
+						dataReaded_tmp <= SRAM_DQ(7) &SRAM_DQ(7) &SRAM_DQ(7) &SRAM_DQ(7) &SRAM_DQ(7) &SRAM_DQ(7) &SRAM_DQ(7) &SRAM_DQ(7) &SRAM_DQ(7 DOWNTO 0);
+					else
+						dataReaded_tmp <= SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15 DOWNTO 8);
+					end if;
+				when R3 =>
+					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+				when W1 =>
+					CE <= '1';
+					OE <= '0';
+					WE <= '1';
+					if (byte_m = '0') then
+						SRAM_DQ <= dataToWrite;
+						UB <= '1';
+						LB <= '1';
+					elsif (address(0) = '0') then 
+						SRAM_DQ <= "ZZZZZZZZ" & dataToWrite(7 DOWNTO 0);
+						UB <= '0';
+						LB <= '1';-- es vol llegir el lowByte
+					else
+						SRAM_DQ <= dataToWrite(7 DOWNTO 0) & "ZZZZZZZZ";
+						UB <= '1';-- es vol llegir el highByte
+						LB <= '0';
+					end if;
+				when W2 =>
+					WE <= '0';--desactivo l'escriptura
+					
+					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+				when W3 =>
+					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+				when E =>					
+					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+			end case;
+		end if;
+	end process logica_sortida;	
 
 end behavior;
