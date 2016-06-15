@@ -52,6 +52,19 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_location_assignment PIN_G26 -to boot
+set_location_assignment PIN_N2 -to clk
+set_location_assignment PIN_AF23 -to exception_pin
+set_location_assignment PIN_N23 -to NOP_pin
+set_location_assignment PIN_AB21 -to Jump_pin
+set_location_assignment PIN_AC22 -to MemRead_pin
+set_location_assignment PIN_AD22 -to MemWrite_pin
+set_location_assignment PIN_AD23 -to Branch_pin
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name VHDL_FILE 4.MEM/sram_control.vhd
+set_global_assignment -name VHDL_FILE 4.MEM/mem_control.vhd
 set_global_assignment -name VHDL_FILE PipelinedMIPS32.vhd
 set_global_assignment -name VHDL_FILE 0.CL/exception_ctrl.vhd
 set_global_assignment -name VHDL_FILE 0.CL/hazard_ctrl.vhd
@@ -80,13 +93,43 @@ set_global_assignment -name VHDL_FILE 4.MEM/exe_mem_reg.vhd
 set_global_assignment -name VHDL_FILE 4.MEM/data_mem.vhd
 set_global_assignment -name VHDL_FILE 5.WB.vhd
 set_global_assignment -name VHDL_FILE 5.WB/mem_wb_reg.vhd
-set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
-set_location_assignment PIN_G26 -to boot
-set_location_assignment PIN_N2 -to clk
-set_location_assignment PIN_AF23 -to exception_pin
-set_location_assignment PIN_N23 -to NOP_pin
-set_location_assignment PIN_AB21 -to Jump_pin
-set_location_assignment PIN_AC22 -to MemRead_pin
-set_location_assignment PIN_AD22 -to MemWrite_pin
-set_location_assignment PIN_AD23 -to Branch_pin
+set_location_assignment PIN_AC8 -to SRAM_ADDR[17]
+set_location_assignment PIN_AB8 -to SRAM_ADDR[16]
+set_location_assignment PIN_Y10 -to SRAM_ADDR[15]
+set_location_assignment PIN_W10 -to SRAM_ADDR[14]
+set_location_assignment PIN_W8 -to SRAM_ADDR[13]
+set_location_assignment PIN_AC7 -to SRAM_ADDR[12]
+set_location_assignment PIN_V9 -to SRAM_ADDR[11]
+set_location_assignment PIN_V10 -to SRAM_ADDR[10]
+set_location_assignment PIN_AD7 -to SRAM_ADDR[9]
+set_location_assignment PIN_AD6 -to SRAM_ADDR[8]
+set_location_assignment PIN_AF5 -to SRAM_ADDR[7]
+set_location_assignment PIN_AE5 -to SRAM_ADDR[6]
+set_location_assignment PIN_AD5 -to SRAM_ADDR[5]
+set_location_assignment PIN_AD4 -to SRAM_ADDR[4]
+set_location_assignment PIN_AC6 -to SRAM_ADDR[3]
+set_location_assignment PIN_AC5 -to SRAM_ADDR[2]
+set_location_assignment PIN_AF4 -to SRAM_ADDR[1]
+set_location_assignment PIN_AE4 -to SRAM_ADDR[0]
+set_location_assignment PIN_AC11 -to SRAM_CE_N
+set_location_assignment PIN_AC10 -to SRAM_DQ[15]
+set_location_assignment PIN_AC9 -to SRAM_DQ[14]
+set_location_assignment PIN_W12 -to SRAM_DQ[13]
+set_location_assignment PIN_W11 -to SRAM_DQ[12]
+set_location_assignment PIN_AF8 -to SRAM_DQ[11]
+set_location_assignment PIN_AE8 -to SRAM_DQ[10]
+set_location_assignment PIN_AF7 -to SRAM_DQ[9]
+set_location_assignment PIN_AE7 -to SRAM_DQ[8]
+set_location_assignment PIN_Y11 -to SRAM_DQ[7]
+set_location_assignment PIN_AA11 -to SRAM_DQ[6]
+set_location_assignment PIN_AB10 -to SRAM_DQ[5]
+set_location_assignment PIN_AA10 -to SRAM_DQ[4]
+set_location_assignment PIN_AA9 -to SRAM_DQ[3]
+set_location_assignment PIN_AF6 -to SRAM_DQ[2]
+set_location_assignment PIN_AE6 -to SRAM_DQ[1]
+set_location_assignment PIN_AD8 -to SRAM_DQ[0]
+set_location_assignment PIN_AE9 -to SRAM_LB_N
+set_location_assignment PIN_AD10 -to SRAM_OE_N
+set_location_assignment PIN_AF9 -to SRAM_UB_N
+set_location_assignment PIN_AE10 -to SRAM_WE_N
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

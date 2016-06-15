@@ -11,6 +11,14 @@ entity mem is
             addr_regw_in    :   in  std_logic_vector(4 downto 0);   --from EXE
             addr_regw_out   :   out std_logic_vector(4 downto 0);   --to WB, then IF
             fwd_path_mem    :   out std_logic_vector(31 downto 0);  --to ID [FWD]
+				--
+				SRAM_ADDR   : out std_logic_vector(17 downto 0);
+            SRAM_DQ     : inout std_logic_vector(15 downto 0);
+            SRAM_UB_N   : out std_logic;
+            SRAM_LB_N   : out std_logic;
+            SRAM_CE_N   : out std_logic := '1';
+            SRAM_OE_N   : out std_logic := '1';
+            SRAM_WE_N   : out std_logic := '1';
             -- control signals
             clk             :   in std_logic;
             RegWrite_in     :   in std_logic;                       --from EXE
@@ -116,7 +124,16 @@ architecture Structure of mem is
             MemRead     :   in std_logic;
             MemWrite    :   in  std_logic;
             ByteAddress :   in std_logic;
-            WordAddress :   in  std_logic);
+            WordAddress :   in  std_logic;
+				--
+			   SRAM_ADDR   : out std_logic_vector(17 downto 0);
+            SRAM_DQ     : inout std_logic_vector(15 downto 0);
+            SRAM_UB_N   : out std_logic;
+            SRAM_LB_N   : out std_logic;
+            SRAM_CE_N   : out std_logic := '1';
+            SRAM_OE_N   : out std_logic := '1';
+            SRAM_WE_N   : out std_logic := '1'
+				);
     end component;
     
     signal read_data_mem    :   std_logic_vector(31 downto 0);
@@ -224,7 +241,15 @@ begin
              MemRead        => MemRead_reg,
              MemWrite       => MemWrite_reg,
              ByteAddress    => ByteAddress_reg,
-             WordAddress    =>  WordAddress_reg);
+             WordAddress    =>  WordAddress_reg,
+             SRAM_ADDR      => SRAM_ADDR,
+             SRAM_DQ        => SRAM_DQ,
+             SRAM_UB_N      => SRAM_UB_N,
+             SRAM_LB_N      => SRAM_LB_N,
+             SRAM_CE_N      => SRAM_CE_N,
+             SRAM_OE_N      => SRAM_OE_N,
+             SRAM_WE_N      => SRAM_WE_N
+         );
                 
     load_or_bypass <=   bypass_mem when MemtoReg_reg = '0' else
                         read_data_mem;

@@ -2,14 +2,23 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity PipelinedMIPS32 is
-	port(	clk	            : in std_logic;
+	port(	clk          : in std_logic;
 			boot	            : in std_logic;
 			NOP_pin           : in std_logic;
 			exception_pin     : out std_logic;
 			Jump_pin				:	out std_logic;							
 			Branch_pin			:	out std_logic;								
 			MemRead_pin			:	out std_logic;							
-			MemWrite_pin		:	out std_logic);
+			MemWrite_pin		:	out std_logic;
+			--
+			SRAM_ADDR   : out std_logic_vector(17 downto 0);
+         SRAM_DQ     : inout std_logic_vector(15 downto 0);
+         SRAM_UB_N   : out std_logic;
+         SRAM_LB_N   : out std_logic;
+         SRAM_CE_N   : out std_logic := '1';
+         SRAM_OE_N   : out std_logic := '1';
+         SRAM_WE_N   : out std_logic := '1'
+			);
 			
 end PipelinedMIPS32;
 
@@ -172,6 +181,14 @@ architecture Structure of PipelinedMIPS32 is
 			addr_regw_in	: 	in	std_logic_vector(4 downto 0);		--from EXE
 			addr_regw_out	:	out std_logic_vector(4 downto 0);	--to WB, then IF
 			fwd_path_mem	:	out std_logic_vector(31 downto 0);	--to ID [FWD]
+			--
+			SRAM_ADDR   : out std_logic_vector(17 downto 0);
+         SRAM_DQ     : inout std_logic_vector(15 downto 0);
+         SRAM_UB_N   : out std_logic;
+         SRAM_LB_N   : out std_logic;
+         SRAM_CE_N   : out std_logic := '1';
+         SRAM_OE_N   : out std_logic := '1';
+         SRAM_WE_N   : out std_logic := '1';
 			-- control signals
 			clk				:	in std_logic;
 			RegWrite_in		:	in std_logic;								--from EXE
@@ -595,6 +612,14 @@ begin
 				Zero					=> Zero_3to4,
 				NOP_to_WB			=> NOP_HazardCtrlto4,
 				Stall					=> Stall_HazardCtrlto4,
+				--
+			   SRAM_ADDR      => SRAM_ADDR,
+            SRAM_DQ        => SRAM_DQ,
+            SRAM_UB_N      => SRAM_UB_N,
+            SRAM_LB_N      => SRAM_LB_N,
+            SRAM_CE_N      => SRAM_CE_N,
+            SRAM_OE_N      => SRAM_OE_N,
+            SRAM_WE_N      => SRAM_WE_N,
 
 				-- exceptions
 				exception_if_in   => exception_if_at_exe,
