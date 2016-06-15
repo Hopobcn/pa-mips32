@@ -54,7 +54,15 @@ begin
 				  rd_data => data_out,
 				  we => MemWrite,
 				  byte_m => ByteAddress,
-				  clk => clk
+				  clk => clk,
+				  
+				  SRAM_ADDR  => SRAM_ADDR,
+				  SRAM_DQ    => SRAM_DQ,
+              SRAM_UB_N  => SRAM_UB_N,
+              SRAM_LB_N  => SRAM_LB_N,
+              SRAM_CE_N  => SRAM_CE_N,
+              SRAM_OE_N  => SRAM_OE_N,
+              SRAM_WE_N  => SRAM_WE_N
 				  );
 				  
  
