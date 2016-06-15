@@ -24,7 +24,7 @@ entity instruction_decode is
             clk             :   in  std_logic;
             RegWrite_out    :   out std_logic;                      --to EXE,MEM,WB and then ID
             Jump            :   out std_logic;                      --to EXE,MEM,IF
-            Branch          :   out std_logic;                      --to EXE,MEM
+            Branch          :   out std_logic;                      --to EXE,MEMJum
             MemRead         :   out std_logic;                      --to EXE,MEM
             MemWrite        :   out std_logic;                      --to EXE,MEM
             MemWriteHazard  :  out std_logic;                       --to Hazard control (pure value without NOP, if not weird things occur)
@@ -199,26 +199,37 @@ begin
     -- ToDo Appendix A-35 something better
     Exc_Cause_out <= x"00000001" when exception_internal = '1' else
                      Exc_Cause_reg;
-    
+
     --big nop multiplexor
-    RegWrite_out    <= RegWrite_tmp when NOP_to_EXE = '0' and exception_internal = '0' else
-                       '0';
-    MemRead         <= MemRead_tmp  when NOP_to_EXE = '0' and exception_internal = '0' else
-                       '0';
-    MemWriteHazard  <= MemWrite_tmp;
-    MemWrite        <= MemWrite_tmp when NOP_to_EXE = '0' and exception_internal = '0' else
-                       '0';
-    MemtoReg        <= MemtoReg_tmp when    NOP_to_EXE = '0' and exception_internal = '0' else
-                       '0';
-    RegDst          <= RegDst_tmp    when NOP_to_EXE = '0' and exception_internal = '0' else
-                       '0';
-    ALUOp           <= ALUOp_tmp     when NOP_to_EXE = '0' and exception_internal = '0' else
-                       "010";                                    -- NOP = R0 = R0 OR R0
+    -- RegWrite_out    <= RegWrite_tmp when NOP_to_EXE = '0' and exception_internal = '0' else
+    --                    '0';
+    -- MemRead         <= MemRead_tmp  when NOP_to_EXE = '0' and exception_internal = '0' else
+    --                    '0';
+    -- MemWriteHazard  <= MemWrite_tmp;
+    -- MemWrite        <= MemWrite_tmp when NOP_to_EXE = '0' and exception_internal = '0' else
+    --                    '0';
+    -- MemtoReg        <= MemtoReg_tmp when    NOP_to_EXE = '0' and exception_internal = '0' else
+    --                    '0';
+    -- RegDst          <= RegDst_tmp    when NOP_to_EXE = '0' and exception_internal = '0' else
+    --                    '0';
+    -- ALUOp           <= ALUOp_tmp     when NOP_to_EXE = '0' and exception_internal = '0' else
+    --                    "010";                                    -- NOP = R0 = R0 OR R0
     -- the Jump only goes through when not stalling
-    Jump            <= Jump_tmp     when NOP_to_EXE = '0' and exception_internal = '0' else
-                       '0'; 
-    Branch          <= Branch_tmp   when NOP_to_EXE = '0' and exception_internal = '0' else
-                       '0';
+    --Jump            <= Jump_tmp     when NOP_to_EXE = '0' and exception_internal = '0' else
+    --                   '0'; 
+    --  Branch          <= Branch_tmp   when NOP_to_EXE = '0' and exception_internal = '0' else
+    --                     '0';
+	 -- We really should use the stuff commented out before.
+    RegWrite_out <= RegWrite_tmp;
+    MemRead <= MemRead_tmp;
+    MemWriteHazard <= MemWrite_tmp;
+    MemWrite <= MemWrite_tmp;
+    MemtoReg <= MemtoReg_tmp;
+    RegDst <= RegDst_tmp;
+    ALUop <= ALUOp_tmp;
+    Jump <= Jump_tmp;
+    Branch <= Branch_tmp;
+
                         
                         
     register_file   :   regfile

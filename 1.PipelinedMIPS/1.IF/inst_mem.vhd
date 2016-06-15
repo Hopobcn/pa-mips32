@@ -18,6 +18,18 @@ architecture Structure of inst_mem is
 	type INST_MEM is array (2 ** 8 - 1 downto 0) of std_logic_vector(7 downto 0);
 	signal mem : INST_MEM;
 	
+	component sdram_control is
+		PORT
+		(
+			address	: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+			clock		: IN STD_LOGIC  := '1';
+			data		: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+			wren		: IN STD_LOGIC ;
+			q			: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+		);
+	end component;
+
+	
 	--	FIX THIS
 
 --	procedure Load_File_DataMem(signal memory : inout INST_MEM) is
@@ -50,29 +62,36 @@ architecture Structure of inst_mem is
 --		end loop;
 --	end procedure;
 
-	signal addr1 : std_logic_vector(31 downto 0);
-	signal addr2 : std_logic_vector(31 downto 0);
-	signal addr3 : std_logic_vector(31 downto 0);
+--	signal addr1 : std_logic_vector(31 downto 0);
+--	signal addr2 : std_logic_vector(31 downto 0);
+--	signal addr3 : std_logic_vector(31 downto 0);
 	
 begin
+	sdram : sdram_control
+	port map(
+		address	=> addr(7 downto 0),
+		clock		=>	clk,
+		data		=>	x"00000000",
+		wren		=>	'0',
+		q			=>	instruction);
 	
-	addr1 <= addr + x"01";
-	addr2 <= addr + x"02";
-	addr3 <= addr + x"03";
-	
-	-- In MIPS we write in the first semi-cycle and read in the second semi-cycle					
-	instruction_mem_read	 : process(clk)
-	begin
-		if (falling_edge(clk)) then
-			instruction <= mem(to_integer(unsigned(addr3))) & 
-								mem(to_integer(unsigned(addr2))) &
-								mem(to_integer(unsigned(addr1))) &
-								mem(to_integer(unsigned(addr )));
-		end if;
-	end process instruction_mem_read;
-						
-			
-  instruction <= x"00000000";
+--	addr1 <= addr + x"01";
+--	addr2 <= addr + x"02";
+--	addr3 <= addr + x"03";
+--	
+--	-- In MIPS we write in the first semi-cycle and read in the second semi-cycle					
+--	instruction_mem_read	 : process(clk)
+--	begin
+--		if (falling_edge(clk)) then
+--			instruction <= mem(to_integer(unsigned(addr3))) & 
+--								mem(to_integer(unsigned(addr2))) &
+--								mem(to_integer(unsigned(addr1))) &
+--								mem(to_integer(unsigned(addr )));
+--		end if;
+--	end process instruction_mem_read;
+--						
+--			
+--  instruction <= x"00000000";
 	
 --	instruction_mem_write : process(clk)
 --	begin

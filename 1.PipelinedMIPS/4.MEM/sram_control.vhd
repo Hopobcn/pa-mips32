@@ -23,7 +23,7 @@ entity SRAMController is
 end SRAMController;
 
 architecture behavior of SRAMController is
-type tipusestat is (E, R1, R2, R3, W1, W2, W3);
+	type tipusestat is (E, R1, R2, R3, W1, W2, W3);
 	--constant R1 	: integer := 0;
 	--constant R2 	: integer := 1;
 	--constant W1 	: integer := 2;

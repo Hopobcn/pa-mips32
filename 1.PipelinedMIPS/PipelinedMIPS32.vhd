@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity PipelinedMIPS32 is
-	port(	clk          : in std_logic;
+	port(	clk	          : in std_logic;
 			boot	            : in std_logic;
 			NOP_pin           : in std_logic;
 			exception_pin     : out std_logic;
