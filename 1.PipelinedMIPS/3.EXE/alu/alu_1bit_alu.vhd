@@ -64,7 +64,7 @@ begin
 	res	<= and_res	when Operation = "00" else
 				or_res	when Operation = "01" else
 				add_res	when Operation = "10" else
-				less_or_xor		when Operation = "11";
+				less_or_xor; --when Operation = "11";
 	
 end Structure;
 

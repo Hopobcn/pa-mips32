@@ -59,6 +59,7 @@ begin
 
     res <= lshift1 when ALUop = "0011" else --sll
            rshift1 when ALUop = "0100" else --srl
-           rshift1 when ALUop = "0101"; 	  --sra
+           rshift1 when ALUop = "0101" else --sra
+			  lshift1;
 
 end Structure;
