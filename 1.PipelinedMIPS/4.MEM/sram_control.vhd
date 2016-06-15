@@ -88,7 +88,7 @@ begin
 					LB <= '1';
 					UB <= '1';
 					
-					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+					--SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
 				when R2 =>
 					if (byte_m = '0') then
 						dataReaded_tmp <= SRAM_DQ;
@@ -98,7 +98,7 @@ begin
 						dataReaded_tmp <= SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15)&SRAM_DQ(15 DOWNTO 8);
 					end if;
 				when R3 =>
-					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+					--SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
 				when W1 =>
 					CE <= '1';
 					OE <= '0';
@@ -108,22 +108,23 @@ begin
 						UB <= '1';
 						LB <= '1';
 					elsif (address(0) = '0') then 
-						SRAM_DQ <= "ZZZZZZZZ" & dataToWrite(7 DOWNTO 0);
+						SRAM_DQ <= "00000000" & dataToWrite(7 DOWNTO 0);
 						UB <= '0';
 						LB <= '1';-- es vol llegir el lowByte
 					else
-						SRAM_DQ <= dataToWrite(7 DOWNTO 0) & "ZZZZZZZZ";
+						--SRAM_DQ <= dataToWrite(7 DOWNTO 0) & "ZZZZZZZZ";
+						SRAM_DQ <= dataToWrite(7 DOWNTO 0) & "00000000";
 						UB <= '1';-- es vol llegir el highByte
 						LB <= '0';
 					end if;
 				when W2 =>
 					WE <= '0';--desactivo l'escriptura
 					
-					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+					--SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
 				when W3 =>
-					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+					--SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
 				when E =>					
-					SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
+					--SRAM_DQ <= "ZZZZZZZZZZZZZZZZ";
 			end case;
 		end if;
 	end process logica_sortida;	
