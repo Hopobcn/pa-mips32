@@ -38,7 +38,7 @@ architecture behavior of SRAMController is
 	signal debugcounter : std_logic_vector (15 downto 0):=(others=>'0');
 begin
 
-    process(clk)
+    process(clk, count, est, address, my_address, my_byte_m, byte_m, my_WR, WR)
     begin
         count <= count + 1;
         case est is
